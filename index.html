@@ -24,11 +24,14 @@
 
 	<body ng-app="myApp">
 	   <!-- Top Section -->
-       <div ng-controller="input" class="jumbotron text-center top_section"> 
-
-         <input type="text" name="url">
-         <input type="text" name="uname">
-         <input type="text" name="password">
+       <div ng-controller="index" class="jumbotron top_section"> 
+        <form>
+         <input type="text" ng-model="input.url"  placeholder="url">
+         <input type="text" ng-model="input.name"  placeholder="name">
+         <input type="text" ngmodel="input.password"  placeholder="password">
+         <input type="submit" value = "Log In" ng-click="login(input)" class="btn btn-default btn-success">
+        </form> 
+        <div class="loading_image" ng-show="imLoading"><img src="images/loader.gif" class="im_loading" /></div>
        </div> 
        <!-- Output Section -->
        <div ng-controller="json" class="bottom_section">

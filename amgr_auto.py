@@ -3,8 +3,7 @@ import time
 import json
 import logging
 import http.client as http_client
-from flask import Flask
-from flask import jsonify
+from flask import Flask, request , jsonify
 
 s = requests.Session()
 acct_id = 0
@@ -53,8 +52,11 @@ def get_tm_req_param(req_payload = None):
 
 
 '''Performs Drupal Login and Returns acct_id'''
-@app.route('/login')
+@app.route('/login',methods=['POST'])
 def drupal_login():
+  if request.method == 'POST':
+    data = request.form['name'] 
+  return data
   username = 'rkumar@io-media.com'
   password = '12345678'
   payload = {

@@ -28,7 +28,26 @@ app.config(function($routeProvider, $locationProvider) {
         // $locationProvider.html5Mode(true);
 });
 
-app.controller('index', function($scope ,$http ,$location ,$route, $rootScope, $window, LoginService) {
+app.controller('index', function($scope ,$http ,$location , $window) {
+
+    $scope.login = function (input) {
+      // $scope.imLoading = true;
+      $http({
+       method: 'POST',
+       url: "http://localhost:5000/login",
+       data: { 
+        "name": input.name, "pass": input.password,"url":input.url,
+       },
+       headers: {'Content-Type': 'application/json'}
+       }).then(function(result) {
+          console.log(result); 
+          // $scope.imLoading = false;
+          $window.sessionStorage['acct_id'] = result.acct_id;
+        }, function(error) {
+          $scope.error = true;
+       });             
+     }
+
 });
 
 app.controller('details', function($scope, $location, $routeParams, $http) {
