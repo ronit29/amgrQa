@@ -1,0 +1,32 @@
+.top_section
+{
+	width: 100%;
+	padding: 20px 15px 20px 15px;
+
+}
+
+.bottom_section
+{
+	height: 600px;
+	clear: both;
+    padding-top: 20px;
+    padding-left: 15px;
+    width: 100%;
+}
+
+.left
+{
+	border: 1px solid #696969;
+	float: left;
+    width: 48%;
+    height: 100%;
+}
+
+.right
+{
+	display: inline-block;
+	border: 1px solid #696969;
+	margin-left: 2%;
+	width: 48%;
+	height: 100%;
+}

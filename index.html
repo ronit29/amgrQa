@@ -1,0 +1,55 @@
+<!DOCTYPE html>		
+<html>
+    <head>
+		<meta charset="utf-8" />
+		<!--Let browser know website is optimized for mobile-->
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+		<link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+		<!-- Import Angular Library -->
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.28/angular-route.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.28/angular-resource.min.js"></script>
+
+		<!-- Custom Files -->
+		<link rel="stylesheet" type="text/css" href="css/features.css" />
+		
+		<script type="text/javascript" src="js/main.js"></script>
+
+		<title>PostMaster</title>
+	</head>
+
+	<body ng-app="myApp">
+	   <!-- Top Section -->
+       <div ng-controller="input" class="jumbotron text-center top_section"> 
+
+         <input type="text" name="url">
+         <input type="text" name="uname">
+         <input type="text" name="password">
+       </div> 
+       <!-- Output Section -->
+       <div ng-controller="json" class="bottom_section">
+          <div class="left">
+	          <select>
+	          	<option>invoice list</option>
+	          	<option>invoice list</option>
+	          	<option>invoice list</option>
+	          </select> 
+	          <div>XX</div> 
+	      </div>   
+	      <div class="right">
+	          <select>
+	          	<option>invoice list</option>
+	          	<option>invoice list</option>
+	          	<option>invoice list</option>
+	          </select>
+	          <div>YY</div> 
+	      </div>    
+	   </div>
+
+    </body>
+
+</html>
