@@ -3,11 +3,12 @@ import time
 import json
 import logging
 import http.client as http_client
+from flask_cors import CORS
 from flask import Flask, request , jsonify
 
 s = requests.Session()
-acct_id = 0
 app = Flask(__name__)
+CORS(app)
 
 
 
@@ -23,16 +24,16 @@ app = Flask(__name__)
 
 
 
-# 'Host':'tm-am-stg.io-media.com',
 '''Returns Drupal Request URL and Headers'''
-def get_drupal_req_param():
+def get_drupal_req_param(url):
+  host_url = url.split('/')[2]
   head = {
-          'Host':'tm-am-qa.io-media.com',
+          'Host':host_url,
           'User-Agent':'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:56.0) Gecko/20100101 Firefox/56.0'
          }
   # url = "https://tm-am-stg.io-media.com/genesis/"
-  url = "https://tm-am-qa.io-media.com/iomediaqaunitas/"
-  params = {'url':url,'headers':head}
+  # url = "https://tm-am-qa.io-media.com/iomediaqaunitas/"
+  params = {'headers':head}
   return params
 
 
@@ -45,48 +46,47 @@ def get_tm_req_param(req_payload = None):
       'Connection' : 'Keep-Alive',
       'timeout' : 30,
     } 
-  url = "https://ws.ticketmaster.com/archtics/ats/ticketing_services.aspx?dsn=unitas"    
+  url = "https://ws.ticketmaster.com/archtics/ats/ticketing_services.aspx?dsn=genesis"    
   params = {'url':url,'headers':tm_inv_head}
   return params
 
 
 
 '''Performs Drupal Login and Returns acct_id'''
-@app.route('/login',methods=['POST'])
+@app.route('/drupal/login',methods=['POST'])
 def drupal_login():
   if request.method == 'POST':
-    data = request.form['name'] 
-  return data
-  username = 'rkumar@io-media.com'
-  password = '12345678'
+    data = request.json
   payload = {
-              'name':username,
-              'pass':password,
+              'name':data['name'],
+              'pass':data['password'],
               'remember_me':0,
             }
   curr_time = int(time.time())  
   '''Login Request'''
   try:
-    login_url = get_drupal_req_param()['url'] + 'user/login?_format=json&time='+str(curr_time)
-    login_request = s.post(login_url,data=json.dumps(payload),headers=get_drupal_req_param()['headers'])
+    login_url = data['url'] + 'user/login?_format=json&time='+str(curr_time)
+    login_request = s.post(login_url,data=json.dumps(payload),headers=get_drupal_req_param(data['url'])['headers'])
   except requests.exceptions.ConnectionError:  
     pass
   if login_request.status_code == 200:
     user_data = json.loads(login_request.text)
     acct_id = user_data['member_related_accounts'][0]['name']
-    # login_cookies = s.cookies
-    return acct_id
+    login_output = {'user_data':user_data,'acct_id':acct_id}
+    return jsonify(login_output)
 
       
 
 
 '''Returns Invoice List'''
+@app.route('/drupal/invoiceList',methods=['POST'])
 def drupal_invoiceList():  
-  '''Invoice List Request'''  
+  if request.method == 'POST':
+    data = request.json  
   try:
-    invoiceList_url = get_drupal_req_param()['url'] + "api/invoice/list?_format=json&time=1509821221778"
-    list_request = s.get(invoiceList_url,headers=get_drupal_req_param()['headers'])
-    return json.loads(list_request.text)
+    invoiceList_url = data['url'] + "api/invoice/list?_format=json&time=1509821221778"
+    list_request = s.get(invoiceList_url,headers=get_drupal_req_param(data['url'])['headers'])
+    return list_request.text
   except requests.exceptions.ConnectionError:  
     pass
     
@@ -121,4 +121,5 @@ def tm_invoiceList():
   return jsonify(invoiceList_request.text)  
 
 if __name__ == '__main__':
-   app.run(debug = True)
+    app.run(debug = True)
+

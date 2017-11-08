@@ -16,8 +16,9 @@
 
 		<!-- Custom Files -->
 		<link rel="stylesheet" type="text/css" href="css/features.css" />
-		
 		<script type="text/javascript" src="js/main.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/ng-prettyjson.min.css">
+		<script type="text/javascript" src="js/ng-prettyjson.min.js"></script>
 
 		<title>PostMaster</title>
 	</head>
@@ -28,28 +29,42 @@
         <form>
          <input type="text" ng-model="input.url"  placeholder="url">
          <input type="text" ng-model="input.name"  placeholder="name">
-         <input type="text" ngmodel="input.password"  placeholder="password">
+         <input type="text" ng-model="input.password"  placeholder="password">
          <input type="submit" value = "Log In" ng-click="login(input)" class="btn btn-default btn-success">
         </form> 
         <div class="loading_image" ng-show="imLoading"><img src="images/loader.gif" class="im_loading" /></div>
        </div> 
        <!-- Output Section -->
-       <div ng-controller="json" class="bottom_section">
+       <div ng-controller="drupal" class="bottom_section">
           <div class="left">
-	          <select>
-	          	<option>invoice list</option>
-	          	<option>invoice list</option>
-	          	<option>invoice list</option>
-	          </select> 
-	          <div>XX</div> 
+                <div class="service_parent">
+		           <div class="dropdown">
+					    <span class="btn btn-default dropdown-toggle"  data-toggle="dropdown">Drupal Services
+					    <span class="caret"></span></span>
+					    <ul class="dropdown-menu service_list_ul">
+					      <li class="service_list_li"><input type="text" ng-model='drupal_filter.Name'></li>
+					      <li class="divider"></li>
+					      <li class= "service_list_li" ng-repeat = "d in drupal_services | filter:drupal_filter"  ng-click="hitDrupal(d.endpoint)">{{ d.Name }}</li>
+					    </ul>
+				   </div>
+				</div>
+				<div class="service_data">
+		          <p json='drupal_output' pretty-json ></p>
+		        </div>  
 	      </div>   
 	      <div class="right">
-	          <select>
-	          	<option>invoice list</option>
-	          	<option>invoice list</option>
-	          	<option>invoice list</option>
-	          </select>
-	          <div>YY</div> 
+	          <div class="service_parent">
+		           <div class="dropdown">
+					    <span class="btn btn-default dropdown-toggle"  data-toggle="dropdown">Tm Services
+					    <span class="caret"></span></span>
+					    <ul class="dropdown-menu service_list_ul">
+					      <li class="service_list_li"><input type="text" ng-model='tm_filter.Name'></li>
+					      <li class="divider"></li>
+					      <li class= "service_list_li" ng-repeat = "d in tm_services | filter:tm_filter"  ng-click="hitTm(d.endpoint)">{{ d.Name }}</li>
+					    </ul>
+				   </div>
+				</div>
+	          <div>{{ tm_output }}</div> 
 	      </div>    
 	   </div>
 
