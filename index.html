@@ -27,14 +27,23 @@
 	<body ng-app="myApp">
 	   <!-- Top Section -->
        <div ng-controller="index" class="jumbotron top_section"> 
-        <form>
-         <input type="text" ng-model="input.url"  placeholder="url" class="w3-input w3-border url_input">
-         <input type="text" ng-model="input.name"  placeholder="name" class="w3-input w3-border name_input" style="float: left;">
-         <input type="text" ng-model="input.password"  placeholder="password" class="w3-input w3-border pass_input" style="display: : inline-block;margin-left: 5px;">
-         <input type="submit" value = "Log In" ng-click="login(input)" class="w3-button w3-green" style="width: 25%;">
-        </form> 
+          <form>
+	          <div class="login_form">
+		         <input type="text" ng-model="input.url"  placeholder="url" class="w3-input w3-border url_input">
+		         <input type="text" ng-model="input.name"  placeholder="name" class="w3-input w3-border name_input" style="float: left;">
+		         <input type="text" ng-model="input.password"  placeholder="password" class="w3-input w3-border pass_input" style="display: : inline-block;margin-left: 5px;">
+		         <input type="submit" value = "Log In" ng-click="login(input)" class="w3-button w3-green" style="width: 100%;">
+		      </div>
+		      <div class="tm_input">
+		      	<input type="text" ng-model='input.uid' placeholder="uid" class="w3-input w3-border uid_input">
+		      	<input type="text" ng-model='input.dsn' placeholder="dsn" class="w3-input w3-border dsn_input">
+		      	<input type="text" ng-model='input.sitename' placeholder="site name" class="w3-input w3-border site_input">
+		      </div>
+	      </form> 
         <div class="loading_image" ng-show="imLoading"><img src="images/loader.gif" class="im_loading" /></div>
+                  
        </div> 
+
        <!-- Output Section -->
        <div ng-controller="drupal" class="bottom_section">
           <div class="left">
@@ -49,7 +58,7 @@
 							  </div>   
 					      </li>
 					      <li class="divider"></li>
-					      <li class= "service_list_li" ng-repeat="d in drupal_services | filter:drupal_filter"  ng-click="hitDrupal(d.endpoint,d.api)"><a href="#" class="list-group-item">{{ d.Name }}</a></li>
+					      <li class= "service_list_li" ng-repeat="d in drupal_services | filter:drupal_filter"  ng-click="hitDrupal(d.endpoint,d.api)"><a href="#" class="list-group-item"><strong>{{ d.Name }}</strong></a></li>
 					    </ul>
 				   </div>
 				</div>
@@ -62,18 +71,20 @@
 		           <div class="dropdown">
 					    <span class="w3-button w3-white dropdown-toggle"  data-toggle="dropdown">Tm Services
 					    <span class="caret"></span></span>
-					    <ul class="dropdown-menu service_list_ul">
+					    <ul class="dropdown-menu service_list_ul list-group">
 					      <li class="service_list_li">
 						      <div class="input-group"> 
-							     <input type="text" placeholder="Search" ng-model='drupal_filter.Name' class="form-control service_search">
+							     <input type="text" placeholder="Search" ng-model='tm_filter.Name' class="form-control service_search">
 							  </div>   
 					      </li>
 					      <li class="divider"></li>
-					      <li class= "service_list_li" ng-repeat = "d in tm_services | filter:tm_filter"  ng-click="hitTm(d.endpoint)">{{ d.Name }}</li>
+					      <li class= "service_list_li" ng-repeat = "t in tm_services | filter:tm_filter"  ng-click="hitTm(t.endpoint)"><a href="#" class="list-group-item"><strong>{{ t.Name }}</strong></a></li>
 					    </ul>
 				   </div>
 				</div>
-	          <div>{{ tm_output }}</div> 
+	          <div class="service_data">
+	            <p json='tm_output' pretty-json ></p>
+	          </div> 
 	      </div>    
 	   </div>
 

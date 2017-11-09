@@ -39,14 +39,14 @@ def get_drupal_req_param(url):
 
 
 '''Returns Ticketmaster Request URL and Headers'''
-def get_tm_req_param(req_payload = None):
+def get_tm_req_param(req_payload = None, dsn = None):
   tm_inv_head = {
       'Content-Type' : 'text/json; charset=utf-8',
       'Content-Length': len(json.dumps(req_payload)),
       'Connection' : 'Keep-Alive',
       'timeout' : 30,
     } 
-  url = "https://ws.ticketmaster.com/archtics/ats/ticketing_services.aspx?dsn=genesis"    
+  url = "https://ws.ticketmaster.com/archtics/ats/ticketing_services.aspx?dsn="+str(dsn)
   params = {'url':url,'headers':tm_inv_head}
   return params
 
@@ -94,9 +94,10 @@ def drupal_getRequest():
 
 
 '''Returns Tm Invoice List'''
-@app.route('/tm')
+@app.route('/tm/invoiceList',methods=['POST'])
 def tm_invoiceList():
-  # acctid = acct_id if acct_id is not 0 else drupal_login()
+  if request.method == 'POST':
+    data = request.json  
   inv_paylod = {
       "header" : {
         "ver":"0.9",
@@ -109,17 +110,26 @@ def tm_invoiceList():
         "cmd" : 'invoice_list',
         "ref" : 'IOM_INVOICE_LIST',
         # "uid" : 'iomed05',
-        "uid" : 'INET01',
-        "dsn" : 'unitas',
-        "site_name" : 'unitas',
-        'acct_id' : 293886,
+        "uid" : data['uid'],
+        "dsn" : data['dsn'],
+        "site_name" : data['sitename'],
+        'acct_id' : data['acct_id'],
       }
     }
   try:  
-    invoiceList_request = s.post(get_tm_req_param()['url'],data=json.dumps(inv_paylod),headers= get_tm_req_param(inv_paylod)['headers'],cert='live_tm_v2.pem')
+    invoiceList_request = s.post(get_tm_req_param(inv_paylod,data['dsn'])['url'],data=json.dumps(inv_paylod),headers= get_tm_req_param(inv_paylod)['headers'],cert='live_tm_v2.pem')
   except requests.exceptions.ConnectionError:  
     pass  
-  return jsonify(invoiceList_request.text)  
+  return invoiceList_request.text
+
+
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
     app.run(debug = True)

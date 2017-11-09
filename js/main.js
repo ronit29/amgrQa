@@ -17,9 +17,11 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
           $rootScope.user_data = result.data.user_data;
           $window.sessionStorage['acct_id'] = result.data.acct_id;
           $window.sessionStorage['drupal_url'] = input.url;
+          $window.sessionStorage['tm_dsn'] = input.dsn;
+          $window.sessionStorage['tm_uid'] = input.uid;
+          $window.sessionStorage['tm_sitename'] = input.sitename;
         }, function(error) {
-
-          $scope.error = true;
+           $scope.error = true;
        });             
      }
 
@@ -27,6 +29,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
 
 app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window) {
   
+  // List of Drupal Services
   $scope.drupal_services = [ 
         {Name:'User Details',endpoint:'login'},
         {Name:'Invoice List',endpoint:'drupal/getRequest',api:'api/invoice/list'},
@@ -34,6 +37,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window)
         {Name:'User Events Summary',endpoint:'drupal/getRequest',api:'api/user-events/summary'},
         {Name:'Member List',endpoint:'drupal/getRequest',api:'api/member/list'},
     ];
+    // Drupal getRequest CallBack
     $scope.hitDrupal = function(endpoint,api)
     {
       if (endpoint=='login') {
@@ -53,59 +57,40 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window)
             }, function(error) {
                $scope.drupal_output = 'Request Failed';
          });  
-         
       }
     }
+
+    // List of TM Services
+    $scope.tm_services = [ 
+        {Name:'User Details',endpoint:'login'},
+        {Name:'Invoice List',endpoint:'tm/invoiceList'},
+    ];
+    $scope.hitTm = function(endpoint,api)
+    {
+    
+       $http({
+         method: 'POST',
+         url: "http://localhost:5000/"+endpoint,
+         data: {
+                "dsn":$window.sessionStorage["tm_dsn"],
+                "uid":$window.sessionStorage["tm_uid"],
+                "sitename": $window.sessionStorage["tm_sitename"],
+                "acct_id": $window.sessionStorage["acct_id"],
+               },
+         headers: {'Content-Type': 'application/json'}
+         }).then(function(result) {
+            console.log(result); 
+            // $scope.imLoading = false;
+           $scope.tm_output = result.data;
+          }, function(error) {
+             $scope.drupal_output = 'Request Failed';
+       });  
+      
+    }
+
+
 });
 
-
-app.factory("LoginService", function($http, $q, $window) {
-
-   var userInfo;
-   // var deferred = $q.defer();
-     function login(user) {
-      var deferred = $q.defer();
-      $http({
-       method: 'POST',
-       url: "login.php",
-       data: { "userName": user.name, "password": user.password, "type": 'db' },
-       headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
-       }).then(function(result) { 
-       userInfo = {
-        accessToken: result.data.login.token,
-        userName: result.data.login.name
-       };
-       $window.sessionStorage["userInfo"] = JSON.stringify(userInfo);  
-        deferred.resolve(userInfo);
-        }, function(error) {
-        deferred.reject(error);
-       });      
-       return deferred.promise;
-       }
-
-
-     function getUserInfo() {
-     
-      if ($window.sessionStorage["userInfo"]) {
-          userInfo = JSON.parse($window.sessionStorage["userInfo"]);
-        }
-        return userInfo;
-       }
-
-
-     function logout() {
-       $window.sessionStorage["userInfo"] = '';
-       userInfo = null;
-       window.location.reload();
-       }
-
-      return {
-       login: login,
-       getUserInfo: getUserInfo,
-       logout: logout
-      };  
-  
-});
 
 
 // app.factory('Scopes', function ($rootScope) {
