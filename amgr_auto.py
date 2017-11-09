@@ -79,17 +79,18 @@ def drupal_login():
 
 
 '''Returns Invoice List'''
-@app.route('/drupal/invoiceList',methods=['POST'])
-def drupal_invoiceList():  
+@app.route('/drupal/getRequest',methods=['POST'])
+def drupal_getRequest():  
   if request.method == 'POST':
     data = request.json  
   try:
-    invoiceList_url = data['url'] + "api/invoice/list?_format=json&time=1509821221778"
-    list_request = s.get(invoiceList_url,headers=get_drupal_req_param(data['url'])['headers'])
+    curr_time = int(time.time())
+    request_url = data['url'] + data['api'] + "?_format=json&time="+str(curr_time)
+    list_request = s.get(request_url,headers=get_drupal_req_param(data['url'])['headers'])
     return list_request.text
   except requests.exceptions.ConnectionError:  
     pass
-    
+
 
 
 '''Returns Tm Invoice List'''
