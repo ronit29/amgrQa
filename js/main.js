@@ -32,10 +32,16 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window)
   // List of Drupal Services
   $scope.drupal_services = [ 
         {Name:'User Details',endpoint:'login'},
-        {Name:'Invoice List',endpoint:'drupal/getRequest',api:'api/invoice/list'},
         {Name:'User Events List',endpoint:'drupal/getRequest',api:'api/user-events/listing'},
         {Name:'User Events Summary',endpoint:'drupal/getRequest',api:'api/user-events/summary'},
         {Name:'Member List',endpoint:'drupal/getRequest',api:'api/member/list'},
+        {Name:'User Ticket',endpoint:'drupal/getRequest',api:'api/user-ticket/1062'},//Dynamic
+        {Name:'Invoice List',endpoint:'drupal/getRequest',api:'api/invoice/list'},
+        {Name:'Invoice Details',endpoint:'drupal/getRequest',api:'api/invoice/3263/6'},//Dynamic
+        {Name:'Payment Plans',endpoint:'drupal/getRequest',api:'api/invoice/plans'},
+        {Name:'Plans For Invoice',endpoint:'drupal/getRequest',api:'api/invoice/plans/3263'},//Dynamic
+        {Name:'Plan Details',endpoint:'drupal/getRequest',api:'api/invoice/plans/3263/18'},//Dynamic
+        {Name:'CC Query',endpoint:'drupal/getRequest',api:'api/invoice/cc'},
     ];
     // Drupal getRequest CallBack
     $scope.hitDrupal = function(endpoint,api)

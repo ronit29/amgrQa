@@ -47,7 +47,7 @@
 }
 .service_list_li
 {
-	padding:2px 4px 1px 4px;
+	padding:2px 4px 1px 0px;
 }
 .service_parent
 {
@@ -87,11 +87,11 @@
 }
 .name_input, .pass_input
  {
-   width: 49%;
+   width: 48%;
    
  }
  .name_input{
- 	margin-right: 9px;
+ 	margin-right: 4%;
  }
  .list-group-item
  {

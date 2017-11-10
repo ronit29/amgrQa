@@ -74,6 +74,9 @@ def drupal_login():
     acct_id = user_data['member_related_accounts'][0]['name']
     login_output = {'user_data':user_data,'acct_id':acct_id}
     return jsonify(login_output)
+  else:
+    error_json = {'Status Code':login_request.status_code, 'Message':login_request.text}  
+    return jsonify(error_json)
 
       
 
@@ -87,7 +90,11 @@ def drupal_getRequest():
     curr_time = int(time.time())
     request_url = data['url'] + data['api'] + "?_format=json&time="+str(curr_time)
     list_request = s.get(request_url,headers=get_drupal_req_param(data['url'])['headers'])
-    return list_request.text
+    if list_request.status_code == 200:
+      return list_request.text
+    else:
+      error_json = {'Status Code':list_request.status_code, 'Message':list_request.text}
+      return jsonify(error_json)  
   except requests.exceptions.ConnectionError:  
     pass
 
@@ -109,7 +116,6 @@ def tm_invoiceList():
       "command1" : {
         "cmd" : 'invoice_list',
         "ref" : 'IOM_INVOICE_LIST',
-        # "uid" : 'iomed05',
         "uid" : data['uid'],
         "dsn" : data['dsn'],
         "site_name" : data['sitename'],
