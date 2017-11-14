@@ -29,25 +29,69 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
 
 app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window) {
   
+
   // List of Drupal Services
   $scope.drupal_services = [ 
         {Name:'User Details',endpoint:'login'},
         {Name:'User Events List',endpoint:'drupal/getRequest',api:'api/user-events/listing'},
         {Name:'User Events Summary',endpoint:'drupal/getRequest',api:'api/user-events/summary'},
         {Name:'Member List',endpoint:'drupal/getRequest',api:'api/member/list'},
-        {Name:'User Ticket',endpoint:'drupal/getRequest',api:'api/user-ticket/1062'},//Dynamic
+        {Name:'User Ticket',endpoint:'drupal/getRequest',api:'api/user-ticket'},//Dynamic
         {Name:'Invoice List',endpoint:'drupal/getRequest',api:'api/invoice/list'},
-        {Name:'Invoice Details',endpoint:'drupal/getRequest',api:'api/invoice/3263/6'},//Dynamic
+        {Name:'Invoice Details',endpoint:'drupal/getRequest',api:'api/invoice'},//Dynamic
         {Name:'Payment Plans',endpoint:'drupal/getRequest',api:'api/invoice/plans'},
-        {Name:'Plans For Invoice',endpoint:'drupal/getRequest',api:'api/invoice/plans/3263'},//Dynamic
-        {Name:'Plan Details',endpoint:'drupal/getRequest',api:'api/invoice/plans/3263/18'},//Dynamic
+        {Name:'Plans For Invoice',endpoint:'drupal/getRequest',api:'api/invoice/plans'},//Dynamic
+        {Name:'Plan Details',endpoint:'drupal/getRequest',api:'api/invoice/plans'},//Dynamic
         {Name:'CC Query',endpoint:'drupal/getRequest',api:'api/invoice/cc'},
     ];
     // Drupal getRequest CallBack
-    $scope.hitDrupal = function(endpoint,api)
+    $scope.hitDrupal = function(Name,endpoint,api)
     {
+      $scope.drupal_dynamic1 = false;
+      $scope.drupal_dynamic2 = false;
       if (endpoint=='login') {
          $scope.drupal_output = $rootScope.user_data ? $rootScope.user_data : 'Please try Again';
+      }
+      else if (Name == 'User Ticket') {
+           $scope.drupal_dynamic1 = true;
+           $scope.placeholder1 = "Event Id";
+           $scope.goDynamic = function(one,two)
+           {
+              dynamic_api = api + '/' + one;
+              console.log(dynamic_api);
+              hitDrupal_http_request(endpoint, dynamic_api); 
+           }
+      }
+      else if (Name == 'Invoice Details') {
+           $scope.drupal_dynamic1 = true;
+           $scope.drupal_dynamic2 = true;
+           $scope.placeholder1 = "Invoice Id";
+           $scope.placeholder2 = "Inv Conf Id";
+           $scope.goDynamic = function(dynamic)
+           {
+              dynamic_api = api + '/' + dynamic.one + '/' + dynamic.two;
+              hitDrupal_http_request(endpoint, dynamic_api); 
+           }
+      }
+      else if (Name == 'Plans For Invoice') {
+           $scope.drupal_dynamic1 = true;
+           $scope.placeholder1 = "Invoice Id";
+           $scope.goDynamic = function(dynamic)
+           {
+              dynamic_api = api + '/' + dynamic.one;
+              hitDrupal_http_request(endpoint, dynamic_api); 
+           }
+      }
+      else if (Name == 'Plan Details') {
+           $scope.drupal_dynamic1 = true;
+           $scope.drupal_dynamic2 = true;
+           $scope.placeholder1 = "Invoice Id";
+           $scope.placeholder2 = "Plan Id";
+           $scope.goDynamic = function(dynamic)
+           {
+              dynamic_api = api + '/' + dynamic.one + '/' + dynamic.two;
+              hitDrupal_http_request(endpoint, dynamic_api); 
+           }
       }
       else
       {
@@ -64,6 +108,22 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window)
                $scope.drupal_output = 'Request Failed';
          });  
       }
+    }
+
+    function hitDrupal_http_request(endpoint, api)
+    {
+       $http({
+             method: 'POST',
+             url: "http://localhost:5000/"+endpoint,
+             data: {"url":$window.sessionStorage["drupal_url"],"api":api},
+             headers: {'Content-Type': 'application/json'}
+             }).then(function(result) {
+                console.log(result); 
+                // $scope.imLoading = false;
+               $scope.drupal_output = result.data;
+              }, function(error) {
+                 $scope.drupal_output = 'Request Failed';
+           });  
     }
 
     // List of TM Services

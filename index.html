@@ -45,7 +45,7 @@
        </div> 
 
        <!-- Output Section -->
-       <div ng-controller="drupal" class="bottom_section">
+       <div ng-controller="drupal" class="bottom_section  ng-cloak">
           <div class="left">
                 <div class="service_parent">
 		           <div class="dropdown">
@@ -58,14 +58,22 @@
 							  </div>   
 					      </li>
 					      <li class="divider"></li>
-					      <li class= "service_list_li" ng-repeat="d in drupal_services | filter:drupal_filter"  ng-click="hitDrupal(d.endpoint,d.api)"><a href="#" class="list-group-item"><strong>{{ d.Name }}</strong></a></li>
+					      <li class= "service_list_li" ng-repeat="d in drupal_services | filter:drupal_filter"  ng-click="hitDrupal(d.Name,d.endpoint,d.api)"><a href="#" class="list-group-item"><strong>{{ d.Name }}</strong></a></li>
 					    </ul>
+				   </div>
+				   <div class="dynamic_fields">
+				     <form name="dynamic_fields" ng-submit="goDynamic(drupDynam.one, drupDynam.two)">
+					   	 <input type="text" ng-model="drupDynam.one" placeholder="{{placeholder1}}" ng-if="drupal_dynamic1" class="w3-input w3-border drupal_dynamic1">
+					   	 <input type="text" ng-model="drupDynam.two" placeholder="{{placeholder2}}" ng-if="drupal_dynamic2" class="w3-input w3-border drupal_dynamic2">
+					   	 <input type="submit" ng-disabled="dynamic_fields.$pending" class="w3-button w3-orange drupal_ynamic_go" value="Go!" ng-show="drupal_dynamic1">
+				   	 </form>
 				   </div>
 				</div>
 				<div class="service_data">
 		          <p json='drupal_output' pretty-json ></p>
 		        </div>  
-	      </div>   
+	      </div>  
+
 	      <div class="right">
 	          <div class="service_parent">
 		           <div class="dropdown">
@@ -85,7 +93,8 @@
 	          <div class="service_data">
 	            <p json='tm_output' pretty-json ></p>
 	          </div> 
-	      </div>    
+	      </div>  
+
 	   </div>
 
     </body>
