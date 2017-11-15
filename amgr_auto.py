@@ -130,6 +130,51 @@ def tm_invoiceList():
 
 
 
+'''Returns Tm Response'''
+# @app.route('/tm/login',methods=['POST'])
+def tm_login():
+  # if request.method == 'POST':
+  #   data = request.json  
+  paylod = {
+        "client_id" : 'genesis.integration',
+        "client_secret" : 'fcfys1-5RjQe--Bj6W5QmQ6xjKisdiBfSnerJeaAI9k',
+        "grant_type" : 'password',
+        "username" : 'rkumar@io-media.com',
+        "password" : 'r123456',
+      }
+    
+  try:  
+    oauth_request = s.post("https://app.ticketmaster.com/acctmgr-oauth-preprod/token",data=paylod,headers= {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'})
+  except requests.exceptions.ConnectionError:  
+    pass  
+  if oauth_request.status_code == 200:
+    access_token = json.loads(oauth_request.text)['access_token']
+    if access_token:
+      memId_url = "https://app.ticketmaster.com/acctmgr-oauth-preprod/token/" + str(access_token)
+      memberid_request = s.get(memId_url)
+      member_id = json.loads(memberid_request.text)['umember_token']
+      oauth_data = {'access_token':access_token,'member_id':member_id}
+      print(oauth_data)
+      # return jsonify(oauth_data)
+
+
+
+
+'''Returns Tm Response'''
+# @app.route('/tm/login',methods=['POST'])
+def member_inventory():
+  # if request.method == 'POST':
+  #   data = request.json  
+  req_headers = {
+              ''
+  }   
+  try:  
+    request = s.get("https://tm-am-stg.io-media.com/genesis/api/v1/member/rkumar@io-media.com/genesis/inventory/event/777")
+  except requests.exceptions.ConnectionError:  
+    pass  
+  if request.status_code == 200:
+    print(request)
+    
 
 
 
@@ -137,6 +182,8 @@ def tm_invoiceList():
 
 
 
-if __name__ == '__main__':
-    app.run(debug = True)
+
+tm_login();
+# if __name__ == '__main__':
+#     app.run(debug = True)
 

@@ -61,7 +61,7 @@
 					      <li class= "service_list_li" ng-repeat="d in drupal_services | filter:drupal_filter"  ng-click="hitDrupal(d.Name,d.endpoint,d.api)"><a href="#" class="list-group-item"><strong>{{ d.Name }}</strong></a></li>
 					    </ul>
 				   </div>
-				   <div class="dynamic_fields">
+				   <div class="dynamic_fields" align="right">
 				     <form name="dynamic_fields" ng-submit="goDynamic(drupDynam.one, drupDynam.two)">
 					   	 <input type="text" ng-model="drupDynam.one" placeholder="{{placeholder1}}" ng-if="drupal_dynamic1" class="w3-input w3-border drupal_dynamic1">
 					   	 <input type="text" ng-model="drupDynam.two" placeholder="{{placeholder2}}" ng-if="drupal_dynamic2" class="w3-input w3-border drupal_dynamic2">

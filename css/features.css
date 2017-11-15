@@ -25,12 +25,13 @@
 .dropdown
 {
 	float: left;
+	width: 23%;
 }
 .dynamic_fields
 {
-    width: 70%;
+    width: 75%;
     display: inline-block;
-    padding-left: 7%;
+    /*padding-left: 7%;*/
 }
 
 .left
@@ -61,7 +62,7 @@
 }
 .service_parent
 {
-	height: 44px;
+	height: 45px;
 	background-color: #888;
 	width: 100%;
 	padding: 3px 3px 3px 3px;
@@ -111,10 +112,10 @@
  .drupal_dynamic1, .drupal_dynamic2
  {
  	display: inline-block;
- 	width: 25%;
+ 	width: 22%;
  }
 
 .drupal_dynamic1, .drupal_dynamic2, .drupal_ynamic_go
 {
-	height: 67%;
+	height: 62%;
 }

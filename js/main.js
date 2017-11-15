@@ -47,6 +47,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window)
     // Drupal getRequest CallBack
     $scope.hitDrupal = function(Name,endpoint,api)
     {
+      $scope.drupDynam ={ one:'',two:''};
       $scope.drupal_dynamic1 = false;
       $scope.drupal_dynamic2 = false;
       if (endpoint=='login') {
@@ -55,9 +56,9 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window)
       else if (Name == 'User Ticket') {
            $scope.drupal_dynamic1 = true;
            $scope.placeholder1 = "Event Id";
-           $scope.goDynamic = function(one,two)
+           $scope.goDynamic = function()
            {
-              dynamic_api = api + '/' + one;
+              dynamic_api = api + '/' + $scope.drupDynam.one;
               console.log(dynamic_api);
               hitDrupal_http_request(endpoint, dynamic_api); 
            }
@@ -157,7 +158,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window)
 
 });
 
-
+//var text_height = window.height - 148px;
 
 // app.factory('Scopes', function ($rootScope) {
 //     var mem = {};
