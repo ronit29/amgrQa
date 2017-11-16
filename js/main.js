@@ -37,6 +37,10 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window)
         {Name:'User Events Summary',endpoint:'drupal/getRequest',api:'api/user-events/summary'},
         {Name:'Member List',endpoint:'drupal/getRequest',api:'api/member/list'},
         {Name:'User Ticket',endpoint:'drupal/getRequest',api:'api/user-ticket'},//Dynamic
+        {Name:'Transfer Ticket Policy',endpoint:'drupal/getRequest',api:'api/transfer-ticket/policy/1062'},//Dynamic
+        {Name:'Rest Token',endpoint:'drupal/getRequest',api:'rest/session/token'},
+        {Name:'Ticket Transfer',endpoint:'drupal/POST',api:'/api/ticket/transfer'},
+        {Name:'Ticket Reclaim',endpoint:'drupal/DELETE',api:'/api/ticket/multiple-reclaim'},
         {Name:'Invoice List',endpoint:'drupal/getRequest',api:'api/invoice/list'},
         {Name:'Invoice Details',endpoint:'drupal/getRequest',api:'api/invoice'},//Dynamic
         {Name:'Payment Plans',endpoint:'drupal/getRequest',api:'api/invoice/plans'},

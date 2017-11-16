@@ -15,7 +15,7 @@ CORS(app)
 
 '''Requests Debug Logging Code '''
 # http_client.HTTPConnection.debuglevel = 1
-# You must initialize logging, otherwise you'll not see debug output.
+# # You must initialize logging, otherwise you'll not see debug output.
 # logging.basicConfig()
 # logging.getLogger().setLevel(logging.DEBUG)
 # requests_log = logging.getLogger("requests.packages.urllib3")
@@ -136,44 +136,69 @@ def tm_login():
   # if request.method == 'POST':
   #   data = request.json  
   paylod = {
-        "client_id" : 'genesis.integration',
-        "client_secret" : 'fcfys1-5RjQe--Bj6W5QmQ6xjKisdiBfSnerJeaAI9k',
+        "client_id" : 'iomediaqaunitas.integration',
+        "client_secret" : 'cAyPhupq0wFh_Qzgni1fsomi7xUwfvTwdHhvO8o4s74',
         "grant_type" : 'password',
         "username" : 'rkumar@io-media.com',
-        "password" : 'r123456',
+        "password" : '12345678',
       }
     
   try:  
-    oauth_request = s.post("https://app.ticketmaster.com/acctmgr-oauth-preprod/token",data=paylod,headers= {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'})
+    oauth_request = s.post("https://qa1-oauth.acctmgr.us-east-1.nonprod-tmaws.io/oauth/token",data=paylod,headers= {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'})
   except requests.exceptions.ConnectionError:  
     pass  
   if oauth_request.status_code == 200:
     access_token = json.loads(oauth_request.text)['access_token']
     if access_token:
-      memId_url = "https://app.ticketmaster.com/acctmgr-oauth-preprod/token/" + str(access_token)
+      memId_url = "https://qa1-oauth.acctmgr.us-east-1.nonprod-tmaws.io/oauth/token/" + str(access_token)
       memberid_request = s.get(memId_url)
       member_id = json.loads(memberid_request.text)['umember_token']
       oauth_data = {'access_token':access_token,'member_id':member_id}
       print(oauth_data)
       # return jsonify(oauth_data)
-
-
-
-
-'''Returns Tm Response'''
+    '''Returns `   Response'''
 # @app.route('/tm/login',methods=['POST'])
-def member_inventory():
+# def member_inventory():
   # if request.method == 'POST':
   #   data = request.json  
   req_headers = {
-              ''
-  }   
+                  'Accept':'application/vnd.amgr.v1.5+json',
+                  'Content-Type':'application/json',
+                  'Accept-Language':'en-us',
+                  'X-Client':'iomediaqaunitas',
+                  'X-Api-Key':'6ca830a9-0aa2-11e7-bce4-0afa92bc63fa',
+                  'X-OS-Name':'iOS',
+                  'X-OS-Version':8,
+                  'X-Auth-Token':access_token,
+                  # 'member_id':member_id
+                }   
   try:  
-    request = s.get("https://tm-am-stg.io-media.com/genesis/api/v1/member/rkumar@io-media.com/genesis/inventory/event/777")
+    # req_url = "https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/api/v1/transfer"
+    # /policy?event_id=1062"
+    # req_url = "https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/api/v1/member/"+str(member_id)+
+    # "/inventory/event/1062"
+    # /inventory/events
+    # /inventory/summary
+    # {member_id}
+    # /transfers
+    # request = s.get(req_url,headers=req_headers)
+    # req_url = "https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/api/v1/member/"+str(member_id)+"/transfer"
+    # transfer_data = {
+    #                   'event':{'event_id':1062} ,
+    #                   'note':'yo yo honey singh',
+    #                   'is_display_price': 'true',
+    #                   'ticket_ids':["1062.236.Y.16"]
+    #                 }
+    # request = s.post(req_url, data=json.dumps(transfer_data), headers=req_headers)
+    req_url = "https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/api/v1/member/"+str(member_id)+"/transfer/b952b8e96d82cd621b6baf83d61783a2aps5a0d743ac28aa"
+    req_headers['Cache-Control'] = 'no-cache'
+    request = s.delete(req_url, headers=req_headers)
+    print(request)
+    print(request.text)
   except requests.exceptions.ConnectionError:  
     pass  
   if request.status_code == 200:
-    print(request)
+    print(request.text)
     
 
 
