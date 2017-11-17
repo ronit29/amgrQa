@@ -5,12 +5,17 @@ import logging
 import http.client as http_client
 from flask_cors import CORS
 from flask import Flask, request , jsonify
+from pymongo import MongoClient
 
+
+
+# Initialising Loaders
 s = requests.Session()
 app = Flask(__name__)
 CORS(app)
-
-
+pymongo_client = MongoClient('127.0.0.1',27017)
+db = pymongo_client.testdb
+collection  = db.test_collection
 
 
 '''Requests Debug Logging Code '''
@@ -49,6 +54,47 @@ def get_tm_req_param(req_payload = None, dsn = None):
   url = "https://ws.ticketmaster.com/archtics/ats/ticketing_services.aspx?dsn="+str(dsn)
   params = {'url':url,'headers':tm_inv_head}
   return params
+
+
+
+'''Returns Api parameters'''
+def get_config():
+  try:
+    lets_srch = collection.find_one({'url':'https://tm-am.com'})
+  except (pymongo.errors.ConnectionFailure, pymongo.errors.InvalidOperation) as e:
+      pass   
+  if lets_srch is not None:
+    return jsonify(lets_srch)
+
+
+
+'''SAVES AND UPDATES Api parameters'''
+def save_config():
+  mongo_error = ''
+  lets_srch = collection.find_one({'url':'https://tm-am.com4'})
+  if lets_srch is None:  
+    try:
+      do_insert = collection.insert_one({ 
+                "dsn":"unitas2",
+                "url":"https://tm-am.com4",
+                "X-CLIENT":"cdsdfcdsc",
+                "client_secret":"dasadas" 
+              }).inserted_id
+    except (pymongo.errors.ConnectionFailure, pymongo.errors.InvalidOperation) as e:
+      mongo_error = e  
+    if do_insert is not None:
+      return jsonify({'Mongo Status':'True'})
+    else:
+      return jsonify({'Mongo Status': mongo_error})      
+  else:  
+    try:
+      do_update = collection.update({'url':"https://tm-am.com2"}, {"$set":  {'dsn': "Andy", 'X-CLIENT': 1, 'client_secret': 1}}, upsert=True, multi=True)
+    except (pymongo.errors.ConnectionFailure, pymongo.errors.InvalidOperation) as e:
+      mongo_error = e    
+    if do_update['ok'] is 1:
+      return jsonify({'Mongo Status':'True'})
+    else:
+      return jsonify({'Mongo Status': mongo_error})  
 
 
 
@@ -172,7 +218,7 @@ def tm_login():
                   'X-Auth-Token':access_token,
                   # 'member_id':member_id
                 }   
-  try:  
+  # try:  
     # req_url = "https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/api/v1/transfer"
     # /policy?event_id=1062"
     # req_url = "https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/api/v1/member/"+str(member_id)+
@@ -189,16 +235,16 @@ def tm_login():
     #                   'is_display_price': 'true',
     #                   'ticket_ids':["1062.236.Y.16"]
     #                 }
-    # request = s.post(req_url, data=json.dumps(transfer_data), headers=req_headers)
-    req_url = "https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/api/v1/member/"+str(member_id)+"/transfer/b952b8e96d82cd621b6baf83d61783a2aps5a0d743ac28aa"
-    req_headers['Cache-Control'] = 'no-cache'
-    request = s.delete(req_url, headers=req_headers)
-    print(request)
-    print(request.text)
-  except requests.exceptions.ConnectionError:  
-    pass  
-  if request.status_code == 200:
-    print(request.text)
+    # request = s.post(req_url, data=json.dumps(transfer_data), headers=req_headers) 
+    # status code 201
+    # req_url = "https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/api/v1/member/"+str(member_id)+"/transfer/b952b8e96d82cd621b6baf83d61783a2aps5a0d743ac28aa"
+    # req_headers['Cache-Control'] = 'no-cache'
+    # request = s.delete(req_url, headers=req_headers)
+    # status_code 204
+    # except requests.exceptions.ConnectionError:  
+    #   pass  
+    # if request.status_code == 200:
+    #   print(request.text)
     
 
 
@@ -206,9 +252,11 @@ def tm_login():
 
 
 
-
-
-tm_login();
 # if __name__ == '__main__':
 #     app.run(debug = True)
+
+
+
+
+
 

@@ -100,18 +100,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window)
       }
       else
       {
-         $http({
-           method: 'POST',
-           url: "http://localhost:5000/"+endpoint,
-           data: {"url":$window.sessionStorage["drupal_url"],"api":api},
-           headers: {'Content-Type': 'application/json'}
-           }).then(function(result) {
-              console.log(result); 
-              // $scope.imLoading = false;
-             $scope.drupal_output = result.data;
-            }, function(error) {
-               $scope.drupal_output = 'Request Failed';
-         });  
+        hitDrupal_http_request(endpoint,api);
       }
     }
 
