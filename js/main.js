@@ -6,23 +6,52 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
 
     $scope.login = function (input) {
       // $scope.imLoading = true;
+      // $http({
+      //  method: 'POST',
+      //  url: "http://localhost:5000/drupal/login",
+      //  data: { "name" : input.name, "password" : input.password, "url" : input.url },
+      //  headers: {'Content-Type': 'application/json'}
+      //  }).then(function(result) {
+      //     console.log(result); 
+      //     // $scope.imLoading = false;
+      //     $rootScope.user_data = result.data.user_data;
+      //     $window.sessionStorage['acct_id'] = result.data.acct_id;
+      //     $window.sessionStorage['drupal_url'] = input.url;
+      //     $window.sessionStorage['tm_dsn'] = input.dsn;
+      //     $window.sessionStorage['tm_uid'] = input.uid;
+      //     $window.sessionStorage['tm_sitename'] = input.sitename;
+      //   }, function(error) {
+      //      $scope.error = true;
+      //  });  
+
+
       $http({
-       method: 'POST',
-       url: "http://localhost:5000/drupal/login",
-       data: { "name" : input.name, "password" : input.password, "url" : input.url },
-       headers: {'Content-Type': 'application/json'}
-       }).then(function(result) {
-          console.log(result); 
-          // $scope.imLoading = false;
-          $rootScope.user_data = result.data.user_data;
-          $window.sessionStorage['acct_id'] = result.data.acct_id;
-          $window.sessionStorage['drupal_url'] = input.url;
-          $window.sessionStorage['tm_dsn'] = input.dsn;
-          $window.sessionStorage['tm_uid'] = input.uid;
-          $window.sessionStorage['tm_sitename'] = input.sitename;
-        }, function(error) {
-           $scope.error = true;
-       });             
+         method: 'GET',
+         url: "http://localhost:5000/getConfig",
+         // data: { "name" : input.name, "password" : input.password, "url" : input.url },
+         // headers: {'Content-Type': 'application/json'}
+         }).then(function(result) {
+          $scope.input = result.data;
+            // $scope.imLoading = false;
+          }, function(error) {
+
+       });
+
+
+      // $http({
+      //    method: 'GET',
+      //    url: "http://localhost:5000/tm/login",
+      //    // data: { "name" : input.name, "password" : input.password, "url" : input.url },
+      //    // headers: {'Content-Type': 'application/json'}
+      //    }).then(function(result) {
+      //       console.log('yes3'); 
+      //       console.log(result); 
+      //       // $scope.imLoading = false;
+      //     }, function(error) {
+      //       console.log('no3'); 
+      //        console.log(error)
+      //  });
+
      }
 
 });
@@ -151,7 +180,6 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window)
 
 });
 
-//var text_height = window.height - 148px;
 
 // app.factory('Scopes', function ($rootScope) {
 //     var mem = {};

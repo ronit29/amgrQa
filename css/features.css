@@ -1,13 +1,22 @@
-.top_section
+.top_parent
 {
 	width: 100%;
+}
+.top_section
+{
+	width: 88%;
 	padding: 20px 15px 20px 18px;
-
+    float: left;
 }
 .login_form
 {
 	float: left;
 	width: 25%;
+}
+.w3-sidebar
+{
+	position: relative !important;
+	float:left;
 }
 .tm_input
 {
@@ -118,4 +127,8 @@
 .drupal_dynamic1, .drupal_dynamic2, .drupal_ynamic_go
 {
 	height: 62%;
+}
+.w3-bar-block .w3-bar-item
+{
+	padding: 5px 16px;
 }

@@ -6,7 +6,7 @@ import http.client as http_client
 from flask_cors import CORS
 from flask import Flask, request , jsonify
 from pymongo import MongoClient
-
+import pymongo
 
 
 # Initialising Loaders
@@ -58,13 +58,20 @@ def get_tm_req_param(req_payload = None, dsn = None):
 
 
 '''Returns Api parameters'''
+@app.route('/getConfig')
 def get_config():
   try:
     lets_srch = collection.find_one({'url':'https://tm-am.com'})
+    pop_id = lets_srch['_id']
+    conv_toStr = str(pop_id)
+    # rem_charr = rem_charl.rstrip("')")
+    lets_srch['_id'] = conv_toStr
   except (pymongo.errors.ConnectionFailure, pymongo.errors.InvalidOperation) as e:
       pass   
   if lets_srch is not None:
     return jsonify(lets_srch)
+  else:
+    return jsonify({'Mongo Status Get':'No data Found'})  
 
 
 
@@ -83,18 +90,18 @@ def save_config():
     except (pymongo.errors.ConnectionFailure, pymongo.errors.InvalidOperation) as e:
       mongo_error = e  
     if do_insert is not None:
-      return jsonify({'Mongo Status':'True'})
+      return jsonify({'Mongo Status Save':'True'})
     else:
-      return jsonify({'Mongo Status': mongo_error})      
+      return jsonify({'Mongo Status Save': mongo_error})      
   else:  
     try:
       do_update = collection.update({'url':"https://tm-am.com2"}, {"$set":  {'dsn': "Andy", 'X-CLIENT': 1, 'client_secret': 1}}, upsert=True, multi=True)
     except (pymongo.errors.ConnectionFailure, pymongo.errors.InvalidOperation) as e:
       mongo_error = e    
     if do_update['ok'] is 1:
-      return jsonify({'Mongo Status':'True'})
+      return jsonify({'Mongo Status Save':'True'})
     else:
-      return jsonify({'Mongo Status': mongo_error})  
+      return jsonify({'Mongo Status Save': mongo_error})  
 
 
 
@@ -177,7 +184,7 @@ def tm_invoiceList():
 
 
 '''Returns Tm Response'''
-# @app.route('/tm/login',methods=['POST'])
+@app.route('/tm/login')
 def tm_login():
   # if request.method == 'POST':
   #   data = request.json  
@@ -200,24 +207,26 @@ def tm_login():
       memberid_request = s.get(memId_url)
       member_id = json.loads(memberid_request.text)['umember_token']
       oauth_data = {'access_token':access_token,'member_id':member_id}
-      print(oauth_data)
-      # return jsonify(oauth_data)
+      # print(oauth_data)
+      return jsonify(oauth_data)
     '''Returns `   Response'''
+
+
 # @app.route('/tm/login',methods=['POST'])
 # def member_inventory():
   # if request.method == 'POST':
   #   data = request.json  
-  req_headers = {
-                  'Accept':'application/vnd.amgr.v1.5+json',
-                  'Content-Type':'application/json',
-                  'Accept-Language':'en-us',
-                  'X-Client':'iomediaqaunitas',
-                  'X-Api-Key':'6ca830a9-0aa2-11e7-bce4-0afa92bc63fa',
-                  'X-OS-Name':'iOS',
-                  'X-OS-Version':8,
-                  'X-Auth-Token':access_token,
-                  # 'member_id':member_id
-                }   
+  # req_headers = {
+  #                 'Accept':'application/vnd.amgr.v1.5+json',
+  #                 'Content-Type':'application/json',
+  #                 'Accept-Language':'en-us',
+  #                 'X-Client':'iomediaqaunitas',
+  #                 'X-Api-Key':'6ca830a9-0aa2-11e7-bce4-0afa92bc63fa',
+  #                 'X-OS-Name':'iOS',
+  #                 'X-OS-Version':8,
+  #                 'X-Auth-Token':access_token,
+  #                 # 'member_id':member_id
+  #               }   
   # try:  
     # req_url = "https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/api/v1/transfer"
     # /policy?event_id=1062"
@@ -252,8 +261,8 @@ def tm_login():
 
 
 
-# if __name__ == '__main__':
-#     app.run(debug = True)
+if __name__ == '__main__':
+    app.run(debug = True)
 
 
 
