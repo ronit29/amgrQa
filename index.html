@@ -37,23 +37,49 @@
 		       <div id="login" class="top_tab"  >
 		          <form>
 			          <div class="login_form">
-				         <input type="text" ng-model="input.url"  placeholder="url" class="w3-input w3-border url_input">
-				         <input type="text" ng-model="input.name" placeholder="name" class="w3-input w3-border name_input" style="float: left;">
-				         <input type="text" ng-model="input.password"  placeholder="password" class="w3-input w3-border pass_input" style="display: : inline-block;margin-left: 5px;">
-				         <input type="submit" value = "Log In" ng-click="login(input)" class="w3-button w3-green" style="width: 100%;">
+			             <div class="row">
+			               <div class="col-sm-10 col-md-10 col-lg-10">
+					         <input type="text" ng-model="input.url"  placeholder="url" class="w3-input w3-border url_input input_gen">
+					       </div>  
+					       <div class="col-sm-2 col-md-2 col-lg-2">
+					         <!-- <input type="submit" value = ">" ng-click="loadconfig(input.url)" class="w3-button w3-green input_gen" > -->
+					         <span class="w3-badge w3-grey input_gen"> ! </span>
+					       </div>  
+					     </div>   
+				         <input type="text" ng-model="input.name" placeholder="name" class="w3-input w3-border name_input input_gen" style="float: left;">
+				         <input type="text" ng-model="input.password"  placeholder="password" class="w3-input w3-border pass_input input_gen">
 				      </div>
 				      <div class="tm_input">
-				      	<input type="text" ng-model='input.uid' placeholder="uid" class="w3-input w3-border uid_input">
-				      	<input type="text" ng-model='input.dsn' placeholder="dsn" class="w3-input w3-border dsn_input">
-				      	<input type="text" ng-model='input.sitename' placeholder="site name" class="w3-input w3-border site_input">
+				      	<input type="text" ng-model='input.uid' placeholder="uid" class="w3-input w3-border uid_input input_gen">
+				      	<input type="text" ng-model='input.dsn' placeholder="dsn" class="w3-input w3-border dsn_input input_gen">
+				      	<input type="text" ng-model='input.sitename' placeholder="site name" class="w3-input w3-border site_input input_gen">
+				      </div>
+				      <div class="login_submit">
+				        <span align="right">{{ acct_id }}</span> 
+				      	<input type="submit" ng-click="login(input)" value="Login" class="w3-button w3-green input_gen">
 				      </div>
 			      </form> 
 		        <div class="loading_image" ng-show="imLoading"><img src="images/loader.gif" class="im_loading" /></div>          
 		       </div> 
 		       <div id="headers" class="top_tab"  style="display:none">
-			       	<input type="text" ng-model='input.uid' placeholder="uid" class="w3-input w3-border uid_input">
-			      	<input type="text" ng-model='input.dsn' placeholder="dsn" class="w3-input w3-border dsn_input">
-			      	<input type="text" ng-model='input.sitename' placeholder="site name" class="w3-input w3-border site_input">
+		           <div class="row">
+		              <div class="col-sm-3 col-md-3 col-lg-3 header_rows">
+		              	<input type="text" ng-model='input.oauthurl' placeholder="Oauth Url" class="w3-input w3-border input_gen"> 	
+				      	<input type="text" ng-model='input.clientid' placeholder="Client ID" class="w3-input w3-border input_gen">
+				      	<input type="text" ng-model='input.clientsecret' placeholder="Client Secret" class="w3-input w3-border input_gen">
+				      </div>
+				      <div class="col-sm-3 col-md-3 col-lg-3 header_rows">
+				      	<input type="text" ng-model='input.xapikey' placeholder="X-Api-Key" class="w3-input w3-border input_gen">
+				      	<input type="text" ng-model='input.xosname' placeholder="X-OS-Name" class="w3-input w3-border input_gen input_gen_half half1" style="float: left;">
+				      	<input type="text" ng-model='input.xosversion' placeholder="X-OS-Version" class="w3-input w3-border input_gen input_gen_half">
+				      	<input type="text" ng-model='input.xclient' placeholder="X-Client" class="w3-input w3-border input_gen">
+				      </div>
+				      <div class="col-sm-3 col-md-3 col-lg-3 header_rows">
+				       	<input type="text" ng-model='input.accept' placeholder="Accept" class="w3-input w3-border input_gen">
+				      	<input type="text" ng-model='input.contenttype' placeholder="Content-Type" class="w3-input w3-border input_gen input_gen_half half1" style="float: left;">
+				      	<input type="text" ng-model='input.acceptlanguage' placeholder="Accept-Language" class="w3-input w3-border input_gen input_gen_half">
+				      </div>	
+                   </div> 				      	
 		       </div>
 	       </div>
        </div>

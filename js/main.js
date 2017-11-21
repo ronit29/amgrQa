@@ -3,8 +3,23 @@ var app = angular.module("myApp", ['ngPrettyJson']);
 
 
 app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) {
+    
+    $scope.loadconfig = function(url){
+      $http({
+         method: 'POST',
+         url: "http://localhost:5000/getConfig",
+         data: { "url" : url },
+         headers: {'Content-Type': 'application/json'}
+         }).then(function(result) {
+
+          $scope.input = result.data;
+            // $scope.imLoading = false;
+          }, function(error) {
+       });
+    }
 
     $scope.login = function (input) {
+      
       // $scope.imLoading = true;
       // $http({
       //  method: 'POST',
@@ -16,41 +31,58 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
       //     // $scope.imLoading = false;
       //     $rootScope.user_data = result.data.user_data;
       //     $window.sessionStorage['acct_id'] = result.data.acct_id;
-      //     $window.sessionStorage['drupal_url'] = input.url;
-      //     $window.sessionStorage['tm_dsn'] = input.dsn;
-      //     $window.sessionStorage['tm_uid'] = input.uid;
-      //     $window.sessionStorage['tm_sitename'] = input.sitename;
+      //     $scope.acct_id = result.data.acct_id;
+      //     
       //   }, function(error) {
       //      $scope.error = true;
       //  });  
 
+       $http({
+         method: 'POST',
+         url: "http://localhost:5000/saveConfig",
+         data: { "url" : input.url, "dsn" : input.dsn, "uid" : input.uid,
+                 "sitename" : input.sitename,"accept" : input.accept,"contenttype" : input.contenttype, 
+                 "acceptlanguage" : input.acceptlanguage,"xclient" : input.xclient,"xapikey" : input.xapikey,
+                 "xosname" : input.xosname,"xosversion" : input.xosversion,
+                 "clientid":input.clientid,"clientsecret":input.clientsecret,"oauthurl":input.oauthurl,
 
+               },
+         headers: {'Content-Type': 'application/json'}
+         }).then(function(result) {
+          // $scope.imLoading = false;
+          console.log(result.data); 
+          $window.sessionStorage['drupal_url'] = input.url;
+          $window.sessionStorage['tm_dsn'] = input.dsn;
+          $window.sessionStorage['tm_uid'] = input.uid;
+          $window.sessionStorage['tm_sitename'] = input.sitename;
+          $window.sessionStorage['tm_oauthurl'] = input.oauthurl;
+          $window.sessionStorage['tm_clientsecret'] = input.clientsecret;
+          $window.sessionStorage['tm_clientid'] = input.clientid;
+          $window.sessionStorage['tm_xapikey'] = input.xapikey;
+          $window.sessionStorage['tm_xosversion'] = input.xosversion;
+          $window.sessionStorage['tm_xosname'] = input.xosname;
+          $window.sessionStorage['tm_xclient'] = input.xclient;
+          $window.sessionStorage['tm_acceptlanguage'] = input.acceptlanguage;
+          $window.sessionStorage['tm_contenttype'] = input.contenttype;
+          $window.sessionStorage['tm_accept'] = input.accept;
+          
+         },function(error) {
+           $scope.error = true;
+       });  
+
+      
       $http({
          method: 'GET',
-         url: "http://localhost:5000/getConfig",
-         // data: { "name" : input.name, "password" : input.password, "url" : input.url },
-         // headers: {'Content-Type': 'application/json'}
+         url: "http://localhost:5000/tm/login",
+         data: { "name" : input.name, "password" : input.password, "oauthurl" : input.oauthurl,"clientid":input.clientid,"clientsecret":input.clientsecret },
+         headers: {'Content-Type': 'application/json'}
          }).then(function(result) {
-          $scope.input = result.data;
+            console.log(result); 
             // $scope.imLoading = false;
+            $window.sessionStorage['tm_accesstoken'] = result.data.access_token;
+            $window.sessionStorage['member_id'] = result.data.member_id;
           }, function(error) {
-
        });
-
-
-      // $http({
-      //    method: 'GET',
-      //    url: "http://localhost:5000/tm/login",
-      //    // data: { "name" : input.name, "password" : input.password, "url" : input.url },
-      //    // headers: {'Content-Type': 'application/json'}
-      //    }).then(function(result) {
-      //       console.log('yes3'); 
-      //       console.log(result); 
-      //       // $scope.imLoading = false;
-      //     }, function(error) {
-      //       console.log('no3'); 
-      //        console.log(error)
-      //  });
 
      }
 
@@ -149,32 +181,59 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window)
            });  
     }
 
+
+
     // List of TM Services
     $scope.tm_services = [ 
         {Name:'User Details',endpoint:'login'},
         {Name:'Invoice List',endpoint:'tm/invoiceList'},
+        {Name:'Events Inventory',endpoint:'tm/member',api: "/inventory/events" },
+        {Name:'Event',endpoint:'tm/member',api:"/inventory/event/1062" },
+        {Name:'Inventory Summary',endpoint:'tm/member',api:"/inventory/summary" },
+        {Name:'Member Details',endpoint:'tm/member',api:"/" },
+        {Name:'Ticket transfers',endpoint:'tm/member',api:"/transfers" },
+        {Name:'Transfer Policy',endpoint:'tm/member',api:"/transfer/policy?event_id=1062" },
     ];
+
     $scope.hitTm = function(endpoint,api)
     {
-    
+       if (endpoint == 'tm/member') {
+         var post_data = { 
+                           'Accept':$window.sessionStorage['tm_accept'],
+                           'Content-Type':$window.sessionStorage['tm_contenttype'],
+                           'Accept-Language':$window.sessionStorage['tm_acceptlanguage'],
+                           'X-Client':$window.sessionStorage['tm_xclient'],
+                           'X-Api-Key':$window.sessionStorage['tm_xapikey'],
+                           'X-OS-Name':$window.sessionStorage['tm_xosname'],
+                           'X-OS-Version':$window.sessionStorage['tm_xosversion'],
+                           'X-Auth-Token':$window.sessionStorage['tm_accesstoken'],
+                         }; 
+        hitTm_http_request(endpoint,api,post_data);                           
+
+       }
+       else{
+         var post_data_ats ={
+                             "dsn":$window.sessionStorage["tm_dsn"],
+                             "uid":$window.sessionStorage["tm_uid"],
+                             "sitename": $window.sessionStorage["tm_sitename"],
+                             "acct_id": $window.sessionStorage["acct_id"],
+                            };
+       }
+    }
+
+    function hitTm_http_request(endpoint = null, api = null, post_data = null)
+    {
        $http({
          method: 'POST',
          url: "http://localhost:5000/"+endpoint,
-         data: {
-                "dsn":$window.sessionStorage["tm_dsn"],
-                "uid":$window.sessionStorage["tm_uid"],
-                "sitename": $window.sessionStorage["tm_sitename"],
-                "acct_id": $window.sessionStorage["acct_id"],
-               },
+         data: {'headers':post_data, 'api':api, 'url':$window.sessionStorage['tm_oauthurl'],'member_id':$window.sessionStorage['member_id']},
          headers: {'Content-Type': 'application/json'}
          }).then(function(result) {
-            console.log(result); 
             // $scope.imLoading = false;
            $scope.tm_output = result.data;
           }, function(error) {
              $scope.drupal_output = 'Request Failed';
-       });  
-      
+       }); 
     }
 
 

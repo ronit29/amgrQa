@@ -12,17 +12,22 @@
 {
 	float: left;
 	width: 25%;
+	margin-left: 4%;
 }
 .w3-sidebar
 {
 	position: relative !important;
 	float:left;
 }
-.tm_input
+.tm_input, .login_submit
 {
-	margin-left: 10%;
+	margin-left: 8%;
 	width: 25%;
 	display: inline-block;
+}
+.login_submit
+{
+
 }
 .bottom_section
 {
@@ -97,21 +102,19 @@
 	margin-top:3px;
 	margin-left: 2px;	
 }
-.url_input , .name_input, .pass_input , .uid_input, .dsn_input, .site_input
+.input_gen
 {
    padding: 4px;
    margin-bottom:3px;
 }
-.url_input{
-	width: 100%;
-	
-}
-.name_input, .pass_input
+
+.name_input, .pass_input , .input_gen_half
  {
    width: 48%;
    
  }
- .name_input{
+ .name_input, .half1
+ {
  	margin-right: 4%;
  }
  .list-group-item
@@ -131,4 +134,8 @@
 .w3-bar-block .w3-bar-item
 {
 	padding: 5px 16px;
+}
+.header_rows
+{
+	margin-left: 4%;
 }
