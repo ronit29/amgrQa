@@ -119,16 +119,16 @@ def drupal_login():
   try:
     login_url = data['url'] + 'user/login?_format=json&time='+str(curr_time)
     login_request = s.post(login_url,data=json.dumps(payload),headers=get_drupal_req_param(data['url'])['headers'])
+    if login_request.status_code == 200:
+      user_data = json.loads(login_request.text)
+      acct_id = user_data['member_related_accounts'][0]['name']
+      login_output = {'user_data':user_data,'acct_id':acct_id}
+      return jsonify(login_output)
+    else:
+      error_json = {'Status Code':login_request.status_code, 'Message':login_request.text}  
+      return jsonify(error_json)
   except requests.exceptions.ConnectionError:  
     pass
-  if login_request.status_code == 200:
-    user_data = json.loads(login_request.text)
-    acct_id = user_data['member_related_accounts'][0]['name']
-    login_output = {'user_data':user_data,'acct_id':acct_id}
-    return jsonify(login_output)
-  else:
-    error_json = {'Status Code':login_request.status_code, 'Message':login_request.text}  
-    return jsonify(error_json)
 
       
 
@@ -143,12 +143,48 @@ def drupal_getRequest():
     request_url = data['url'] + data['api'] + "?_format=json&time="+str(curr_time)
     list_request = s.get(request_url,headers=get_drupal_req_param(data['url'])['headers'])
     if list_request.status_code == 200:
+      if data['helper'] == 1:
+        helper_res = getHelperResponse(list_request.text, data['api'])
+        return jsonify(helper_res)
       return list_request.text
     else:
       error_json = {'Status Code':list_request.status_code, 'Message':list_request.text}
       return jsonify(error_json)  
   except requests.exceptions.ConnectionError:  
     pass
+
+
+
+'''Retursne Post Request Data'''
+@app.route('/drupal/ticketTransfer',methods=['POST'])
+def drupal_ticketTransfer():  
+  if request.method == 'POST':
+    data = request.json  
+  try:
+    curr_time = int(time.time())
+    rest_token =  s.get(data['url'] + "rest/session/token" + "?_format=json&time="+str(curr_time), headers=get_drupal_req_param(data['url'])['headers']) 
+    if rest_token.status_code == 200:
+      d_headers = get_drupal_req_param(data['url'])['headers']
+      d_headers['x-csrf-token'] = rest_token.text
+      request_url = data['url'] + data['api'] + "?_format=json&time="+str(curr_time)
+      list_request = s.post(request_url, data=json.dumps(data['post_data']), headers=get_drupal_req_param(data['url'])['headers'])
+      if list_request.status_code in [200, 201, 204] :
+        return list_request.text
+    else:
+      error_json = {'Status Code':list_request.status_code, 'Message':list_request.text}
+      return jsonify(error_json)  
+  except requests.exceptions.ConnectionError:  
+    pass
+
+
+
+'''Returns Helper Data Response'''
+def getHelperResponse(response = None, api = None):
+  if api in "api/user-events/listing":
+    events = []
+    for key in json.loads(response):
+      events.append(key['event_id'])
+    return events
 
 
 
@@ -240,6 +276,8 @@ def member_inventory():
     # req_headers['Cache-Control'] = 'no-cache'
     # request = s.delete(req_url, headers=req_headers)
     # status_code 204
+
+
 
 
 
