@@ -1,10 +1,18 @@
 
-var app = angular.module("myApp", ['ngPrettyJson', 'autoCompleteModule']);
+var app = angular.module("myApp", ['ngPrettyJson']);
 
 
 app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) {
-    
+    $scope.login_button = "LogIn";
+    if($window.sessionStorage['acct_id'])
+    {
+      $scope.login_button = "LogOut";
+      $scope.acct_id = '#'+$window.sessionStorage['acct_id'];
+    }
+    $scope.imLoading = false;
+
     $scope.loadconfig = function(url){
+      $scope.imLoading = true;
       $http({
          method: 'POST',
          url: "http://localhost:5000/getConfig",
@@ -13,8 +21,9 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
          }).then(function(result) {
 
           $scope.input = result.data;
-            // $scope.imLoading = false;
-          }, function(error) {
+          $scope.imLoading = false;
+         }, function(error) {
+           $scope.imLoading = false;
        });
     }
 
@@ -27,12 +36,10 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
        data: { "name" : input.name, "password" : input.password, "url" : input.url },
        headers: {'Content-Type': 'application/json'}
        }).then(function(result) {
-          console.log(result); 
-          $scope.imLoading = false;
           $rootScope.user_data = result.data.user_data;
           $window.sessionStorage['drupal_url'] = input.url;
           $window.sessionStorage['acct_id'] = result.data.acct_id;
-          $scope.acct_id = result.data.acct_id;
+          $scope.acct_id = '#'+result.data.acct_id;
           
         }, function(error) {
            $scope.error = true;
@@ -70,7 +77,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
      //       $scope.error = true;
      //   });  
 
-      
+       
      //  $http({
      //     method: 'GET',
      //     url: "http://localhost:5000/tm/login",
@@ -78,12 +85,13 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
      //     headers: {'Content-Type': 'application/json'}
      //     }).then(function(result) {
      //        console.log(result); 
-     //        // $scope.imLoading = false;
      //        $window.sessionStorage['tm_accesstoken'] = result.data.access_token;
      //        $window.sessionStorage['member_id'] = result.data.member_id;
+     //        $scope.member_id = result.data.member_id;
      //      }, function(error) {
      //   });
-
+     $scope.login_button = "LogOut";
+     $scope.imLoading = false;
      }
 
 });
@@ -121,16 +129,16 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
       else if (Name == 'User Ticket') {
            hitDrupal_http_request(endpoint, 'api/user-events/listing', 1);
            var resp_data = $window.sessionStorage["helper_data"].split(',');
-            $scope.autoCompleteOptions = {
-              minimumChars: 0,
-              activateOnFocus: true,
-              data: function (term) {
-                  term = term.toUpperCase();
-                  return _.filter( resp_data, function (value) {
-                      return value.startsWith(term);
-                  });
-              }
-           }    
+           //  $scope.autoCompleteOptions = {
+           //    minimumChars: 0,
+           //    activateOnFocus: true,
+           //    data: function (term) {
+           //        term = term.toUpperCase();
+           //        return _.filter( resp_data, function (value) {
+           //            return value.startsWith(term);
+           //        });
+           //    }
+           // }    
            $scope.drupal_dynamic1 = true;
            $scope.placeholder1 = "Event Id";
            $scope.goDynamic = function()

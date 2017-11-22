@@ -9,6 +9,7 @@
 		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 		<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 
 		<!-- Import Angular Library -->
@@ -17,11 +18,11 @@
            
         <!-- Custom Files -->
 		<link rel="stylesheet" type="text/css" href="css/features.css" />
-	    <link rel="stylesheet" type="text/css" href="css/angular-auto-complete.css">
+	    <!-- <link rel="stylesheet" type="text/css" href="css/angular-auto-complete.css"> -->
 		<link rel="stylesheet" type="text/css" href="css/ng-prettyjson.min.css">
 		<script type="text/javascript" src="js/main.js"></script>
 		<script type="text/javascript" src="js/ng-prettyjson.min.js"></script>
-		<script type="text/javascript" src="js/angular-auto-complete.js"></script>
+		<!-- <script type="text/javascript" src="js/angular-auto-complete.js"></script> -->
 
 		<title>PostMaster</title>
 	</head>
@@ -37,15 +38,14 @@
 		   </div>
 	       <div class="jumbotron top_section"> 
 		       <div id="login" class="top_tab"  >
-		          <form>
+		          <form name="logn">
 			          <div class="login_form">
 			             <div class="row">
-			               <div class="col-sm-10 col-md-10 col-lg-10">
+			               <div class="col-sm-10 col-md-10 col-lg-10" style="padding-right: 0px! important ">
 					         <input type="text" ng-model="input.url"  placeholder="url" class="w3-input w3-border url_input input_gen">
 					       </div>  
 					       <div class="col-sm-2 col-md-2 col-lg-2">
-					         <!-- <input type="submit" value = ">" ng-click="loadconfig(input.url)" class="w3-button w3-green input_gen" > -->
-					         <span class="w3-badge w3-grey input_gen"> ! </span>
+					         <a href=""><i ng-disabled="!input.url" class="fa fa-exclamation-circle fa-2x"  ng-click="loadconfig(input.url)" aria-hidden="true"></i></a>
 					       </div>  
 					     </div>   
 				         <input type="text" ng-model="input.name" placeholder="name" class="w3-input w3-border name_input input_gen" style="float: left;">
@@ -57,11 +57,17 @@
 				      	<input type="text" ng-model='input.sitename' placeholder="site name" class="w3-input w3-border site_input input_gen">
 				      </div>
 				      <div class="login_submit">
-				        <span align="right">{{ acct_id }}</span> 
-				      	<input type="submit" ng-click="login(input)" value="Login" class="w3-button w3-green input_gen">
+				        <div style="float: right;">
+					        <div class="row">
+						        <span>{{ acct_id }}</span> 
+						    </div>
+						    <div class="row">    
+						        <span>{{ member_id }}</span> 
+						    </div>   
+					      	<input type="submit" ng-disabled="logn.$invalid || logn.$pending" ng-click="login(input)" value="{{login_button}}" class="w3-button w3-green input_gen">
+					    </div>  	
 				      </div>
 			      </form> 
-		        <div class="loading_image" ng-show="imLoading"><img src="images/loader.gif" class="im_loading" /></div>          
 		       </div> 
 		       <div id="headers" class="top_tab"  style="display:none">
 		           <div class="row">
@@ -84,8 +90,8 @@
                    </div> 				      	
 		       </div>
 	       </div>
+	   <div class="loading_image" ng-show="imLoading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>          
        </div>
-
        <!-- Output Section -->
        <div ng-controller="drupal" class="bottom_section  ng-cloak">
           <div class="left">
@@ -105,7 +111,7 @@
 				   </div>
 				   <div class="dynamic_fields" align="right">
 				     <form name="dynamic_fields" ng-submit="goDynamic(drupDynam.one, drupDynam.two)">
-					   	 <input type="text" ng-model="drupDynam.one" placeholder="{{placeholder1}}" ng-if="drupal_dynamic1" class="w3-input w3-border drupal_dynamic1"  auto-complete="autoCompleteOptions" />
+					   	 <input type="text" ng-model="drupDynam.one" placeholder="{{placeholder1}}" ng-if="drupal_dynamic1" class="w3-input w3-border drupal_dynamic1"  />
 					   	 <input type="text" ng-model="drupDynam.two" placeholder="{{placeholder2}}" ng-if="drupal_dynamic2" class="w3-input w3-border drupal_dynamic2">
 					   	 <input type="submit" ng-disabled="dynamic_fields.$pending" class="w3-button w3-orange drupal_ynamic_go" value="Go!" ng-show="drupal_dynamic1">
 				   	 </form>
