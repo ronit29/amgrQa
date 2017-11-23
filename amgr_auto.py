@@ -11,6 +11,7 @@ import pymongo
 
 # Initialising Loaders
 s = requests.Session()
+# t = requests.Session()
 app = Flask(__name__)
 CORS(app)
 pymongo_client = MongoClient('127.0.0.1',27017)
@@ -20,7 +21,7 @@ collection  = db.test_collection
 
 '''Requests Debug Logging Code '''
 # http_client.HTTPConnection.debuglevel = 1
-# # You must initialize logging, otherwise you'll not see debug output.
+# You must initialize logging, otherwise you'll not see debug output.
 # logging.basicConfig()
 # logging.getLogger().setLevel(logging.DEBUG)
 # requests_log = logging.getLogger("requests.packages.urllib3")
@@ -113,7 +114,7 @@ def drupal_login():
               'name':data['name'],
               'pass':data['password'],
               'remember_me':0,
-            }
+            }      
   curr_time = int(time.time())  
   '''Login Request'''
   try:
@@ -164,10 +165,11 @@ def drupal_ticketTransfer():
     curr_time = int(time.time())
     rest_token =  s.get(data['url'] + "rest/session/token" + "?_format=json&time="+str(curr_time), headers=get_drupal_req_param(data['url'])['headers']) 
     if rest_token.status_code == 200:
-      d_headers = get_drupal_req_param(data['url'])['headers']
+      d_headers = get_drupal_req_param("https://tm-am-qa.io-media.com/iomediaqaunitas/")['headers']
       d_headers['x-csrf-token'] = rest_token.text
+      d_headers['content-type'] = 'application/json'
       request_url = data['url'] + data['api'] + "?_format=json&time="+str(curr_time)
-      list_request = s.post(request_url, data=json.dumps(data['post_data']), headers=get_drupal_req_param(data['url'])['headers'])
+      list_request = s.post(request_url, data=json.dumps(data['post_data']), headers=d_headers)
       if list_request.status_code in [200, 201, 204] :
         return list_request.text
     else:
@@ -185,6 +187,13 @@ def getHelperResponse(response = None, api = None):
     for key in json.loads(response):
       events.append(key['event_id'])
     return events
+  elif api in 'api/invoice/list':
+    invoice_ids = []
+    invoice_confids = []
+    for key in json.loads(response)['data']:
+      invoice_ids.append(key['invoice_ids'])  
+      invoice_confids.append(key['inv_conf_id'])
+    return {'invoiceid':invoice_ids,'invoiceconf':invoice_confids}  
 
 
 
@@ -232,7 +241,7 @@ def tm_login():
       }
   req_url =  data['oauthurl'] + "oauth/token"
   try:  
-    oauth_request = s.post(req_url,data= paylod,headers= {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'})
+    oauth_request = s.post(req_url,data= paylod, headers= {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'})
   except requests.exceptions.ConnectionError:  
     pass  
   if oauth_request.status_code == 200:
@@ -284,8 +293,6 @@ def member_inventory():
 
 if __name__ == '__main__':
     app.run(debug = True)
-
-
 
 
 

@@ -1,5 +1,5 @@
 
-var app = angular.module("myApp", ['ngPrettyJson']);
+var app = angular.module("myApp", ['ngPrettyJson', 'autoCompleteModule']);
 
 
 app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) {
@@ -10,6 +10,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
       $scope.acct_id = '#'+$window.sessionStorage['acct_id'];
     }
     $scope.imLoading = false;
+    $scope.read_only = false;
 
     $scope.loadconfig = function(url){
       $scope.imLoading = true;
@@ -36,12 +37,14 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
        data: { "name" : input.name, "password" : input.password, "url" : input.url },
        headers: {'Content-Type': 'application/json'}
        }).then(function(result) {
+          $scope.imLoading = false;
           $rootScope.user_data = result.data.user_data;
           $window.sessionStorage['drupal_url'] = input.url;
           $window.sessionStorage['acct_id'] = result.data.acct_id;
           $scope.acct_id = '#'+result.data.acct_id;
           
         }, function(error) {
+           $scope.imLoading = false;
            $scope.error = true;
        });  
 
@@ -78,45 +81,49 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
      //   });  
 
        
-     //  $http({
-     //     method: 'GET',
-     //     url: "http://localhost:5000/tm/login",
-     //     data: { "name" : input.name, "password" : input.password, "oauthurl" : input.oauthurl,"clientid":input.clientid,"clientsecret":input.clientsecret },
-     //     headers: {'Content-Type': 'application/json'}
-     //     }).then(function(result) {
-     //        console.log(result); 
-     //        $window.sessionStorage['tm_accesstoken'] = result.data.access_token;
-     //        $window.sessionStorage['member_id'] = result.data.member_id;
-     //        $scope.member_id = result.data.member_id;
-     //      }, function(error) {
-     //   });
-     $scope.login_button = "LogOut";
-     $scope.imLoading = false;
+      $http({
+         method: 'POST',
+         url: "http://localhost:5000/tm/login",
+         data: { "name" : input.name, "password" : input.password, "oauthurl" : input.oauthurl,"clientid":input.clientid,"clientsecret":input.clientsecret },
+         headers: {'Content-Type': 'application/json'}
+         }).then(function(result) {
+               $scope.imLoading = false;
+            console.log(result); 
+            $window.sessionStorage['tm_accesstoken'] = result.data.access_token;
+            $window.sessionStorage['member_id'] = result.data.member_id;
+            $scope.member_id = result.data.member_id;
+          }, function(error) {
+          $scope.imLoading = false;
+       });
+       $scope.login_button = "LogOut";
+       $scope.read_only = true;
      }
 
 });
 
 app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window, $q) {
-  
-
+  // $window.sessionStorage["helper_data"] = '';
+  $scope.drupal_progress = false;
+  $scope.tm_progress = false;
   // List of Drupal Services
   $scope.drupal_services = [ 
         {Name:'User Details',endpoint:'login'},
         {Name:'User Events List',endpoint:'drupal/getRequest',api:'api/user-events/listing'},
         {Name:'User Events Summary',endpoint:'drupal/getRequest',api:'api/user-events/summary'},
         {Name:'Member List',endpoint:'drupal/getRequest',api:'api/member/list'},
-        {Name:'User Ticket',endpoint:'drupal/getRequest',api:'api/user-ticket'},//Dynamic
-        {Name:'Transfer Ticket Policy',endpoint:'drupal/getRequest',api:'api/transfer-ticket/policy/1062'},//Dynamic
-        {Name:'Ticket Transfer',endpoint:'drupal/ticketTransfer',api:'/api/ticket/transfer'},
+        {Name:'User Ticket',endpoint:'drupal/getRequest',api:'api/user-ticket'},
+        {Name:'Transfer Ticket Policy',endpoint:'drupal/getRequest',api:'api/transfer-ticket/policy'},
+        {Name:'Ticket Transfer',endpoint:'drupal/ticketTransfer',api:'api/ticket/transfer'},
         {Name:'Ticket Reclaim',endpoint:'drupal/DELETE',api:'/api/ticket/multiple-reclaim'},
         {Name:'Invoice List',endpoint:'drupal/getRequest',api:'api/invoice/list'},
-        {Name:'Invoice Details',endpoint:'drupal/getRequest',api:'api/invoice'},//Dynamic
+        {Name:'Invoice Details',endpoint:'drupal/getRequest',api:'api/invoice'},
         {Name:'Payment Plans',endpoint:'drupal/getRequest',api:'api/invoice/plans'},
         {Name:'Plans For Invoice',endpoint:'drupal/getRequest',api:'api/invoice/plans'},//Dynamic
         {Name:'Plan Details',endpoint:'drupal/getRequest',api:'api/invoice/plans'},//Dynamic
         {Name:'CC Query',endpoint:'drupal/getRequest',api:'api/invoice/cc'},
     ];
     // Drupal getRequest CallBack
+    
     $scope.hitDrupal = function(Name,endpoint,api)
     {
       $rootScope.helper_response = [];
@@ -126,20 +133,8 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
       if (endpoint=='login') {
          $scope.drupal_output = $rootScope.user_data ? $rootScope.user_data : 'Please try Again';
       }
-      else if (Name == 'User Ticket') {
-           hitDrupal_http_request(endpoint, 'api/user-events/listing', 1);
-           var resp_data = $window.sessionStorage["helper_data"].split(',');
-           //  $scope.autoCompleteOptions = {
-           //    minimumChars: 0,
-           //    activateOnFocus: true,
-           //    data: function (term) {
-           //        term = term.toUpperCase();
-           //        return _.filter( resp_data, function (value) {
-           //            return value.startsWith(term);
-           //        });
-           //    }
-           // }    
-           $scope.drupal_dynamic1 = true;
+      else if (Name == 'User Ticket' || Name == 'Transfer Ticket Policy') {
+           create_helper_response(endpoint,'api/user-events/listing');
            $scope.placeholder1 = "Event Id";
            $scope.goDynamic = function()
            {
@@ -149,17 +144,28 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
       }
       else if(Name == 'Ticket Transfer')
       {
-         $scope.drupal_dynamic1 = true;
-         $scope.placeholder1 = "Event Id";
+           create_helper_response(endpoint,'api/user-events/listing');
+           $scope.placeholder1 = "Event Id";
          $scope.drupal_dynamic2 = true;
          $scope.placeholder2 = "Ticket Id";
          $scope.goDynamic = function()
            {
-              hitDrupal_http_request(endpoint, api, 0, {'event':{'event_id':$scope.drupDynam.one } ,'is_display_price': 'true', 'ticket_ids':[$scope.drupDynam.two]} ); 
+              hitDrupal_http_request(endpoint, api, 0, [{'event':{'event_id':$scope.drupDynam.one } ,'is_display_price': 'true', 'ticket_ids':[$scope.drupDynam.two]}] ); 
            }
       }
       else if (Name == 'Invoice Details') {
-           $scope.drupal_dynamic1 = true;
+           create_helper_response(endpoint,'api/invoice/list'); 
+           var resp_data2 = $window.sessionStorage["helper_data_2"].split(',');
+           $scope.autoCompleteOptionst = {
+              minimumChars: 0,
+              activateOnFocus: true,
+              data: function (term) {
+                  term = term.toUpperCase();
+                  return _.filter( resp_data2, function (value) {
+                      return value.startsWith(term);
+                  });
+              }
+           }  
            $scope.drupal_dynamic2 = true;
            $scope.placeholder1 = "Invoice Id";
            $scope.placeholder2 = "Inv Conf Id";
@@ -170,7 +176,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
            }
       }
       else if (Name == 'Plans For Invoice') {
-           $scope.drupal_dynamic1 = true;
+           create_helper_response(endpoint,'api/invoice/list');           
            $scope.placeholder1 = "Invoice Id";
            $scope.goDynamic = function(dynamic)
            {
@@ -179,7 +185,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
            }
       }
       else if (Name == 'Plan Details') {
-           $scope.drupal_dynamic1 = true;
+           create_helper_response(endpoint,'api/invoice/list');
            $scope.drupal_dynamic2 = true;
            $scope.placeholder1 = "Invoice Id";
            $scope.placeholder2 = "Plan Id";
@@ -195,8 +201,26 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
       }
     }
 
+    function create_helper_response(endpoint = null, api = null)
+    {
+          hitDrupal_http_request(endpoint, api, 1);
+           var resp_data = $window.sessionStorage["helper_data"].split(',');
+           $scope.autoCompleteOptions = {
+              minimumChars: 0,
+              activateOnFocus: true,
+              data: function (term) {
+                  term = term.toUpperCase();
+                  return _.filter( resp_data, function (value) {
+                      return value.startsWith(term);
+                  });
+              }
+           } 
+           $scope.drupal_dynamic1 = true;
+    }
+
     function hitDrupal_http_request(endpoint, api, is_helper = null, post_data = null)
     {
+       $scope.drupal_progress = true;
        $http({
              method: 'POST',
              url: "http://localhost:5000/"+endpoint,
@@ -204,10 +228,22 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
              headers: {'Content-Type': 'application/json'}
              }).then(function(result) {
                 console.log(result); 
-                // $scope.imLoading = false;
-                if (is_helper == 1) { $window.sessionStorage["helper_data"] = result.data; }
-                else { $scope.drupal_output = result.data; }
-              }, function(error) {
+                $scope.drupal_progress = false;
+                if (is_helper == 1) { 
+                    if (result.data.invoiceconf) {
+                      $window.sessionStorage["helper_data"] = result.data.invoiceid; 
+                      $window.sessionStorage["helper_data_2"] = result.data.invoiceconf; 
+                    }
+                    else{
+                     $window.sessionStorage["helper_data"] = result.data; 
+                    }
+                }
+                else { 
+                  $scope.drupal_output = result.data; 
+                }
+               },
+               function(error) {
+                 $scope.drupal_progress = false;
                  $scope.drupal_output = 'Request Failed';
            });  
     }
@@ -255,15 +291,17 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
 
     function hitTm_http_request(endpoint = null, api = null, post_data = null)
     {
+       $scope.tm_progress = true;
        $http({
          method: 'POST',
          url: "http://localhost:5000/"+endpoint,
          data: {'headers':post_data, 'api':api, 'url':$window.sessionStorage['tm_oauthurl'],'member_id':$window.sessionStorage['member_id']},
          headers: {'Content-Type': 'application/json'}
          }).then(function(result) {
-            // $scope.imLoading = false;
+           $scope.tm_progress = false;
            $scope.tm_output = result.data;
           }, function(error) {
+             $scope.tm_progress = false;
              $scope.drupal_output = 'Request Failed';
        }); 
     }

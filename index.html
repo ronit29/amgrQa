@@ -18,11 +18,11 @@
            
         <!-- Custom Files -->
 		<link rel="stylesheet" type="text/css" href="css/features.css" />
-	    <!-- <link rel="stylesheet" type="text/css" href="css/angular-auto-complete.css"> -->
+	    <link rel="stylesheet" type="text/css" href="css/angular-auto-complete.css">
 		<link rel="stylesheet" type="text/css" href="css/ng-prettyjson.min.css">
 		<script type="text/javascript" src="js/main.js"></script>
 		<script type="text/javascript" src="js/ng-prettyjson.min.js"></script>
-		<!-- <script type="text/javascript" src="js/angular-auto-complete.js"></script> -->
+		<script type="text/javascript" src="js/angular-auto-complete.js"></script>
 
 		<title>PostMaster</title>
 	</head>
@@ -30,11 +30,11 @@
 	<body ng-app="myApp">
 	   <!-- Top Section -->
 	   <div class="top_parent" ng-controller="index">
-		   <div class="w3-sidebar w3-bar-block w3-light-grey w3-card" style="width:12%">
+		   <div class="w3-sidebar w3-bar-block w3-light-grey w3-card" style="width:12%; background-color:white!important;">
 			  <h5 class="w3-bar-item">AMGR QA</h5>
 			  <button class="w3-bar-item w3-button w3-orange tablink" onclick="openCity(event, 'login')">Login</button>
 			  <button class="w3-bar-item w3-button tablink" onclick="openCity(event, 'headers')">Headers</button>
-			  <button class="w3-bar-item w3-button tablink" onclick="openCity(event, 'Tokyo')">Tokyo</button>
+			  <button class="w3-bar-item w3-button tablink" onclick="openCity(event, 'Test')">Test</button>
 		   </div>
 	       <div class="jumbotron top_section"> 
 		       <div id="login" class="top_tab"  >
@@ -42,29 +42,32 @@
 			          <div class="login_form">
 			             <div class="row">
 			               <div class="col-sm-10 col-md-10 col-lg-10" style="padding-right: 0px! important ">
-					         <input type="text" ng-model="input.url"  placeholder="url" class="w3-input w3-border url_input input_gen">
+					         <input type="text" ng-model="input.url"  placeholder="url" class="w3-input w3-border url_input input_gen"  ng-readonly="read_only">
 					       </div>  
 					       <div class="col-sm-2 col-md-2 col-lg-2">
-					         <a href=""><i ng-disabled="!input.url" class="fa fa-exclamation-circle fa-2x"  ng-click="loadconfig(input.url)" aria-hidden="true"></i></a>
+					         <a href=""><i ng-disabled="{{logn.input.url.$valid}}" class="fa fa-exclamation-circle fa-2x"  ng-click="loadconfig(input.url)" aria-hidden="true"></i></a>
 					       </div>  
 					     </div>   
-				         <input type="text" ng-model="input.name" placeholder="name" class="w3-input w3-border name_input input_gen" style="float: left;">
-				         <input type="text" ng-model="input.password"  placeholder="password" class="w3-input w3-border pass_input input_gen">
+				         <input type="text" ng-model="input.name" placeholder="name" class="w3-input w3-border name_input input_gen" style="float: left;" ng-readonly="read_only">
+				         <input type="text" ng-model="input.password"  placeholder="password" class="w3-input w3-border pass_input input_gen" ng-readonly="read_only">
 				      </div>
 				      <div class="tm_input">
-				      	<input type="text" ng-model='input.uid' placeholder="uid" class="w3-input w3-border uid_input input_gen">
-				      	<input type="text" ng-model='input.dsn' placeholder="dsn" class="w3-input w3-border dsn_input input_gen">
-				      	<input type="text" ng-model='input.sitename' placeholder="site name" class="w3-input w3-border site_input input_gen">
+				      	<input type="text" ng-model='input.uid' placeholder="uid" class="w3-input w3-border uid_input input_gen" ng-readonly="read_only">
+				      	<input type="text" ng-model='input.dsn' placeholder="dsn" class="w3-input w3-border dsn_input input_gen" ng-readonly="read_only">
+				      	<input type="text" ng-model='input.sitename' placeholder="site name" class="w3-input w3-border site_input input_gen" ng-readonly="read_only">
 				      </div>
 				      <div class="login_submit">
 				        <div style="float: right;">
-					        <div class="row">
-						        <span>{{ acct_id }}</span> 
+					        <div class="row login_data">
+						        <span class="input_gen" >{{ acct_id }}</span>
 						    </div>
-						    <div class="row">    
-						        <span>{{ member_id }}</span> 
+						    <div class="row login_data">
+						        <span class="input_gen" >{{ member_id }}</span> 
 						    </div>   
-					      	<input type="submit" ng-disabled="logn.$invalid || logn.$pending" ng-click="login(input)" value="{{login_button}}" class="w3-button w3-green input_gen">
+						    <div class="row login_data">
+					      	  <input align="right" type="submit" ng-disabled="logn.$invalid || logn.$pending" ng-click="login(
+					      	  input)" value="{{login_button}}" class="w3-button w3-green input_gen">
+					      	</div>  
 					    </div>  	
 				      </div>
 			      </form> 
@@ -72,20 +75,20 @@
 		       <div id="headers" class="top_tab"  style="display:none">
 		           <div class="row">
 		              <div class="col-sm-3 col-md-3 col-lg-3 header_rows">
-		              	<input type="text" ng-model='input.oauthurl' placeholder="Oauth Url" class="w3-input w3-border input_gen"> 	
-				      	<input type="text" ng-model='input.clientid' placeholder="Client ID" class="w3-input w3-border input_gen">
-				      	<input type="text" ng-model='input.clientsecret' placeholder="Client Secret" class="w3-input w3-border input_gen">
+		              	<input type="text" ng-model='input.oauthurl' placeholder="Oauth Url" class="w3-input w3-border input_gen" ng-readonly="read_only"> 	
+				      	<input type="text" ng-model='input.clientid' placeholder="Client ID" class="w3-input w3-border input_gen" ng-readonly="read_only">
+				      	<input type="text" ng-model='input.clientsecret' placeholder="Client Secret" class="w3-input w3-border input_gen" ng-readonly="read_only">
 				      </div>
 				      <div class="col-sm-3 col-md-3 col-lg-3 header_rows">
-				      	<input type="text" ng-model='input.xapikey' placeholder="X-Api-Key" class="w3-input w3-border input_gen">
-				      	<input type="text" ng-model='input.xosname' placeholder="X-OS-Name" class="w3-input w3-border input_gen input_gen_half half1" style="float: left;">
-				      	<input type="text" ng-model='input.xosversion' placeholder="X-OS-Version" class="w3-input w3-border input_gen input_gen_half">
-				      	<input type="text" ng-model='input.xclient' placeholder="X-Client" class="w3-input w3-border input_gen">
+				      	<input type="text" ng-model='input.xapikey' placeholder="X-Api-Key" class="w3-input w3-border input_gen" ng-readonly="read_only">
+				      	<input type="text" ng-model='input.xosname' placeholder="X-OS-Name" class="w3-input w3-border input_gen input_gen_half half1" style="float: left;" ng-readonly="read_only">
+				      	<input type="text" ng-model='input.xosversion' placeholder="X-OS-Version" class="w3-input w3-border input_gen input_gen_half" ng-readonly="read_only">
+				      	<input type="text" ng-model='input.xclient' placeholder="X-Client" class="w3-input w3-border input_gen" ng-readonly="read_only">
 				      </div>
 				      <div class="col-sm-3 col-md-3 col-lg-3 header_rows">
-				       	<input type="text" ng-model='input.accept' placeholder="Accept" class="w3-input w3-border input_gen">
-				      	<input type="text" ng-model='input.contenttype' placeholder="Content-Type" class="w3-input w3-border input_gen input_gen_half half1" style="float: left;">
-				      	<input type="text" ng-model='input.acceptlanguage' placeholder="Accept-Language" class="w3-input w3-border input_gen input_gen_half">
+				       	<input type="text" ng-model='input.accept' placeholder="Accept" class="w3-input w3-border input_gen" ng-readonly="read_only">
+				      	<input type="text" ng-model='input.contenttype' placeholder="Content-Type" class="w3-input w3-border input_gen input_gen_half half1" style="float: left;" ng-readonly="read_only">
+				      	<input type="text" ng-model='input.acceptlanguage' placeholder="Accept-Language" class="w3-input w3-border input_gen input_gen_half" ng-readonly="read_only">
 				      </div>	
                    </div> 				      	
 		       </div>
@@ -94,7 +97,8 @@
        </div>
        <!-- Output Section -->
        <div ng-controller="drupal" class="bottom_section  ng-cloak">
-          <div class="left">
+         <div class="left">
+            <div>
                 <div class="service_parent">
 		           <div class="dropdown">
 					    <span class="w3-button w3-white dropdown-toggle"  data-toggle="dropdown">Drupal Services
@@ -111,33 +115,39 @@
 				   </div>
 				   <div class="dynamic_fields" align="right">
 				     <form name="dynamic_fields" ng-submit="goDynamic(drupDynam.one, drupDynam.two)">
-					   	 <input type="text" ng-model="drupDynam.one" placeholder="{{placeholder1}}" ng-if="drupal_dynamic1" class="w3-input w3-border drupal_dynamic1"  />
-					   	 <input type="text" ng-model="drupDynam.two" placeholder="{{placeholder2}}" ng-if="drupal_dynamic2" class="w3-input w3-border drupal_dynamic2">
-					   	 <input type="submit" ng-disabled="dynamic_fields.$pending" class="w3-button w3-orange drupal_ynamic_go" value="Go!" ng-show="drupal_dynamic1">
+					   	 <input type="text" ng-model="drupDynam.one" placeholder="{{placeholder1}}" ng-if="drupal_dynamic1" class="w3-input w3-border drupal_dynamic1" auto-complete="autoCompleteOptions" />
+					   	 <input type="text" ng-model="drupDynam.two" placeholder="{{placeholder2}}" ng-if="drupal_dynamic2" class="w3-input w3-border drupal_dynamic2" auto-complete="autoCompleteOptionst">
+					   	 <input type="submit" ng-disabled="{{drupDynam.one.$valid}}" class="w3-button w3-orange drupal_ynamic_go" value="Go!" ng-show="drupal_dynamic1">
 				   	 </form>
 				   </div>
-				</div>
-				<div class="service_data">
+		        </div>
+		       <div ng-show="drupal_progress" class="progress-line"></div>
+		    </div> 
+			   <div class="service_data">
 		          <p json='drupal_output' pretty-json ></p>
-		        </div>  
-	      </div>  
+		       </div> 
 
-	      <div class="right">
-	          <div class="service_parent">
-		           <div class="dropdown">
-					    <span class="w3-button w3-white dropdown-toggle"  data-toggle="dropdown">Tm Services
-					    <span class="caret"></span></span>
-					    <ul class="dropdown-menu service_list_ul list-group">
-					      <li class="service_list_li">
-						      <div class="input-group"> 
-							     <input type="text" placeholder="Search" ng-model='tm_filter.Name' class="form-control service_search">
-							  </div>   
-					      </li>
-					      <li class="divider"></li>
-					      <li class= "service_list_li" ng-repeat = "t in tm_services | filter:tm_filter"  ng-click="hitTm(t.endpoint)"><a href="#" class="list-group-item"><strong>{{ t.Name }}</strong></a></li>
-					    </ul>
-				   </div>
-				</div>
+	     </div>  
+
+	     <div class="right">
+	          <div>
+		          <div class="service_parent">
+			           <div class="dropdown">
+						    <span class="w3-button w3-white dropdown-toggle"  data-toggle="dropdown">Tm Services
+						    <span class="caret"></span></span>
+						    <ul class="dropdown-menu service_list_ul list-group">
+						      <li class="service_list_li">
+							      <div class="input-group"> 
+								     <input type="text" placeholder="Search" ng-model='tm_filter.Name' class="form-control service_search">
+								  </div>   
+						      </li>
+						      <li class="divider"></li>
+						      <li class= "service_list_li" ng-repeat = "t in tm_services | filter:tm_filter"  ng-click="hitTm(t.endpoint,t.api)"><a href="#" class="list-group-item"><strong>{{ t.Name }}</strong></a></li>
+						    </ul>
+					   </div>
+					</div>
+			        <div ng-show="tm_progress" class="progress-line"></div>
+		      </div>
 	          <div class="service_data">
 	            <p json='tm_output' pretty-json ></p>
 	          </div> 
