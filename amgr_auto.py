@@ -21,7 +21,6 @@ collection  = db.test_collection
 
 '''Requests Debug Logging Code '''
 # http_client.HTTPConnection.debuglevel = 1
-# You must initialize logging, otherwise you'll not see debug output.
 # logging.basicConfig()
 # logging.getLogger().setLevel(logging.DEBUG)
 # requests_log = logging.getLogger("requests.packages.urllib3")
@@ -108,6 +107,8 @@ def save_config():
 '''Performs Drupal Login and Returns acct_id'''
 @app.route('/drupal/login',methods=['POST'])
 def drupal_login():
+  if s.cookies:
+    s.close()
   if request.method == 'POST':
     data = request.json
   payload = {
@@ -187,6 +188,11 @@ def getHelperResponse(response = None, api = None):
     for key in json.loads(response):
       events.append(key['event_id'])
     return events
+  elif api.find("/inventory/events") is not  -1:
+    events = []
+    for key in json.loads(response)['events']:
+      events.append(key['event_id'])
+    return events
   elif api in 'api/invoice/list':
     invoice_ids = []
     invoice_confids = []
@@ -256,22 +262,24 @@ def tm_login():
 
 
 '''Returns `   Response'''
-@app.route('/tm/member',methods=['POST'])
-def member_inventory():
+@app.route('/tm/memberRequest',methods=['POST'])
+def member_getRequest():
   if request.method == 'POST':
     data = request.json  
   req_headers = data['headers']
   try:  
-    # req_url = "https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/api/v1/transfer"
-    # /policy?event_id=1062"
-    req_url = data['url'] + "api/v1/member/"+str(data['member_id']) + data['api']
+    req_url = data['apiurl'] + data['api']
     make_request = s.get(req_url,headers=req_headers)
   except requests.exceptions.ConnectionError:  
     pass  
   if make_request.status_code == 200:
-     return request.text
+     if data['helper'] == 1:
+        helper_res = getHelperResponse(make_request.text, data['api'])
+        return jsonify(helper_res)
+     return make_request.text
     
-
+ # req_url = "https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/api/v1/transfer"
+    # /policy?event_id=1062"
 # req_url = "https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/api/v1/member/"+str(member_id)+"/transfer"
     # transfer_data = {
     #                   'event':{'event_id':1062} ,
@@ -297,3 +305,44 @@ if __name__ == '__main__':
 
 
 
+def member_getRequ():
+  paylod = {
+        "client_id" : 'iomediaqaunitas.integration',
+        "client_secret" : 'cAyPhupq0wFh_Qzgni1fsomi7xUwfvTwdHhvO8o4s74',
+        "grant_type" : 'password',
+        "username" : 'rkumar@io-media.com',
+        "password" : '12345678',
+      }
+  req_url =  'https://qa1-oauth.acctmgr.us-east-1.nonprod-tmaws.io/' + "oauth/token"
+  try:  
+    oauth_request = s.post(req_url,data= paylod, headers= {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'})
+  except requests.exceptions.ConnectionError:  
+    pass  
+  if oauth_request.status_code == 200:
+    access_token = json.loads(oauth_request.text)['access_token']
+    if access_token:
+      memId_url = req_url + "/" + str(access_token)
+      memberid_request = s.get(memId_url)
+      member_id = json.loads(memberid_request.text)['umember_token']
+      oauth_data = {'access_token':access_token,'member_id':member_id}
+      print(oauth_data)
+  req_headers = { 
+                           'Accept':'application/vnd.amgr.v1.5+json',
+                           'Content-Type':'application/json',
+                           'Accept-Language':'en-us',
+                           'X-Client':'iomediaqaunitas',
+                           'X-Api-Key':'6ca830a9-0aa2-11e7-bce4-0afa92bc63fa',
+                           'X-OS-Name':'web',
+                           'X-OS-Version':8,
+                           'X-Auth-Token':access_token,
+                       } 
+  try:  
+    req_url_new = 'https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/' + "api/v1/members/"+member_id + '/inventory/summary'
+    make_request = s.get(req_url_new,headers=req_headers)
+    print(make_request)
+    print(make_request.text)
+  except requests.exceptions.ConnectionError:  
+    pass  
+
+
+# member_getRequ()

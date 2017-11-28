@@ -9,6 +9,10 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
       $scope.login_button = "LogOut";
       $scope.acct_id = '#'+$window.sessionStorage['acct_id'];
     }
+    if($window.sessionStorage['member_id'])
+    {
+      $scope.member_id = $window.sessionStorage['member_id'];
+    }
     $scope.imLoading = false;
     $scope.read_only = false;
 
@@ -28,7 +32,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
        });
     }
 
-    $scope.login = function (input) {
+    $scope.login = function(input) {
       
       $scope.imLoading = true;
       $http({
@@ -48,37 +52,37 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
            $scope.error = true;
        });  
 
-     //   $http({
-     //     method: 'POST',
-     //     url: "http://localhost:5000/saveConfig",
-     //     data: { "url" : input.url, "dsn" : input.tm_dsn, "uid" : input.uid,
-     //             "sitename" : input.sitename,"accept" : input.accept,"contenttype" : input.contenttype, 
-     //             "acceptlanguage" : input.acceptlanguage,"xclient" : input.xclient,"xapikey" : input.xapikey,
-     //             "xosname" : input.xosname,"xosversion" : input.xosversion,
-     //             "clientid":input.clientid,"clientsecret":input.clientsecret,"oauthurl":input.oauthurl,
+       $http({
+         method: 'POST',
+         url: "http://localhost:5000/saveConfig",
+         data: { "url" : input.url, "dsn" : input.tm_dsn, "uid" : input.uid,
+                 "sitename" : input.sitename,"accept" : input.accept,"contenttype" : input.contenttype, 
+                 "acceptlanguage" : input.acceptlanguage,"xclient" : input.xclient,"xapikey" : input.xapikey,
+                 "xosname" : input.xosname,"xosversion" : input.xosversion,
+                 "clientid":input.clientid,"clientsecret":input.clientsecret,"oauthurl":input.oauthurl,"tmapiurl":input.tmapiurl,
 
-     //           },
-     //     headers: {'Content-Type': 'application/json'}
-     //     }).then(function(result) {
-     //      // $scope.imLoading = false;
-     //      console.log(result.data); 
-     //      $window.sessionStorage['tm_dsn'] = input.dsn;
-     //      $window.sessionStorage['tm_uid'] = input.uid;
-     //      $window.sessionStorage['tm_sitename'] = input.sitename;
-     //      $window.sessionStorage['tm_oauthurl'] = input.oauthurl;
-     //      $window.sessionStorage['tm_clientsecret'] = input.clientsecret;
-     //      $window.sessionStorage['tm_clientid'] = input.clientid;
-     //      $window.sessionStorage['tm_xapikey'] = input.xapikey;
-     //      $window.sessionStorage['tm_xosversion'] = input.xosversion;
-     //      $window.sessionStorage['tm_xosname'] = input.xosname;
-     //      $window.sessionStorage['tm_xclient'] = input.xclient;
-     //      $window.sessionStorage['tm_acceptlanguage'] = input.acceptlanguage;
-     //      $window.sessionStorage['tm_contenttype'] = input.contenttype;
-     //      $window.sessionStorage['tm_accept'] = input.accept;
+               },
+         headers: {'Content-Type': 'application/json'}
+         }).then(function(result) {
+          // $scope.imLoading = false;
+          $window.sessionStorage['tm_dsn'] = input.dsn;
+          $window.sessionStorage['tm_uid'] = input.uid;
+          $window.sessionStorage['tm_sitename'] = input.sitename;
+          $window.sessionStorage['tm_oauthurl'] = input.oauthurl;
+          $window.sessionStorage['tm_tmapiurl'] = input.tmapiurl;
+          $window.sessionStorage['tm_clientsecret'] = input.clientsecret;
+          $window.sessionStorage['tm_clientid'] = input.clientid;
+          $window.sessionStorage['tm_xapikey'] = input.xapikey;
+          $window.sessionStorage['tm_xosversion'] = input.xosversion;
+          $window.sessionStorage['tm_xosname'] = input.xosname;
+          $window.sessionStorage['tm_xclient'] = input.xclient;
+          $window.sessionStorage['tm_acceptlanguage'] = input.acceptlanguage;
+          $window.sessionStorage['tm_contenttype'] = input.contenttype;
+          $window.sessionStorage['tm_accept'] = input.accept;
           
-     //     },function(error) {
-     //       $scope.error = true;
-     //   });  
+         },function(error) {
+           $scope.error = true;
+       });  
 
        
       $http({
@@ -101,7 +105,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
 
 });
 
-app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window, $q) {
+app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window, $q, $timeout) {
   // $window.sessionStorage["helper_data"] = '';
   $scope.drupal_progress = false;
   $scope.tm_progress = false;
@@ -126,7 +130,6 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
     
     $scope.hitDrupal = function(Name,endpoint,api)
     {
-      $rootScope.helper_response = [];
       $scope.drupDynam ={ one:'',two:''};
       $scope.drupal_dynamic1 = false;
       $scope.drupal_dynamic2 = false;
@@ -134,7 +137,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
          $scope.drupal_output = $rootScope.user_data ? $rootScope.user_data : 'Please try Again';
       }
       else if (Name == 'User Ticket' || Name == 'Transfer Ticket Policy') {
-           create_helper_response(endpoint,'api/user-events/listing');
+           hitDrupal_http_request(endpoint, 'api/user-events/listing', [1]);
            $scope.placeholder1 = "Event Id";
            $scope.goDynamic = function()
            {
@@ -144,9 +147,9 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
       }
       else if(Name == 'Ticket Transfer')
       {
-           create_helper_response(endpoint,'api/user-events/listing');
-           $scope.placeholder1 = "Event Id";
-         $scope.drupal_dynamic2 = true;
+         hitDrupal_http_request(endpoint,'api/user-events/listing',[1]);
+         $scope.placeholder1 = "Event Id";
+         create_helper_response_two();
          $scope.placeholder2 = "Ticket Id";
          $scope.goDynamic = function()
            {
@@ -154,44 +157,31 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
            }
       }
       else if (Name == 'Invoice Details') {
-           create_helper_response(endpoint,'api/invoice/list'); 
-           var resp_data2 = $window.sessionStorage["helper_data_2"].split(',');
-           $scope.autoCompleteOptionst = {
-              minimumChars: 0,
-              activateOnFocus: true,
-              data: function (term) {
-                  term = term.toUpperCase();
-                  return _.filter( resp_data2, function (value) {
-                      return value.startsWith(term);
-                  });
-              }
-           }  
-           $scope.drupal_dynamic2 = true;
+           hitDrupal_http_request(endpoint,'api/invoice/list',[1,2]);
            $scope.placeholder1 = "Invoice Id";
            $scope.placeholder2 = "Inv Conf Id";
            $scope.goDynamic = function(dynamic)
            {
-              dynamic_api = api + '/' + dynamic.one + '/' + dynamic.two;
+              dynamic_api = api + '/' + $scope.drupDynam.one + '/' + $scope.drupDynam.two;
               hitDrupal_http_request(endpoint, dynamic_api); 
            }
       }
       else if (Name == 'Plans For Invoice') {
-           create_helper_response(endpoint,'api/invoice/list');           
+           hitDrupal_http_request(endpoint,'api/invoice/list',[1]);
            $scope.placeholder1 = "Invoice Id";
            $scope.goDynamic = function(dynamic)
            {
-              dynamic_api = api + '/' + dynamic.one;
+              dynamic_api = api + '/' + $scope.drupDynam.one;
               hitDrupal_http_request(endpoint, dynamic_api); 
            }
       }
       else if (Name == 'Plan Details') {
-           create_helper_response(endpoint,'api/invoice/list');
-           $scope.drupal_dynamic2 = true;
+           hitDrupal_http_request(endpoint,'api/invoice/list',[1,2]);
            $scope.placeholder1 = "Invoice Id";
            $scope.placeholder2 = "Plan Id";
            $scope.goDynamic = function(dynamic)
            {
-              dynamic_api = api + '/' + dynamic.one + '/' + dynamic.two;
+              dynamic_api = api + '/' + $scope.drupDynam.one + '/' + $scope.drupDynam.two;
               hitDrupal_http_request(endpoint, dynamic_api); 
            }
       }
@@ -201,21 +191,35 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
       }
     }
 
-    function create_helper_response(endpoint = null, api = null)
+    function create_helper_response()
     {
-          hitDrupal_http_request(endpoint, api, 1);
-           var resp_data = $window.sessionStorage["helper_data"].split(',');
-           $scope.autoCompleteOptions = {
-              minimumChars: 0,
-              activateOnFocus: true,
-              data: function (term) {
-                  term = term.toUpperCase();
-                  return _.filter( resp_data, function (value) {
-                      return value.startsWith(term);
-                  });
-              }
-           } 
-           $scope.drupal_dynamic1 = true;
+               var resp_data = $window.sessionStorage["helper_data"].split(',');
+               $scope.autoCompleteOptions = {
+                  minimumChars: 0,
+                  activateOnFocus: true,
+                  data: function (term) {
+                      term = term.toUpperCase();
+                      return _.filter( resp_data, function (value) {
+                          return value.startsWith(term);
+                      });
+                  }
+               } 
+               $scope.drupal_dynamic1 = true;
+    }
+     function create_helper_response_two()
+    {
+               var resp_data = $window.sessionStorage["helper_data_2"].split(',');
+               $scope.autoCompleteOptions2 = {
+                  minimumChars: 0,
+                  activateOnFocus: true,
+                  data: function (term) {
+                      term = term.toUpperCase();
+                      return _.filter( resp_data, function (value) {
+                          return value.startsWith(term);
+                      });
+                  }
+               } 
+               $scope.drupal_dynamic2 = true;
     }
 
     function hitDrupal_http_request(endpoint, api, is_helper = null, post_data = null)
@@ -224,21 +228,28 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
        $http({
              method: 'POST',
              url: "http://localhost:5000/"+endpoint,
-             data: {"url":$window.sessionStorage["drupal_url"],"api":api,"helper":is_helper,"post_data":post_data},
+             data: {"url":$window.sessionStorage["drupal_url"],"api":api,"helper":(is_helper !== null && is_helper[0] ? is_helper[0] : 0),"post_data":post_data},
              headers: {'Content-Type': 'application/json'}
              }).then(function(result) {
                 console.log(result); 
                 $scope.drupal_progress = false;
-                if (is_helper == 1) { 
-                    if (result.data.invoiceconf) {
-                      $window.sessionStorage["helper_data"] = result.data.invoiceid; 
-                      $window.sessionStorage["helper_data_2"] = result.data.invoiceconf; 
-                    }
-                    else{
-                     $window.sessionStorage["helper_data"] = result.data; 
-                    }
+                if (is_helper !== null && is_helper[0]) 
+                { 
+                      if (result.data.invoiceconf) {
+                        $window.sessionStorage["helper_data"] = result.data.invoiceid; 
+                        $window.sessionStorage["helper_data_2"] = result.data.invoiceconf; 
+                      }
+                      else{
+                       $window.sessionStorage["helper_data"] = result.data; 
+                      }
+
+                     create_helper_response();
+                     if (is_helper[1] && is_helper[1] == 2) {
+                      create_helper_response_two();
+                     }
                 }
-                else { 
+                else 
+                { 
                   $scope.drupal_output = result.data; 
                 }
                },
@@ -251,22 +262,27 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
 
 
 
+
+
     // List of TM Services
+    var  member_id = $window.sessionStorage['member_id'];
     $scope.tm_services = [ 
         {Name:'User Details',endpoint:'login'},
         {Name:'Invoice List',endpoint:'tm/invoiceList'},
-        {Name:'Events Inventory',endpoint:'tm/member',api: "/inventory/events" },
-        {Name:'Event',endpoint:'tm/member',api:"/inventory/event/1062" },
-        {Name:'Inventory Summary',endpoint:'tm/member',api:"/inventory/summary" },
-        {Name:'Member Details',endpoint:'tm/member',api:"/" },
-        {Name:'Ticket transfers',endpoint:'tm/member',api:"/transfers" },
-        {Name:'Transfer Policy',endpoint:'tm/member',api:"/transfer/policy?event_id=1062" },
+        {Name:'Events Inventory',endpoint:'tm/memberRequest',api: "api/v1/member/"+member_id+"/inventory/events" },
+        {Name:'Event',endpoint:'tm/memberRequest',api:"api/v1/member/"+member_id+"/inventory/event" },
+        {Name:'Inventory Summary',endpoint:'tm/memberRequest',api:"api/v1/members/"+member_id+"/inventory/summary" },
+        {Name:'Member Details',endpoint:'tm/memberRequest',api:"api/v1/member/"+member_id+"/" },
+        {Name:'Ticket transfers',endpoint:'tm/memberRequest',api:"api/v1/member/"+member_id+"/transfers" },
+        {Name:'Transfer Policy',endpoint:'tm/memberRequest',api:"api/v1/transfer/policy?event_id=" },
     ];
 
     $scope.hitTm = function(endpoint,api)
     {
-       if (endpoint == 'tm/member') {
-         var post_data = { 
+        $scope.tmDynam ={ one:'',two:''};
+        $scope.tm_dynamic1 = false;
+        $scope.tm_dynamic2 = false;
+        var tm_oauth_head = { 
                            'Accept':$window.sessionStorage['tm_accept'],
                            'Content-Type':$window.sessionStorage['tm_contenttype'],
                            'Accept-Language':$window.sessionStorage['tm_acceptlanguage'],
@@ -275,31 +291,73 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
                            'X-OS-Name':$window.sessionStorage['tm_xosname'],
                            'X-OS-Version':$window.sessionStorage['tm_xosversion'],
                            'X-Auth-Token':$window.sessionStorage['tm_accesstoken'],
-                         }; 
-        hitTm_http_request(endpoint,api,post_data);                           
-
-       }
-       else{
-         var post_data_ats ={
+                       }; 
+        var ats_head ={
                              "dsn":$window.sessionStorage["tm_dsn"],
                              "uid":$window.sessionStorage["tm_uid"],
                              "sitename": $window.sessionStorage["tm_sitename"],
                              "acct_id": $window.sessionStorage["acct_id"],
-                            };
+                            };               
+
+       if ((api == "api/v1/member/"+member_id+'/inventory/event') || (api == "api/v1/transfer/policy?event_id=")) {
+           
+           hitTm_http_request(endpoint,"api/v1/member/"+member_id+'/inventory/events', tm_oauth_head, [1]);
+           $scope.tmplaceholder1 = "Event Id";
+           $scope.goDynamicTm = function()
+           {
+              dynamic_api = api + '/' + $scope.tmDynam.one;
+              hitTm_http_request(endpoint, dynamic_api, tm_oauth_head); 
+           }                           
+       }
+       else{
+         hitTm_http_request(endpoint, api, tm_oauth_head);
        }
     }
+    
+    function create_tmhelper_response()
+    {
+               var resp_data = $window.sessionStorage["tmhelper_data"].split(',');
+               $scope.tmautoCompleteOptions = {
+                  minimumChars: 0,
+                  activateOnFocus: true,
+                  data: function (term) {
+                      term = term.toUpperCase();
+                      return _.filter( resp_data, function (value) {
+                          return value.startsWith(term);
+                      });
+                  }
+               } 
+               $scope.tm_dynamic1 = true;
+    }
 
-    function hitTm_http_request(endpoint = null, api = null, post_data = null)
+    function hitTm_http_request(endpoint = null, api = null, post_data = null, is_helper = null)
     {
        $scope.tm_progress = true;
        $http({
          method: 'POST',
          url: "http://localhost:5000/"+endpoint,
-         data: {'headers':post_data, 'api':api, 'url':$window.sessionStorage['tm_oauthurl'],'member_id':$window.sessionStorage['member_id']},
+         data: {'headers':post_data, 'api':api, 'apiurl':$window.sessionStorage['tm_tmapiurl'], 'member_id':$window.sessionStorage['member_id'],"helper":(is_helper !== null && is_helper[0] ? is_helper[0] : 0)},
          headers: {'Content-Type': 'application/json'}
          }).then(function(result) {
-           $scope.tm_progress = false;
-           $scope.tm_output = result.data;
+             $scope.tm_progress = false;
+             if (is_helper !== null && is_helper[0]) 
+             { 
+                      if (result.data.invoiceconf) {
+                        $window.sessionStorage["tmhelper_data"] = result.data.invoiceid; 
+                        $window.sessionStorage["tmhelper_data_2"] = result.data.invoiceconf; 
+                      }
+                      else{
+                       $window.sessionStorage["tmhelper_data"] = result.data; 
+                      }
+                     create_tmhelper_response();
+                     if (is_helper[1] && is_helper[1] == 2) {
+                      create_tmhelper_response_two();
+                     }
+             }
+            else 
+            { 
+             $scope.tm_output = result.data;
+            } 
           }, function(error) {
              $scope.tm_progress = false;
              $scope.drupal_output = 'Request Failed';
@@ -308,19 +366,5 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
 
 
 });
-
-
-// app.factory('Scopes', function ($rootScope) {
-//     var mem = {};
-//  return {
-//         store: function (key, value) {
-//             $rootScope.$emit('scope.stored', key);
-//             mem[key] = value;
-//         },
-//         get: function (key) {
-//             return mem[key];
-//         }
-//     };
-// });
 
 

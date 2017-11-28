@@ -50,11 +50,12 @@
 					     </div>   
 				         <input type="text" ng-model="input.name" placeholder="name" class="w3-input w3-border name_input input_gen" style="float: left;" ng-readonly="read_only">
 				         <input type="text" ng-model="input.password"  placeholder="password" class="w3-input w3-border pass_input input_gen" ng-readonly="read_only">
+				         <input type="text" placeholder ="oauthurl" ng-model="input.oauthurl" class="w3-input w3-border input_gen"  ng-readonly="read_only">
 				      </div>
 				      <div class="tm_input">
-				      	<input type="text" ng-model='input.uid' placeholder="uid" class="w3-input w3-border uid_input input_gen" ng-readonly="read_only">
-				      	<input type="text" ng-model='input.dsn' placeholder="dsn" class="w3-input w3-border dsn_input input_gen" ng-readonly="read_only">
-				      	<input type="text" ng-model='input.sitename' placeholder="site name" class="w3-input w3-border site_input input_gen" ng-readonly="read_only">
+				      	<input type="text" ng-model='input.uid' placeholder="uid" class="w3-input w3-border input_gen" ng-readonly="read_only">
+				      	<input type="text" ng-model='input.dsn' placeholder="dsn" class="w3-input w3-border input_gen" ng-readonly="read_only">
+				      	<input type="text" ng-model='input.sitename' placeholder="site name" class="w3-input w3-border input_gen" ng-readonly="read_only">
 				      </div>
 				      <div class="login_submit">
 				        <div style="float: right;">
@@ -75,7 +76,7 @@
 		       <div id="headers" class="top_tab"  style="display:none">
 		           <div class="row">
 		              <div class="col-sm-3 col-md-3 col-lg-3 header_rows">
-		              	<input type="text" ng-model='input.oauthurl' placeholder="Oauth Url" class="w3-input w3-border input_gen" ng-readonly="read_only"> 	
+		              	<input type="text" ng-model='input.tmapiurl' placeholder="TmApi Url" class="w3-input w3-border input_gen" ng-readonly="read_only"> 	
 				      	<input type="text" ng-model='input.clientid' placeholder="Client ID" class="w3-input w3-border input_gen" ng-readonly="read_only">
 				      	<input type="text" ng-model='input.clientsecret' placeholder="Client Secret" class="w3-input w3-border input_gen" ng-readonly="read_only">
 				      </div>
@@ -116,7 +117,7 @@
 				   <div class="dynamic_fields" align="right">
 				     <form name="dynamic_fields" ng-submit="goDynamic(drupDynam.one, drupDynam.two)">
 					   	 <input type="text" ng-model="drupDynam.one" placeholder="{{placeholder1}}" ng-if="drupal_dynamic1" class="w3-input w3-border drupal_dynamic1" auto-complete="autoCompleteOptions" />
-					   	 <input type="text" ng-model="drupDynam.two" placeholder="{{placeholder2}}" ng-if="drupal_dynamic2" class="w3-input w3-border drupal_dynamic2" auto-complete="autoCompleteOptionst">
+					   	 <input type="text" ng-model="drupDynam.two" placeholder="{{placeholder2}}" ng-if="drupal_dynamic2" class="w3-input w3-border drupal_dynamic2" auto-complete="autoCompleteOptions2">
 					   	 <input type="submit" ng-disabled="{{drupDynam.one.$valid}}" class="w3-button w3-orange drupal_ynamic_go" value="Go!" ng-show="drupal_dynamic1">
 				   	 </form>
 				   </div>
@@ -145,6 +146,13 @@
 						      <li class= "service_list_li" ng-repeat = "t in tm_services | filter:tm_filter"  ng-click="hitTm(t.endpoint,t.api)"><a href="#" class="list-group-item"><strong>{{ t.Name }}</strong></a></li>
 						    </ul>
 					   </div>
+					   <div class="dynamic_fields" align="right">
+				         <form name="dynamic_fields_tm" ng-submit="goDynamicTm()">
+						   	 <input type="text" ng-model="tmDynam.one" placeholder="{{tmplaceholder1}}" ng-if="tm_dynamic1" class="w3-input w3-border tm_dynamic1" auto-complete="tmautoCompleteOptions" />
+						   	 <input type="text" ng-model="tmDynam.two" placeholder="{{tmplaceholder2}}" ng-if="tm_dynamic2" class="w3-input w3-border tm_dynamic2" auto-complete="tmautoCompleteOptions2">
+						   	 <input type="submit" ng-disabled="{{tmDynam.one.$valid}}" class="w3-button w3-orange drupal_ynamic_go" value="Go!" ng-show="tm_dynamic1">
+				   	     </form>
+				       </div>
 					</div>
 			        <div ng-show="tm_progress" class="progress-line"></div>
 		      </div>
