@@ -95,7 +95,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
             console.log(result); 
             $window.sessionStorage['tm_accesstoken'] = result.data.access_token;
             $window.sessionStorage['member_id'] = result.data.member_id;
-            $scope.member_id = result.data.member_id;
+            $rootScope.member_id = result.data.member_id;
           }, function(error) {
           $scope.imLoading = false;
        });
@@ -265,7 +265,13 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
 
 
     // List of TM Services
-    var  member_id = $window.sessionStorage['member_id'];
+    if ($window.sessionStorage['member_id']) {
+      var  member_id = $window.sessionStorage['member_id'];
+    }
+    else
+    {
+      var member_id = $rootScope.member_id;
+    }
     $scope.tm_services = [ 
         {Name:'User Details',endpoint:'login'},
         {Name:'Invoice List',endpoint:'tm/invoiceList'},

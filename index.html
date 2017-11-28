@@ -29,7 +29,8 @@
 
 	<body ng-app="myApp">
 	   <!-- Top Section -->
-	   <div class="top_parent" ng-controller="index">
+	   <div ng-controller="index">
+	   <div class="top_parent" >
 		   <div class="w3-sidebar w3-bar-block w3-light-grey w3-card" style="width:12%; background-color:white!important;">
 			  <h5 class="w3-bar-item">AMGR QA</h5>
 			  <button class="w3-bar-item w3-button w3-orange tablink" onclick="openCity(event, 'login')">Login</button>
@@ -96,6 +97,7 @@
 	       </div>
 	   <div class="loading_image" ng-show="imLoading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw golu_loader"></i></div>          
        </div>
+
        <!-- Output Section -->
        <div ng-controller="drupal" class="bottom_section  ng-cloak">
          <div class="left">
@@ -163,7 +165,7 @@
 
 	   </div>
     
-
+       </div>
     <script>
 		function openCity(evt, cityName) {
 		  var i, x, tablinks;
