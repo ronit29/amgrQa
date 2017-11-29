@@ -4,13 +4,14 @@ var app = angular.module("myApp", ['ngPrettyJson', 'autoCompleteModule']);
 
 app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) {
     $scope.login_button = "LogIn";
-    if($window.sessionStorage['acct_id'])
+    if($window.sessionStorage['acct_id'] && $window.sessionStorage['acct_id'] !== '')
     {
       $scope.login_button = "LogOut";
       $scope.acct_id = '#'+$window.sessionStorage['acct_id'];
     }
     if($window.sessionStorage['member_id'])
     {
+      $scope.read_only = true;
       $scope.member_id = $window.sessionStorage['member_id'];
     }
     $scope.imLoading = false;
@@ -46,6 +47,8 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
           $window.sessionStorage['drupal_url'] = input.url;
           $window.sessionStorage['acct_id'] = result.data.acct_id;
           $scope.acct_id = '#'+result.data.acct_id;
+          $scope.login_button = "LogOut";
+          $scope.read_only = true;
           
         }, function(error) {
            $scope.imLoading = false;
@@ -55,7 +58,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
        $http({
          method: 'POST',
          url: "http://localhost:5000/saveConfig",
-         data: { "url" : input.url, "dsn" : input.tm_dsn, "uid" : input.uid,
+         data: { "url" : input.url, "dsn" : input.dsn, "uid" : input.uid,
                  "sitename" : input.sitename,"accept" : input.accept,"contenttype" : input.contenttype, 
                  "acceptlanguage" : input.acceptlanguage,"xclient" : input.xclient,"xapikey" : input.xapikey,
                  "xosname" : input.xosname,"xosversion" : input.xosversion,
@@ -99,8 +102,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
           }, function(error) {
           $scope.imLoading = false;
        });
-       $scope.login_button = "LogOut";
-       $scope.read_only = true;
+   
      }
 
 });
@@ -265,31 +267,33 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
 
 
     // List of TM Services
-    if ($window.sessionStorage['member_id']) {
-      var  member_id = $window.sessionStorage['member_id'];
-    }
-    else
-    {
-      var member_id = $rootScope.member_id;
-    }
+  
     $scope.tm_services = [ 
         {Name:'User Details',endpoint:'login'},
         {Name:'Invoice List',endpoint:'tm/invoiceList'},
-        {Name:'/member/<mem_id>/inventory/events',endpoint:'tm/memberRequest',api: "api/v1/member/"+member_id+"/inventory/events" },
-        {Name:'/member/<mem_id>/inventory/event/<eventId>',endpoint:'tm/memberRequest',api:"api/v1/member/"+member_id+"/inventory/event/" },
-        {Name:'/member/<mem_id>/inventory/search?event_id=<eventId>',endpoint:'tm/memberRequest',api:"api/v1/member/"+member_id+"/inventory/search?event_id=" },
-        {Name:'/member/<mem_id>/transfer',endpoint:'tm/memberTicket',api:"api/v1/member/"+member_id+"/transfer" },
-        {Name:'/members/<memb_id>/inventory/summary',endpoint:'tm/memberRequest',api:"api/v1/members/"+member_id+"/inventory/summary" },
-        {Name:'/member/<mem_id>/',endpoint:'tm/memberRequest',api:"api/v1/member/"+member_id+"/" },
-        {Name:'/member/<mem_id>/transfers',endpoint:'tm/memberRequest',api:"api/v1/member/"+member_id+"/transfers" },
+        {Name:'/member/<mem_id>/inventory/events',endpoint:'tm/memberRequest',api:"/inventory/events" },
+        {Name:'/member/<mem_id>/inventory/event/<eventId>',endpoint:'tm/memberRequest',api:"/inventory/event/" },
+        {Name:'/member/<mem_id>/inventory/search?event_id=<eventId>',endpoint:'tm/memberRequest',api:"/inventory/search?event_id=" },
+        {Name:'/member/<mem_id>/transfer',endpoint:'tm/memberTicket',api:"/transfer" },
+        {Name:'/members/<memb_id>/inventory/summary',endpoint:'tm/memberRequest',api:"/inventory/summary" },
+        {Name:'/member/<mem_id>/',endpoint:'tm/memberRequest',api:"/" },
+        {Name:'/member/<mem_id>/transfers',endpoint:'tm/memberRequest',api:"/transfers" },
         {Name:'/transfer/policy?event_id=<eventId>',endpoint:'tm/memberRequest',api:"api/v1/transfer/policy?event_id=" },
     ];
 
     $scope.hitTm = function(endpoint,api)
     {
+        if ($window.sessionStorage['member_id']) {
+          var  member_id = $window.sessionStorage['member_id'];
+        }
+        else
+        {
+          var member_id = $rootScope.member_id;
+        }     
         $scope.tmDynam ={ one:'',two:''};
         $scope.tm_dynamic1 = false;
         $scope.tm_dynamic2 = false;
+        var tm_api = ''
         var tm_oauth_head = { 
                            'Accept':$window.sessionStorage['tm_accept'],
                            'Content-Type':$window.sessionStorage['tm_contenttype'],
@@ -307,18 +311,28 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
                              "acct_id": $window.sessionStorage["acct_id"],
                             };               
 
-       if ((api == "api/v1/member/"+member_id+'/inventory/event/') || (api == "api/v1/transfer/policy?event_id=") || (api == "api/v1/member/"+member_id+"/inventory/search?event_id=")) {
+       if (api == "/inventory/summary") {
+        tm_api =  "api/v1/members/"+member_id+ api;
+       }    
+       else if(api == "api/v1/transfer/policy?event_id="){
+        tm_api = api;
+       }                 
+       else{
+         tm_api =  "api/v1/member/"+member_id+ api;
+       }
+
+       if ((api == '/inventory/event/') || (api == "api/v1/transfer/policy?event_id=") || (api == "/inventory/search?event_id=")) {
            
            hitTm_http_request(endpoint,"api/v1/member/"+member_id+'/inventory/events', tm_oauth_head, [1]);
            $scope.tmplaceholder1 = "Event Id";
 
            $scope.goDynamicTm = function()
            {
-              dynamic_api = api  + $scope.tmDynam.one;
+              dynamic_api = tm_api  + $scope.tmDynam.one;
               hitTm_http_request(endpoint, dynamic_api, tm_oauth_head); 
            }                           
        }
-       else if(api == 'api/v1/member/'+member_id+'/transfer')
+       else if(api == '/transfer')
        {
            hitTm_http_request('tm/memberRequest',"api/v1/member/"+member_id+'/inventory/events', tm_oauth_head, [1]);
            $scope.tmplaceholder1 = "Event Id";
@@ -332,11 +346,11 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
                        'is_display_price': 'true',
                        'ticket_ids':[$scope.tmDynam.two]
                  };
-              hitTm_http_request(endpoint, api, tm_oauth_head,[], transfer_data); 
+              hitTm_http_request(endpoint, tm_api, tm_oauth_head,[], transfer_data); 
            }
        }
        else{
-         hitTm_http_request(endpoint, api, tm_oauth_head);
+         hitTm_http_request(endpoint, tm_api, tm_oauth_head);
        }
     }
     
