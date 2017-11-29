@@ -252,7 +252,7 @@ def tm_login():
   if oauth_request.status_code == 200:
     access_token = json.loads(oauth_request.text)['access_token']
     if access_token:
-      memId_url = req_url  + str(access_token)
+      memId_url = req_url + str(access_token)
       memberid_request = s.get(memId_url)
       member_id = json.loads(memberid_request.text)['umember_token']
       oauth_data = {'access_token':access_token,'member_id':member_id}
@@ -280,7 +280,7 @@ def member_getRequest():
 
 
 '''Performs Ticket Send Operation'''
-@app.route('/tm/memberTicket', methods=['POST'])
+@app.route('/tm/transferTicket', methods=['POST'])
 def member_postRequest():
   if request.method == 'POST':
     data = request.json  
@@ -293,6 +293,23 @@ def member_postRequest():
   except requests.exceptions.ConnectionError:  
     pass    
     
+
+
+
+'''Performs Ticket Delete Operation'''
+@app.route('/tm/deleteTicket', methods=['POST'])
+def member_deleteRequest():
+  if request.method == 'POST':
+    data = request.json  
+  req_headers = data['headers']
+  try:  
+    req_url = data['apiurl'] + data['api']
+    req_headers['Cache-Control'] = 'no-cache'
+    make_request = s.delete(req_url, headers=req_headers)
+    if make_request.status_code == 204:
+      return make_request.text
+  except requests.exceptions.ConnectionError:  
+    pass     
 
 
 

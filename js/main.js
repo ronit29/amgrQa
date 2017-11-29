@@ -274,7 +274,8 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
         {Name:'/member/<mem_id>/inventory/events',endpoint:'tm/memberRequest',api:"/inventory/events" },
         {Name:'/member/<mem_id>/inventory/event/<eventId>',endpoint:'tm/memberRequest',api:"/inventory/event/" },
         {Name:'/member/<mem_id>/inventory/search?event_id=<eventId>',endpoint:'tm/memberRequest',api:"/inventory/search?event_id=" },
-        {Name:'/member/<mem_id>/transfer',endpoint:'tm/memberTicket',api:"/transfer" },
+        {Name:'/member/<mem_id>/transfer',endpoint:'tm/transferTicket',api:"/transfer" },
+        {Name:'/member/<mem_id>/transfer/<transferId>',endpoint:'tm/deleteTicket',api:"/transfer/" },
         {Name:'/members/<memb_id>/inventory/summary',endpoint:'tm/memberRequest',api:"/inventory/summary" },
         {Name:'/member/<mem_id>/',endpoint:'tm/memberRequest',api:"/" },
         {Name:'/member/<mem_id>/transfers',endpoint:'tm/memberRequest',api:"/transfers" },
@@ -332,7 +333,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
               hitTm_http_request(endpoint, dynamic_api, tm_oauth_head); 
            }                           
        }
-       else if(api == '/transfer')
+       else if(api == '/transfer' && endpoint == 'tm/transferTicket')
        {
            hitTm_http_request('tm/memberRequest',"api/v1/member/"+member_id+'/inventory/events', tm_oauth_head, [1]);
            $scope.tmplaceholder1 = "Event Id";
@@ -348,6 +349,15 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
                  };
               hitTm_http_request(endpoint, tm_api, tm_oauth_head,[], transfer_data); 
            }
+       }
+       else if (api == '/transfer/' && endpoint == 'tm/deleteTicket') {
+           $scope.tmplaceholder1 = "transfer Id";
+           $scope.tm_dynamic1 = true;
+           $scope.goDynamicTm = function()
+           {
+              dynamic_api = tm_api  + $scope.tmDynam.one;
+              hitTm_http_request(endpoint, dynamic_api, tm_oauth_head); 
+           }  
        }
        else{
          hitTm_http_request(endpoint, tm_api, tm_oauth_head);
