@@ -11,7 +11,6 @@ import pymongo
 
 # Initialising Loaders
 s = requests.Session()
-# t = requests.Session()
 app = Flask(__name__)
 CORS(app)
 pymongo_client = MongoClient('127.0.0.1',27017)
@@ -245,7 +244,7 @@ def tm_login():
         "username" : data['name'],
         "password" : data['password'],
       }
-  req_url =  data['oauthurl'] + "oauth/token"
+  req_url =  data['oauthurl']
   try:  
     oauth_request = s.post(req_url,data= paylod, headers= {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'})
   except requests.exceptions.ConnectionError:  
@@ -253,7 +252,7 @@ def tm_login():
   if oauth_request.status_code == 200:
     access_token = json.loads(oauth_request.text)['access_token']
     if access_token:
-      memId_url = req_url + "/" + str(access_token)
+      memId_url = req_url  + str(access_token)
       memberid_request = s.get(memId_url)
       member_id = json.loads(memberid_request.text)['umember_token']
       oauth_data = {'access_token':access_token,'member_id':member_id}
@@ -261,7 +260,7 @@ def tm_login():
     
 
 
-'''Returns `   Response'''
+'''Returns Member Events Response'''
 @app.route('/tm/memberRequest',methods=['POST'])
 def member_getRequest():
   if request.method == 'POST':
@@ -277,9 +276,26 @@ def member_getRequest():
         helper_res = getHelperResponse(make_request.text, data['api'])
         return jsonify(helper_res)
      return make_request.text
+
+
+
+'''Performs Ticket Send Operation'''
+@app.route('/tm/memberTicket', methods=['POST'])
+def member_postRequest():
+  if request.method == 'POST':
+    data = request.json  
+  req_headers = data['headers']
+  try:  
+    req_url = data['apiurl'] + data['api']
+    make_request = s.post(req_url,data = json.dumps(data['post_data']), headers=req_headers)
+    if make_request.status_code == 201:
+      return make_request.text
+  except requests.exceptions.ConnectionError:  
+    pass    
     
- # req_url = "https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/api/v1/transfer"
-    # /policy?event_id=1062"
+
+
+
 # req_url = "https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/api/v1/member/"+str(member_id)+"/transfer"
     # transfer_data = {
     #                   'event':{'event_id':1062} ,
@@ -307,13 +323,13 @@ if __name__ == '__main__':
 
 def member_getRequ():
   paylod = {
-        "client_id" : 'iomediaqaunitas.integration',
-        "client_secret" : 'cAyPhupq0wFh_Qzgni1fsomi7xUwfvTwdHhvO8o4s74',
+        "client_id" : 'genesis.integration',
+        "client_secret" : 'fcfys1-5RjQe--Bj6W5QmQ6xjKisdiBfSnerJeaAI9k',
         "grant_type" : 'password',
-        "username" : 'rkumar@io-media.com',
-        "password" : '12345678',
+        "username" : 'jawed.yusufi@io-media.com',
+        "password" : '123456',
       }
-  req_url =  'https://qa1-oauth.acctmgr.us-east-1.nonprod-tmaws.io/' + "oauth/token"
+  req_url =  'https://app.ticketmaster.com/acctmgr-oauth-preprod/token/'
   try:  
     oauth_request = s.post(req_url,data= paylod, headers= {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'})
   except requests.exceptions.ConnectionError:  
@@ -330,15 +346,22 @@ def member_getRequ():
                            'Accept':'application/vnd.amgr.v1.5+json',
                            'Content-Type':'application/json',
                            'Accept-Language':'en-us',
-                           'X-Client':'iomediaqaunitas',
-                           'X-Api-Key':'6ca830a9-0aa2-11e7-bce4-0afa92bc63fa',
+                           'X-Client':'genesis',
+                           'X-Api-Key':'09f1949e-ef0f-11e6-80b7-0a1887e82b7a',
                            'X-OS-Name':'web',
                            'X-OS-Version':8,
                            'X-Auth-Token':access_token,
                        } 
   try:  
-    req_url_new = 'https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/' + "api/v1/members/"+member_id + '/inventory/summary'
-    make_request = s.get(req_url_new,headers=req_headers)
+    req_url_new = "https://staging-oss.ticketmaster.com/api/v1/member/"+str(member_id)+"/inventory/search?event_id=777"
+    transfer_data = {
+                        'event':{'event_id':777} ,
+                        'note':'yo yo honey singh',
+                        'is_display_price': 'true',
+                        'ticket_ids':["777.114.G.6"]
+                      }
+    # make_request = s.post(req_url_new, data=json.dumps(transfer_data), headers=req_headers)    
+    make_request = s.get(req_url_new, headers=req_headers)    
     print(make_request)
     print(make_request.text)
   except requests.exceptions.ConnectionError:  
