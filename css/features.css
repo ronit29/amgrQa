@@ -162,9 +162,12 @@ pre
 	line-height: 1.34857!important;
 	background: #fff!important;
 }
-
-
-
+.postrequest
+{
+	width: 100%;
+	resize: vertical;
+    max-height: 200px;
+}
 
 
 

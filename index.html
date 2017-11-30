@@ -149,14 +149,17 @@
 						    </ul>
 					   </div>
 					   <div class="dynamic_fields" align="right">
-				         <form name="dynamic_fields_tm" ng-submit="goDynamicTm()">
+				         <form name="dynamic_fields_tm" >
 						   	 <input type="text" ng-model="tmDynam.one" placeholder="{{tmplaceholder1}}" ng-if="tm_dynamic1" class="w3-input w3-border tm_dynamic1" auto-complete="tmautoCompleteOptions" />
 						   	 <input type="text" ng-model="tmDynam.two" placeholder="{{tmplaceholder2}}" ng-if="tm_dynamic2" class="w3-input w3-border tm_dynamic2" auto-complete="tmautoCompleteOptions2">
-						   	 <input type="submit" ng-disabled="{{tmDynam.one.$valid}}" class="w3-button w3-orange drupal_ynamic_go" value="Go!" ng-show="tm_dynamic1">
+						   	 <input type="submit" ng-disabled="{{tmDynam.one.$valid}}" class="w3-button w3-orange drupal_ynamic_go" value="Go!" ng-show="(tm_dynamic1 || postrequest_disp)" ng-click="goDynamicTm()">
 				   	     </form>
 				       </div>
 					</div>
 			        <div ng-show="tm_progress" class="progress-line"></div>
+		      </div>
+		      <div class="postrequest_parent" ng-if="postrequest_disp">
+			      <textarea class="postrequest" ng-model="$parent.postrequest"></textarea> 
 		      </div>
 	          <div class="service_data">
 	            <p json='tm_output' pretty-json ></p>

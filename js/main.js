@@ -36,6 +36,23 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
     $scope.login = function(input) {
       
       $scope.imLoading = true;
+      if ($scope.login_button == "LogOut") {
+        console.log('yes');
+         $http({
+           method: 'GET',
+           url: "http://localhost:5000/logout",
+           }).then(function(result) {
+              sessionStorage.clear();
+              $scope.imLoading = false;
+              $scope.login_button = "LogIn";
+              $scope.read_only = false;
+              window.location.reload(true);
+            }, function(error) {
+               $scope.imLoading = false;
+               $scope.error = true;
+       });
+      }
+      else{
       $http({
        method: 'POST',
        url: "http://localhost:5000/drupal/login",
@@ -102,12 +119,12 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
           }, function(error) {
           $scope.imLoading = false;
        });
-   
+      }
      }
 
 });
 
-app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window, $q, $timeout) {
+app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window, $timeout) {
   // $window.sessionStorage["helper_data"] = '';
   $scope.drupal_progress = false;
   $scope.tm_progress = false;
@@ -270,16 +287,21 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
   
     $scope.tm_services = [ 
         {Name:'User Details',endpoint:'login'},
-        {Name:'Invoice List',endpoint:'tm/invoiceList'},
         {Name:'/member/<mem_id>/inventory/events',endpoint:'tm/memberRequest',api:"/inventory/events" },
         {Name:'/member/<mem_id>/inventory/event/<eventId>',endpoint:'tm/memberRequest',api:"/inventory/event/" },
         {Name:'/member/<mem_id>/inventory/search?event_id=<eventId>',endpoint:'tm/memberRequest',api:"/inventory/search?event_id=" },
+        {Name:'/member/<mem_id>/posting/profile',endpoint:'tm/memberRequest',api:"/posting/profile" },
+        {Name:'/member/<mem_id>/postings',endpoint:'tm/memberRequest',api:"/postings" },
+        {Name:'/member/<mem_id>/posting',endpoint:'tm/transferTicket',api:"/posting" },
         {Name:'/member/<mem_id>/transfer',endpoint:'tm/transferTicket',api:"/transfer" },
         {Name:'/member/<mem_id>/transfer/<transferId>',endpoint:'tm/deleteTicket',api:"/transfer/" },
+        {Name:'/member/<mem_id>/posting/<postingId>',endpoint:'tm/deleteTicket',api:"/posting/" },
         {Name:'/members/<memb_id>/inventory/summary',endpoint:'tm/memberRequest',api:"/inventory/summary" },
         {Name:'/member/<mem_id>/',endpoint:'tm/memberRequest',api:"/" },
         {Name:'/member/<mem_id>/transfers',endpoint:'tm/memberRequest',api:"/transfers" },
         {Name:'/transfer/policy?event_id=<eventId>',endpoint:'tm/memberRequest',api:"api/v1/transfer/policy?event_id=" },
+        {Name:'/invoice/list',endpoint:'tm/invoiceList',api:"invoice_list" },
+        {Name:'/invoice/details',endpoint:'tm/invoiceList',api:"invoice_details" },
     ];
 
     $scope.hitTm = function(endpoint,api)
@@ -294,6 +316,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
         $scope.tmDynam ={ one:'',two:''};
         $scope.tm_dynamic1 = false;
         $scope.tm_dynamic2 = false;
+        $scope.postrequest_disp  = false;
         var tm_api = ''
         var tm_oauth_head = { 
                            'Accept':$window.sessionStorage['tm_accept'],
@@ -305,12 +328,23 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
                            'X-OS-Version':$window.sessionStorage['tm_xosversion'],
                            'X-Auth-Token':$window.sessionStorage['tm_accesstoken'],
                        }; 
-        var ats_head ={
-                             "dsn":$window.sessionStorage["tm_dsn"],
-                             "uid":$window.sessionStorage["tm_uid"],
-                             "sitename": $window.sessionStorage["tm_sitename"],
-                             "acct_id": $window.sessionStorage["acct_id"],
-                            };               
+        var inv_paylod = {
+            "header" : {
+              "ver":"0.9",
+              "src_sys_type":"2",
+              "src_sys_name":"IOMEDIA",
+              // "archtics_version":"V605",
+              "archtics_version":"V999",
+            },
+            "command1" : {
+              "cmd" : 'invoice_list',
+              "ref" : 'IOM_INVOICE_LIST',
+              "uid" : $window.sessionStorage["tm_uid"],
+              "dsn" : $window.sessionStorage["tm_dsn"],
+              "site_name" : $window.sessionStorage["tm_sitename"],
+              'acct_id' : $window.sessionStorage["acct_id"],
+            }
+        }
 
        if (api == "/inventory/summary") {
         tm_api =  "api/v1/members/"+member_id+ api;
@@ -321,6 +355,8 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
        else{
          tm_api =  "api/v1/member/"+member_id+ api;
        }
+
+
 
        if ((api == '/inventory/event/') || (api == "api/v1/transfer/policy?event_id=") || (api == "/inventory/search?event_id=")) {
            
@@ -335,22 +371,25 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
        }
        else if(api == '/transfer' && endpoint == 'tm/transferTicket')
        {
-           hitTm_http_request('tm/memberRequest',"api/v1/member/"+member_id+'/inventory/events', tm_oauth_head, [1]);
-           $scope.tmplaceholder1 = "Event Id";
-           $scope.tm_dynamic2 = true;
-           $scope.tmplaceholder2 = "Ticket Id";
+           // hitTm_http_request('tm/memberRequest',"api/v1/member/"+member_id+'/inventory/events', tm_oauth_head, [1]);
+           $scope.postrequest = '{"event":{"event_id": 1062} ,"note":"yo yo honey singh", "is_display_price": "true", "ticket_ids":["1062.113.Y.11"] }';
+           $scope.postrequest_disp = true;
            $scope.goDynamicTm = function()
-           {
-              transfer_data = {
-                       'event':{'event_id':$scope.tmDynam.one} ,
-                       'note':'yo yo honey singh',
-                       'is_display_price': 'true',
-                       'ticket_ids':[$scope.tmDynam.two]
-                 };
-              hitTm_http_request(endpoint, tm_api, tm_oauth_head,[], transfer_data); 
+           {             
+
+              hitTm_http_request(endpoint, tm_api, tm_oauth_head, [], $scope.postrequest); 
            }
        }
-       else if (api == '/transfer/' && endpoint == 'tm/deleteTicket') {
+       else if(api == '/posting' && endpoint == 'tm/transferTicket')
+       {
+           $scope.postrequest = '{"payout_method":"account_credit","expiration_offset":-1440,   "is_allow_splits":false, "pricing_model":"fixed",   "event":{        "event_id":"1065"   },   "payout_price":{        "currency":"USD",      "value":4500   },   "seat_descriptions":[        {           "description":"End Zone seats",         "required":false      }   ],   "sections":[        {           "section_name":"110",         "rows":[              {                 "row_name":"B",               "tickets":[                    {                       "ticket_id":"1065.110.B.2"                  }               ]            }         ]      }   ]}';
+           $scope.postrequest_disp = true;
+           $scope.goDynamicTm = function()
+           {             
+              hitTm_http_request(endpoint, tm_api, tm_oauth_head, [], $scope.postrequest); 
+           }   
+       }
+       else if((api == '/transfer/' && endpoint == 'tm/deleteTicket') || ((api == '/posting/' && endpoint == 'tm/deleteTicket'))){
            $scope.tmplaceholder1 = "transfer Id";
            $scope.tm_dynamic1 = true;
            $scope.goDynamicTm = function()
@@ -358,6 +397,25 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
               dynamic_api = tm_api  + $scope.tmDynam.one;
               hitTm_http_request(endpoint, dynamic_api, tm_oauth_head); 
            }  
+       }
+       else if(endpoint == "tm/invoiceList"){
+         if(api == 'invoice_list'){
+           inv_paylod['command1']['cmd'] = api;
+           inv_paylod['command1']['ref'] = "IOM_"+api.toUpperCase();
+           hitTm_http_request(endpoint, api, inv_paylod);
+         }
+         if(api == "invoice_details") {
+           var helper_paylod = inv_paylod;
+           helper_paylod['command1']['cmd'] = 'invoice_list';
+           helper_paylod['command1']['ref'] = "IOM_INVOICE_LIST";
+           hitTm_http_request(endpoint, 'invoice_list', helper_paylod,[1]);
+           $scope.tmplaceholder1 = "Invoice Id";
+           $scope.goDynamicTm = function()
+           {  
+              inv_paylod['command1']['invoice_id'] = $scope.tmDynam.one;           
+              hitTm_http_request(endpoint, api, inv_paylod); 
+           }  
+         }
        }
        else{
          hitTm_http_request(endpoint, tm_api, tm_oauth_head);

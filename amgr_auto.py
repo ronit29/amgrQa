@@ -106,8 +106,6 @@ def save_config():
 '''Performs Drupal Login and Returns acct_id'''
 @app.route('/drupal/login',methods=['POST'])
 def drupal_login():
-  if s.cookies:
-    s.close()
   if request.method == 'POST':
     data = request.json
   payload = {
@@ -185,20 +183,30 @@ def getHelperResponse(response = None, api = None):
   if api in "api/user-events/listing":
     events = []
     for key in json.loads(response):
-      events.append(key['event_id'])
-    return events
+      if key['event_id'] is not None:
+        events.append(key['event_id'])
+        return events  
   elif api.find("/inventory/events") is not  -1:
     events = []
-    for key in json.loads(response)['events']:
-      events.append(key['event_id'])
-    return events
+    if json.loads(response)['events'] is not None:
+      for key in json.loads(response)['events']:
+        events.append(key['event_id'])
+      return events
   elif api in 'api/invoice/list':
     invoice_ids = []
     invoice_confids = []
-    for key in json.loads(response)['data']:
-      invoice_ids.append(key['invoice_ids'])  
-      invoice_confids.append(key['inv_conf_id'])
-    return {'invoiceid':invoice_ids,'invoiceconf':invoice_confids}  
+    if json.loads(response)['data'] is not None:
+      for key in json.loads(response)['data']:
+        invoice_ids.append(key['invoice_ids'])  
+        invoice_confids.append(key['inv_conf_id'])
+      return {'invoiceid':invoice_ids,'invoiceconf':invoice_confids}  
+  elif api in 'invoice_list':
+    invoice_ids = []
+    if json.loads(response)['command1']['invoices'] is not None:
+      for key in json.loads(response)['command1']['invoices']:
+        invoice_ids.append(key['invoice_ids'])  
+        return invoice_ids
+  return ''     
 
 
 
@@ -207,25 +215,11 @@ def getHelperResponse(response = None, api = None):
 def tm_invoiceList():
   if request.method == 'POST':
     data = request.json  
-  inv_paylod = {
-      "header" : {
-        "ver":"0.9",
-        "src_sys_type":"2",
-        "src_sys_name":"IOMEDIA",
-        # "archtics_version":"V605",
-        "archtics_version":"V999",
-      },
-      "command1" : {
-        "cmd" : 'invoice_list',
-        "ref" : 'IOM_INVOICE_LIST',
-        "uid" : data['uid'],
-        "dsn" : data['dsn'],
-        "site_name" : data['sitename'],
-        'acct_id' : data['acct_id'],
-      }
-    }
   try:  
-    invoiceList_request = s.post(get_tm_req_param(inv_paylod,data['dsn'])['url'],data=json.dumps(inv_paylod),headers= get_tm_req_param(inv_paylod)['headers'],cert='live_tm_v2.pem')
+    invoiceList_request = s.post(get_tm_req_param(data['headers'],data['headers']['command1']['dsn'])['url'],data=json.dumps(data['headers']),headers= get_tm_req_param(data['headers'])['headers'],cert='live_tm_v2.pem')
+    if data['helper'] == 1:
+        helper_res = getHelperResponse(invoiceList_request.text, data['api'])
+        return jsonify(helper_res)
   except requests.exceptions.ConnectionError:  
     pass  
   return invoiceList_request.text
@@ -273,8 +267,11 @@ def member_getRequest():
     pass  
   if make_request.status_code == 200:
      if data['helper'] == 1:
-        helper_res = getHelperResponse(make_request.text, data['api'])
-        return jsonify(helper_res)
+        if make_request.text:     
+          helper_res = getHelperResponse(make_request.text, data['api'])
+          return jsonify(helper_res)
+        else:
+          return None  
      return make_request.text
 
 
@@ -287,8 +284,9 @@ def member_postRequest():
   req_headers = data['headers']
   try:  
     req_url = data['apiurl'] + data['api']
-    make_request = s.post(req_url,data = json.dumps(data['post_data']), headers=req_headers)
-    if make_request.status_code == 201:
+    # postd = json.loads(data['post_data'])
+    make_request = s.post(req_url,data = data['post_data'], headers=req_headers)
+    if make_request.status_code in [200,201]:
       return make_request.text
   except requests.exceptions.ConnectionError:  
     pass    
@@ -313,21 +311,10 @@ def member_deleteRequest():
 
 
 
-# req_url = "https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/api/v1/member/"+str(member_id)+"/transfer"
-    # transfer_data = {
-    #                   'event':{'event_id':1062} ,
-    #                   'note':'yo yo honey singh',
-    #                   'is_display_price': 'true',
-    #                   'ticket_ids':["1062.236.Y.16"]
-    #                 }
-    # request = s.post(req_url, data=json.dumps(transfer_data), headers=req_headers) 
-    # status code 201
-    # req_url = "https://qa1.acctmgr.us-east-1.nonprod-tmaws.io/api/v1/member/"+str(member_id)+"/transfer/b952b8e96d82cd621b6baf83d61783a2aps5a0d743ac28aa"
-    # req_headers['Cache-Control'] = 'no-cache'
-    # request = s.delete(req_url, headers=req_headers)
-    # status_code 204
-
-
+@app.route('/logout')
+def logout():
+  s.close()
+  return jsonify({'Status':True})
 
 
 
@@ -339,7 +326,7 @@ if __name__ == '__main__':
 
 
 def member_getRequ():
-  paylod = {
+  paylod = {  
         "client_id" : 'genesis.integration',
         "client_secret" : 'fcfys1-5RjQe--Bj6W5QmQ6xjKisdiBfSnerJeaAI9k',
         "grant_type" : 'password',
@@ -375,12 +362,14 @@ def member_getRequ():
                         'event':{'event_id':777} ,
                         'note':'yo yo honey singh',
                         'is_display_price': 'true',
-                        'ticket_ids':["777.114.G.6"]
-                      }
-    # make_request = s.post(req_url_new, data=json.dumps(transfer_data), headers=req_headers)    
-    make_request = s.get(req_url_new, headers=req_headers)    
-    print(make_request)
-    print(make_request.text)
+                        'ticket_ids':["777.114.G.17"]
+                    }
+    print(json.dumps(transfer_data))
+  #   req_url = "https://staging-oss.ticketmaster.com/" + "api/v1/member/"+str(member_id)+"/transfer"
+  #   req_headers['Cache-Control'] = 'no-cache'
+  #   make_request = s.post(req_url,data= json.dumps(transfer_data), headers = req_headers)
+  #   print(make_request)
+  #   print(make_request.text)
   except requests.exceptions.ConnectionError:  
     pass  
 
