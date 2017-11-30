@@ -96,7 +96,7 @@ def save_config():
       do_update = collection.update({'url':data['url']}, {"$set":  data}, upsert=True, multi=True)
     except (pymongo.errors.ConnectionFailure, pymongo.errors.InvalidOperation) as e:
       mongo_error = e    
-    if do_update['ok'] is 1:
+    if do_update['ok'] == 1:
       return jsonify({'Mongo Status Save':'True'})
     else:
       return jsonify({'Mongo Status Save': mongo_error})  
@@ -313,14 +313,15 @@ def member_deleteRequest():
 
 @app.route('/logout')
 def logout():
+  s.cookies.clear()
   s.close()
   return jsonify({'Status':True})
 
 
 
 
-if __name__ == '__main__':
-    app.run(debug = True)
+# if __name__ == '__main__':
+#     app.run(debug = True)
 
 
 
@@ -334,18 +335,18 @@ def member_getRequ():
         "password" : '123456',
       }
   req_url =  'https://app.ticketmaster.com/acctmgr-oauth-preprod/token/'
-  try:  
-    oauth_request = s.post(req_url,data= paylod, headers= {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'})
-  except requests.exceptions.ConnectionError:  
-    pass  
-  if oauth_request.status_code == 200:
-    access_token = json.loads(oauth_request.text)['access_token']
-    if access_token:
-      memId_url = req_url + "/" + str(access_token)
-      memberid_request = s.get(memId_url)
-      member_id = json.loads(memberid_request.text)['umember_token']
-      oauth_data = {'access_token':access_token,'member_id':member_id}
-      print(oauth_data)
+  # try:  
+  #   oauth_request = s.post(req_url,data= paylod, headers= {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'})
+  #   if oauth_request.status_code == 200:
+  #     access_token = json.loads(oauth_request.text)['access_token']
+  #     if access_token:
+  #       memId_url = req_url + "/" + str(access_token)
+  #       memberid_request = s.get(memId_url)
+  #       member_id = json.loads(memberid_request.text)['umember_token']
+  #       oauth_data = {'access_token':access_token,'member_id':member_id}
+  #       print(oauth_data)
+  # except requests.exceptions.ConnectionError:  
+  #   pass    
   req_headers = { 
                            'Accept':'application/vnd.amgr.v1.5+json',
                            'Content-Type':'application/json',
@@ -354,24 +355,33 @@ def member_getRequ():
                            'X-Api-Key':'09f1949e-ef0f-11e6-80b7-0a1887e82b7a',
                            'X-OS-Name':'web',
                            'X-OS-Version':8,
-                           'X-Auth-Token':access_token,
+                           # 'X-Auth-Token':access_token,
                        } 
-  try:  
-    req_url_new = "https://staging-oss.ticketmaster.com/api/v1/member/"+str(member_id)+"/inventory/search?event_id=777"
-    transfer_data = {
+  # req_url_new = "https://staging-oss.ticketmaster.com/api/v1/member/"+str(member_id)+"/inventory/search?event_id=777"
+  transfer_data = {
                         'event':{'event_id':777} ,
                         'note':'yo yo honey singh',
                         'is_display_price': 'true',
                         'ticket_ids':["777.114.G.17"]
                     }
-    print(json.dumps(transfer_data))
-  #   req_url = "https://staging-oss.ticketmaster.com/" + "api/v1/member/"+str(member_id)+"/transfer"
-  #   req_headers['Cache-Control'] = 'no-cache'
-  #   make_request = s.post(req_url,data= json.dumps(transfer_data), headers = req_headers)
-  #   print(make_request)
-  #   print(make_request.text)
+  payload = {
+              'name':'dev12@mailinator.com',
+              'pass':'123456',
+              'remember_me':0,
+            }      
+  curr_time = int(time.time())  
+  try:
+    login_url = 'https://tm-am-stg.io-media.com/genesis/' + 'user/login?_format=json&time='+str(curr_time)
+    login_request = s.post(login_url,data=json.dumps(payload),headers=get_drupal_req_param('https://tm-am-stg.io-media.com/genesis/')['headers'])
+    print(login_request)
+    print(login_request.text)
+    s.cookies.clear()
+    s.close()
+    login_request2 = s.post(login_url,data=json.dumps(payload),headers=get_drupal_req_param('https://tm-am-stg.io-media.com/genesis/')['headers'])
+    print(login_request2)
+    print(login_request2.text)    
   except requests.exceptions.ConnectionError:  
     pass  
 
 
-# member_getRequ()
+member_getRequ()
