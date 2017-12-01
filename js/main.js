@@ -4,7 +4,7 @@ var app = angular.module("myApp", ['ngPrettyJson', 'autoCompleteModule']);
 
 app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) {
     $scope.login_button = "LogIn";
-    if($window.sessionStorage['acct_id'] && $window.sessionStorage['acct_id'] !== '')
+    if($window.sessionStorage['acct_id'] && (typeof $window.sessionStorage['acct_id'] !== 'undefined'))
     {
       $scope.login_button = "LogOut";
       $scope.acct_id = '#'+$window.sessionStorage['acct_id'];
@@ -16,6 +16,8 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
     }
     $scope.imLoading = false;
     $scope.read_only = false;
+    $scope.tlogin_error = false;
+    $scope.dlogin_error = false;
 
     $scope.loadconfig = function(url){
       $scope.imLoading = true;
@@ -60,16 +62,20 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
        headers: {'Content-Type': 'application/json'}
        }).then(function(result) {
           $scope.imLoading = false;
-          $rootScope.user_data = result.data.user_data;
-          $window.sessionStorage['drupal_url'] = input.url;
-          $window.sessionStorage['acct_id'] = result.data.acct_id;
-          $scope.acct_id = '#'+result.data.acct_id;
-          $scope.login_button = "LogOut";
-          $scope.read_only = true;
-          
+          if (typeof result.data.acct_id !== 'undefined')
+           { 
+            $rootScope.user_data = result.data.user_data;
+            $window.sessionStorage['drupal_url'] = input.url;
+            $window.sessionStorage['acct_id'] = result.data.acct_id;
+            $scope.acct_id = '#'+result.data.acct_id;
+            $scope.login_button = "LogOut";
+            $scope.read_only = true;
+          }else{
+           $scope.tlogin_error = true; 
+          }
         }, function(error) {
            $scope.imLoading = false;
-           $scope.error = true;
+           $scope.dlogin_error = true;
        });  
 
        $http({
@@ -101,7 +107,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
           $window.sessionStorage['tm_accept'] = input.accept;
           
          },function(error) {
-           $scope.error = true;
+           // $scope.tlogin_error = true;
        });  
 
        
@@ -111,13 +117,19 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
          data: { "name" : input.name, "password" : input.password, "oauthurl" : input.oauthurl,"clientid":input.clientid,"clientsecret":input.clientsecret },
          headers: {'Content-Type': 'application/json'}
          }).then(function(result) {
-               $scope.imLoading = false;
-            console.log(result); 
-            $window.sessionStorage['tm_accesstoken'] = result.data.access_token;
-            $window.sessionStorage['member_id'] = result.data.member_id;
-            $rootScope.member_id = result.data.member_id;
-          }, function(error) {
-          $scope.imLoading = false;
+            $scope.imLoading = false;
+            if (result.data.access_token && ((typeof result.data.access_token !== 'undefined') || (result.data.access_token !== null))) {
+              $window.sessionStorage['tm_accesstoken'] = result.data.access_token;
+              $window.sessionStorage['member_id'] = result.data.member_id;
+              $rootScope.member_id = result.data.member_id;
+             }
+             else{
+                $scope.tlogin_error = true;
+             } 
+          },
+          function(error) {
+              $scope.imLoading = false;
+              $scope.tlogin_error = true;
        });
       }
      }
@@ -128,22 +140,23 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
   // $window.sessionStorage["helper_data"] = '';
   $scope.drupal_progress = false;
   $scope.tm_progress = false;
+  $scope.drup_postrequest_disp = false;
   // List of Drupal Services
   $scope.drupal_services = [ 
         {Name:'User Details',endpoint:'login'},
-        {Name:'User Events List',endpoint:'drupal/getRequest',api:'api/user-events/listing'},
-        {Name:'User Events Summary',endpoint:'drupal/getRequest',api:'api/user-events/summary'},
-        {Name:'Member List',endpoint:'drupal/getRequest',api:'api/member/list'},
-        {Name:'User Ticket',endpoint:'drupal/getRequest',api:'api/user-ticket'},
-        {Name:'Transfer Ticket Policy',endpoint:'drupal/getRequest',api:'api/transfer-ticket/policy'},
-        {Name:'Ticket Transfer',endpoint:'drupal/ticketTransfer',api:'api/ticket/transfer'},
-        {Name:'Ticket Reclaim',endpoint:'drupal/DELETE',api:'/api/ticket/multiple-reclaim'},
-        {Name:'Invoice List',endpoint:'drupal/getRequest',api:'api/invoice/list'},
-        {Name:'Invoice Details',endpoint:'drupal/getRequest',api:'api/invoice'},
-        {Name:'Payment Plans',endpoint:'drupal/getRequest',api:'api/invoice/plans'},
-        {Name:'Plans For Invoice',endpoint:'drupal/getRequest',api:'api/invoice/plans'},//Dynamic
-        {Name:'Plan Details',endpoint:'drupal/getRequest',api:'api/invoice/plans'},//Dynamic
-        {Name:'CC Query',endpoint:'drupal/getRequest',api:'api/invoice/cc'},
+        {Name:'api/user-events/listing',endpoint:'drupal/getRequest',api:'api/user-events/listing'},
+        {Name:'api/user-events/summary',endpoint:'drupal/getRequest',api:'api/user-events/summary'},
+        {Name:'api/member/list',endpoint:'drupal/getRequest',api:'api/member/list'},
+        {Name:'api/user-ticket/<eventId>',endpoint:'drupal/getRequest',api:'api/user-ticket'},
+        {Name:'api/transfer-ticket/policy/<eventId>',endpoint:'drupal/getRequest',api:'api/transfer-ticket/policy'},
+        {Name:'api/ticket/transfer',endpoint:'drupal/ticketTransfer',api:'api/ticket/transfer'},
+        {Name:'/api/ticket/multiple-reclaim',endpoint:'drupal/DELETE',api:'/api/ticket/multiple-reclaim'},
+        {Name:'api/invoice/list',endpoint:'drupal/getRequest',api:'api/invoice/list'},
+        {Name:'api/invoice/<invoiceId>/<confId>',endpoint:'drupal/getRequest',api:'api/invoice'},
+        {Name:'api/invoice/plans',endpoint:'drupal/getRequest',api:'api/invoice/plans'},
+        {Name:'api/invoice/plans/<invoiceId>',endpoint:'drupal/getRequest',api:'api/invoice/plans'},
+        {Name:'api/invoice/plans/<invoiceId>/<planId>',endpoint:'drupal/getRequest',api:'api/invoice/plans'},
+        {Name:'api/invoice/cc',endpoint:'drupal/getRequest',api:'api/invoice/cc'},
     ];
     // Drupal getRequest CallBack
     
@@ -155,7 +168,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
       if (endpoint=='login') {
          $scope.drupal_output = $rootScope.user_data ? $rootScope.user_data : 'Please try Again';
       }
-      else if (Name == 'User Ticket' || Name == 'Transfer Ticket Policy') {
+      else if (Name == 'api/user-ticket/<eventId>' || Name == 'api/transfer-ticket/policy/<eventId>') {
            hitDrupal_http_request(endpoint, 'api/user-events/listing', [1]);
            $scope.placeholder1 = "Event Id";
            $scope.goDynamic = function()
@@ -164,18 +177,16 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
               hitDrupal_http_request(endpoint, dynamic_api); 
            }
       }
-      else if(Name == 'Ticket Transfer')
+      else if(Name == 'api/ticket/transfer')
       {
-         hitDrupal_http_request(endpoint,'api/user-events/listing',[1]);
-         $scope.placeholder1 = "Event Id";
-         create_helper_response_two();
-         $scope.placeholder2 = "Ticket Id";
+         $scope.drup_postrequest = "{'event':{'event_id': 1062 } ,'is_display_price': 'true', 'ticket_ids':['1062.134.G.13']}"
+         $scope.drup_postrequest_disp = true;
          $scope.goDynamic = function()
            {
-              hitDrupal_http_request(endpoint, api, [], [{'event':{'event_id':$scope.drupDynam.one } ,'is_display_price': 'true', 'ticket_ids':[$scope.drupDynam.two]}] ); 
+              hitDrupal_http_request(endpoint, api, [], $scope.drup_postrequest ); 
            }
       }
-      else if (Name == 'Invoice Details') {
+      else if (Name == 'api/invoice/<invoiceId>/<confId>') {
            hitDrupal_http_request(endpoint,'api/invoice/list',[1,2]);
            $scope.placeholder1 = "Invoice Id";
            $scope.placeholder2 = "Inv Conf Id";
@@ -185,7 +196,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
               hitDrupal_http_request(endpoint, dynamic_api); 
            }
       }
-      else if (Name == 'Plans For Invoice') {
+      else if (Name == 'api/invoice/plans/<invoiceId>') {
            hitDrupal_http_request(endpoint,'api/invoice/list',[1]);
            $scope.placeholder1 = "Invoice Id";
            $scope.goDynamic = function(dynamic)
@@ -194,7 +205,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
               hitDrupal_http_request(endpoint, dynamic_api); 
            }
       }
-      else if (Name == 'Plan Details') {
+      else if (Name == 'api/invoice/plans/<invoiceId>/<planId>') {
            hitDrupal_http_request(endpoint,'api/invoice/list',[1,2]);
            $scope.placeholder1 = "Invoice Id";
            $scope.placeholder2 = "Plan Id";
@@ -468,7 +479,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
             } 
           }, function(error) {
              $scope.tm_progress = false;
-             $scope.drupal_output = 'Request Failed';
+             $scope.tm_output = 'Request Failed';
        }); 
     }
 

@@ -35,7 +35,7 @@
 			  <h5 class="w3-bar-item">AMGR QA</h5>
 			  <button class="w3-bar-item w3-button w3-orange tablink" onclick="openCity(event, 'login')">Login</button>
 			  <button class="w3-bar-item w3-button tablink" onclick="openCity(event, 'headers')">Headers</button>
-			  <button class="w3-bar-item w3-button tablink" onclick="openCity(event, 'Test')">Test</button>
+			  <button class="w3-bar-item w3-button tablink" onclick="openCity(event, 'Test')">Test All</button>
 		   </div>
 	       <div class="jumbotron top_section"> 
 		       <div id="login" class="top_tab"  >
@@ -61,12 +61,15 @@
 				      <div class="login_submit">
 				        <div style="float: right;">
 					        <div class="row login_data">
+						        <span ng-if="dlogin_error" style="color: red;">Drupal Login Failed</span> 
 						        <span class="input_gen" >{{ acct_id }}</span>
 						    </div>
 						    <div class="row login_data">
+							    <span ng-if="tlogin_error" style="color: red;">TM Login Failed</span> 
 						        <span class="input_gen" >{{ member_id }}</span> 
 						    </div>   
 						    <div class="row login_data">
+
 					      	  <input align="right" type="submit" ng-disabled="logn.$invalid || logn.$pending" ng-click="login(
 					      	  input)" value="{{login_button}}" class="w3-button w3-green input_gen">
 					      	</div>  
@@ -108,7 +111,7 @@
 					    <span class="caret"></span></span>
 					    <ul class="dropdown-menu service_list_ul list-group table-striped">
 					      <li class="service_list_li">
-					          <div class="input-group"> 
+					          <div class="input-group" style="width: 100%;"> 
 							     <input type="text" placeholder="Search" ng-model='drupal_filter.Name' class="form-control service_search">
 							  </div>   
 					      </li>
@@ -120,18 +123,19 @@
 				     <form name="dynamic_fields" ng-submit="goDynamic(drupDynam.one, drupDynam.two)">
 					   	 <input type="text" ng-model="drupDynam.one" placeholder="{{placeholder1}}" ng-if="drupal_dynamic1" class="w3-input w3-border drupal_dynamic1" auto-complete="autoCompleteOptions" />
 					   	 <input type="text" ng-model="drupDynam.two" placeholder="{{placeholder2}}" ng-if="drupal_dynamic2" class="w3-input w3-border drupal_dynamic2" auto-complete="autoCompleteOptions2">
-					   	 <input type="submit" ng-disabled="{{drupDynam.one.$valid}}" class="w3-button w3-orange drupal_ynamic_go" value="Go!" ng-show="drupal_dynamic1">
+					   	 <input type="submit" ng-disabled="{{drupDynam.one.$valid}}" class="w3-button w3-orange drupal_ynamic_go" value="Go!" ng-show="(drupal_dynamic1 || drup_postrequest_disp)">
 				   	 </form>
 				   </div>
 		        </div>
 		       <div ng-show="drupal_progress" class="progress-line"></div>
 		    </div> 
+		      <div class="postrequest_parent" ng-if="drup_postrequest_disp">
+			      <textarea class="postrequest" ng-model="$parent.drup_postrequest"></textarea> 
+		      </div>
 			   <div class="service_data">
 		          <p json='drupal_output' pretty-json ></p>
 		       </div> 
-
 	     </div>  
-
 	     <div class="right">
 	          <div>
 		          <div class="service_parent">
@@ -140,7 +144,7 @@
 						    <span class="caret"></span></span>
 						    <ul class="dropdown-menu service_list_ul list-group">
 						      <li class="service_list_li">
-							      <div class="input-group"> 
+							      <div class="input-group" style="width: 100%;"> 
 								     <input type="text" placeholder="Search" ng-model='tm_filter.Name' class="form-control service_search">
 								  </div>   
 						      </li>

@@ -19,12 +19,12 @@ collection  = db.test_collection
 
 
 '''Requests Debug Logging Code '''
-# http_client.HTTPConnection.debuglevel = 1
-# logging.basicConfig()
-# logging.getLogger().setLevel(logging.DEBUG)
-# requests_log = logging.getLogger("requests.packages.urllib3")
-# requests_log.setLevel(logging.DEBUG)
-# requests_log.propagate = True
+http_client.HTTPConnection.debuglevel = 1
+logging.basicConfig()
+logging.getLogger().setLevel(logging.DEBUG)
+requests_log = logging.getLogger("requests.packages.urllib3")
+requests_log.setLevel(logging.DEBUG)
+requests_log.propagate = True
 
 
 
@@ -180,19 +180,18 @@ def drupal_ticketTransfer():
 
 '''Returns Helper Data Response'''
 def getHelperResponse(response = None, api = None):
-  if api in "api/user-events/listing":
+  if api == "api/user-events/listing":
     events = []
     for key in json.loads(response):
-      if key['event_id'] is not None:
-        events.append(key['event_id'])
-        return events  
+      events.append(key['event_id'])
+      return events  
   elif api.find("/inventory/events") is not  -1:
     events = []
     if json.loads(response)['events'] is not None:
       for key in json.loads(response)['events']:
         events.append(key['event_id'])
       return events
-  elif api in 'api/invoice/list':
+  elif api == 'api/invoice/list':
     invoice_ids = []
     invoice_confids = []
     if json.loads(response)['data'] is not None:
@@ -200,7 +199,7 @@ def getHelperResponse(response = None, api = None):
         invoice_ids.append(key['invoice_ids'])  
         invoice_confids.append(key['inv_conf_id'])
       return {'invoiceid':invoice_ids,'invoiceconf':invoice_confids}  
-  elif api in 'invoice_list':
+  elif api == 'invoice_list':
     invoice_ids = []
     if json.loads(response)['command1']['invoices'] is not None:
       for key in json.loads(response)['command1']['invoices']:
@@ -217,12 +216,16 @@ def tm_invoiceList():
     data = request.json  
   try:  
     invoiceList_request = s.post(get_tm_req_param(data['headers'],data['headers']['command1']['dsn'])['url'],data=json.dumps(data['headers']),headers= get_tm_req_param(data['headers'])['headers'],cert='live_tm_v2.pem')
-    if data['helper'] == 1:
-        helper_res = getHelperResponse(invoiceList_request.text, data['api'])
-        return jsonify(helper_res)
+    if invoiceList_request.status_code == 200:
+      if data['helper'] == 1:
+          helper_res = getHelperResponse(invoiceList_request.text, data['api'])
+          return jsonify(helper_res)
+      return invoiceList_request.text    
+    else:
+      error_json = {'Status Code':invoiceList_request.status_code, 'Message':invoiceList_request.text}
+      return jsonify(error_json)    
   except requests.exceptions.ConnectionError:  
     pass  
-  return invoiceList_request.text
 
 
 
@@ -273,6 +276,9 @@ def member_getRequest():
         else:
           return None  
      return make_request.text
+  else:
+      error_json = {'Status Code':make_request.status_code, 'Message':make_request.text}
+      return jsonify(error_json)    
 
 
 
@@ -288,6 +294,9 @@ def member_postRequest():
     make_request = s.post(req_url,data = data['post_data'], headers=req_headers)
     if make_request.status_code in [200,201]:
       return make_request.text
+    else:
+      error_json = {'Status Code':make_request.status_code, 'Message':make_request.text}
+      return jsonify(error_json)   
   except requests.exceptions.ConnectionError:  
     pass    
     
@@ -306,6 +315,9 @@ def member_deleteRequest():
     make_request = s.delete(req_url, headers=req_headers)
     if make_request.status_code == 204:
       return make_request.text
+    else:
+      error_json = {'Status Code':make_request.status_code, 'Message':make_request.text}
+      return jsonify(error_json)   
   except requests.exceptions.ConnectionError:  
     pass     
 
@@ -320,8 +332,8 @@ def logout():
 
 
 
-# if __name__ == '__main__':
-#     app.run(debug = True)
+if __name__ == '__main__':
+    app.run(debug = True)
 
 
 
@@ -384,4 +396,4 @@ def member_getRequ():
     pass  
 
 
-member_getRequ()
+# member_getRequ()
