@@ -124,7 +124,9 @@ def drupal_login():
       login_output = {'user_data':user_data,'acct_id':acct_id}
       return jsonify(login_output)
     else:
-      error_json = {'Status Code':login_request.status_code, 'Message':login_request.text}  
+      error_json = {'Status Code':login_request.status_code, 'Message':login_request.text} 
+      s.cookies.clear()
+      s.close()
       return jsonify(error_json)
   except requests.exceptions.ConnectionError:  
     pass
@@ -254,6 +256,9 @@ def tm_login():
       member_id = json.loads(memberid_request.text)['umember_token']
       oauth_data = {'access_token':access_token,'member_id':member_id}
       return jsonify(oauth_data)
+  else:
+    s.cookies.clear()
+    s.close()    
     
 
 

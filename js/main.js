@@ -4,6 +4,7 @@ var app = angular.module("myApp", ['ngPrettyJson', 'autoCompleteModule']);
 
 app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) {
     $scope.login_button = "LogIn";
+    $scope.disabled = true;
     if($window.sessionStorage['acct_id'] && (typeof $window.sessionStorage['acct_id'] !== 'undefined'))
     {
       $scope.login_button = "LogOut";
