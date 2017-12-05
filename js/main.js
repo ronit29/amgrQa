@@ -7,11 +7,13 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
     $scope.disabled = true;
     if($window.sessionStorage['acct_id'] && (typeof $window.sessionStorage['acct_id'] !== 'undefined'))
     {
+      
       $scope.login_button = "LogOut";
       $scope.acct_id = '#'+$window.sessionStorage['acct_id'];
     }
     if($window.sessionStorage['member_id'])
     {
+      
       $scope.read_only = true;
       $scope.member_id = $window.sessionStorage['member_id'];
     }
@@ -119,10 +121,10 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
          headers: {'Content-Type': 'application/json'}
          }).then(function(result) {
             $scope.imLoading = false;
-            if (result.data.access_token && ((typeof result.data.access_token !== 'undefined') || (result.data.access_token !== null))) {
-              $window.sessionStorage['tm_accesstoken'] = result.data.access_token;
-              $window.sessionStorage['member_id'] = result.data.member_id;
-              $rootScope.member_id = result.data.member_id;
+            if (result.data.member_id && ((typeof result.data.member_id !== 'undefined'))) {
+                $window.sessionStorage['tm_accesstoken'] = result.data.access_token;
+                $window.sessionStorage['member_id'] = result.data.member_id;
+                $rootScope.member_id = result.data.member_id;
              }
              else{
                 $scope.tlogin_error = true;
@@ -315,7 +317,27 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
         {Name:'/invoice/list',endpoint:'tm/invoiceList',api:"invoice_list" },
         {Name:'/invoice/details',endpoint:'tm/invoiceList',api:"invoice_details" },
     ];
-
+    
+    $scope.tmAll = function()
+    { 
+      $scope.tm_services.forEach( function (arrayItem)
+      {
+          var x = arrayItem.api;
+          $http({
+             method: 'POST',
+             url: "http://localhost:5000/"+arrayItem.endpoint,
+             data: {'headers':header_data, 'api':api, 'apiurl':$window.sessionStorage['tm_tmapiurl'], 'member_id':$window.sessionStorage['member_id'],"helper":(is_helper !== null && is_helper[0] ? is_helper[0] : 0),"post_data":post_data},
+             headers: {'Content-Type': 'application/json'}
+             }).then(function(result) {
+                
+                 $scope.tm_output = result.data;
+                 
+              }, function(error) {
+                 $scope.tm_progress = false;
+                 $scope.tm_output = 'Request Failed';
+           }); 
+          });
+    }
     $scope.hitTm = function(endpoint,api)
     {
         if ($window.sessionStorage['member_id']) {

@@ -19,12 +19,12 @@ collection  = db.test_collection
 
 
 '''Requests Debug Logging Code '''
-http_client.HTTPConnection.debuglevel = 1
-logging.basicConfig()
-logging.getLogger().setLevel(logging.DEBUG)
-requests_log = logging.getLogger("requests.packages.urllib3")
-requests_log.setLevel(logging.DEBUG)
-requests_log.propagate = True
+# http_client.HTTPConnection.debuglevel = 1
+# logging.basicConfig()
+# logging.getLogger().setLevel(logging.DEBUG)
+# requests_log = logging.getLogger("requests.packages.urllib3")
+# requests_log.setLevel(logging.DEBUG)
+# requests_log.propagate = True
 
 
 
@@ -186,7 +186,7 @@ def getHelperResponse(response = None, api = None):
     events = []
     for key in json.loads(response):
       events.append(key['event_id'])
-      return events  
+    return events  
   elif api.find("/inventory/events") is not  -1:
     events = []
     if json.loads(response)['events'] is not None:
@@ -196,17 +196,17 @@ def getHelperResponse(response = None, api = None):
   elif api == 'api/invoice/list':
     invoice_ids = []
     invoice_confids = []
-    if json.loads(response)['data'] is not None:
+    if json.loads(response)['data']:
       for key in json.loads(response)['data']:
         invoice_ids.append(key['invoice_ids'])  
         invoice_confids.append(key['inv_conf_id'])
-      return {'invoiceid':invoice_ids,'invoiceconf':invoice_confids}  
+      return {'invoiceid':invoice_ids,'invoiceconf ':invoice_confids}  
   elif api == 'invoice_list':
-    invoice_ids = []
-    if json.loads(response)['command1']['invoices'] is not None:
+    tminvoice_ids = []
+    if json.loads(response)['command1']['invoices']:
       for key in json.loads(response)['command1']['invoices']:
-        invoice_ids.append(key['invoice_ids'])  
-        return invoice_ids
+        tminvoice_ids.append(key['invoice_ids'])  
+      return tminvoice_ids
   return ''     
 
 
@@ -345,25 +345,26 @@ if __name__ == '__main__':
 
 def member_getRequ():
   paylod = {  
-        "client_id" : 'genesis.integration',
-        "client_secret" : 'fcfys1-5RjQe--Bj6W5QmQ6xjKisdiBfSnerJeaAI9k',
+        "client_id" : 'iomediaqaunitas.integration',
+        "client_secret" : 'cAyPhupq0wFh_Qzgni1fsomi7xUwfvTwdHhvO8o4s74',
         "grant_type" : 'password',
-        "username" : 'jawed.yusufi@io-media.com',
-        "password" : '123456',
+        "username" : 'rkumar@io-media.com',
+        "password" : '12345678',
       }
-  req_url =  'https://app.ticketmaster.com/acctmgr-oauth-preprod/token/'
-  # try:  
-  #   oauth_request = s.post(req_url,data= paylod, headers= {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'})
-  #   if oauth_request.status_code == 200:
-  #     access_token = json.loads(oauth_request.text)['access_token']
-  #     if access_token:
-  #       memId_url = req_url + "/" + str(access_token)
-  #       memberid_request = s.get(memId_url)
-  #       member_id = json.loads(memberid_request.text)['umember_token']
-  #       oauth_data = {'access_token':access_token,'member_id':member_id}
-  #       print(oauth_data)
-  # except requests.exceptions.ConnectionError:  
-  #   pass    
+  req_url =  'https://qa1-oauth.acctmgr.us-east-1.nonprod-tmaws.io/oauth/token'
+  try:  
+    oauth_request = s.post(req_url,data= paylod, headers= {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'})
+    if oauth_request.status_code == 200:
+      access_token = json.loads(oauth_request.text)['access_token']
+      if access_token:
+        memId_url = req_url + "/" + str(access_token)
+        memberid_request = s.get(memId_url)
+        print(memberid_request.text)
+        member_id = json.loads(memberid_request.text)['umember_token']
+        oauth_data = {'access_token':access_token,'member_id':member_id}
+        print(oauth_data)
+  except requests.exceptions.ConnectionError:  
+    pass    
   req_headers = { 
                            'Accept':'application/vnd.amgr.v1.5+json',
                            'Content-Type':'application/json',
@@ -387,18 +388,18 @@ def member_getRequ():
               'remember_me':0,
             }      
   curr_time = int(time.time())  
-  try:
-    login_url = 'https://tm-am-stg.io-media.com/genesis/' + 'user/login?_format=json&time='+str(curr_time)
-    login_request = s.post(login_url,data=json.dumps(payload),headers=get_drupal_req_param('https://tm-am-stg.io-media.com/genesis/')['headers'])
-    print(login_request)
-    print(login_request.text)
-    s.cookies.clear()
-    s.close()
-    login_request2 = s.post(login_url,data=json.dumps(payload),headers=get_drupal_req_param('https://tm-am-stg.io-media.com/genesis/')['headers'])
-    print(login_request2)
-    print(login_request2.text)    
-  except requests.exceptions.ConnectionError:  
-    pass  
+  # try:
+  #   login_url = 'https://tm-am-stg.io-media.com/genesis/' + 'user/login?_format=json&time='+str(curr_time)
+  #   login_request = s.post(login_url,data=json.dumps(payload),headers=get_drupal_req_param('https://tm-am-stg.io-media.com/genesis/')['headers'])
+  #   print(login_request)
+  #   print(login_request.text)
+  #   s.cookies.clear()
+  #   s.close()
+  #   login_request2 = s.post(login_url,data=json.dumps(payload),headers=get_drupal_req_param('https://tm-am-stg.io-media.com/genesis/')['headers'])
+  #   print(login_request2)
+  #   print(login_request2.text)    
+  # except requests.exceptions.ConnectionError:  
+  #   pass  
 
 
 # member_getRequ()
