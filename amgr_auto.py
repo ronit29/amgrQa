@@ -169,7 +169,7 @@ def drupal_ticketTransfer():
       d_headers['x-csrf-token'] = rest_token.text
       d_headers['content-type'] = 'application/json'
       request_url = data['url'] + data['api'] + "?_format=json&time="+str(curr_time)
-      list_request = s.post(request_url, data=json.dumps(data['post_data']), headers=d_headers)
+      list_request = s.post(request_url, data=data['post_data'], headers=d_headers)
       if list_request.status_code in [200, 201, 204] :
         return list_request.text
     else:
@@ -359,7 +359,6 @@ def member_getRequ():
       if access_token:
         memId_url = req_url + "/" + str(access_token)
         memberid_request = s.get(memId_url)
-        print(memberid_request.text)
         member_id = json.loads(memberid_request.text)['umember_token']
         oauth_data = {'access_token':access_token,'member_id':member_id}
         print(oauth_data)

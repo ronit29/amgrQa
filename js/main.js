@@ -7,7 +7,6 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
     $scope.disabled = true;
     if($window.sessionStorage['acct_id'] && (typeof $window.sessionStorage['acct_id'] !== 'undefined'))
     {
-      
       $scope.login_button = "LogOut";
       $scope.acct_id = '#'+$window.sessionStorage['acct_id'];
     }
@@ -302,7 +301,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
     $scope.tm_services = [ 
         {Name:'User Details',endpoint:'login'},
         {Name:'/member/<mem_id>/inventory/events',endpoint:'tm/memberRequest',api:"/inventory/events" },
-        {Name:'/member/<mem_id>/inventory/event/<eventId>',endpoint:'tm/memberRequest',api:"/inventory/event/" },
+        {Name:'/member/<mem_id>/inventory/event/<eventId>',endpoint:'tm/memberRequest',api:"/inventory/event/"},
         {Name:'/member/<mem_id>/inventory/search?event_id=<eventId>',endpoint:'tm/memberRequest',api:"/inventory/search?event_id=" },
         {Name:'/member/<mem_id>/posting/profile',endpoint:'tm/memberRequest',api:"/posting/profile" },
         {Name:'/member/<mem_id>/postings',endpoint:'tm/memberRequest',api:"/postings" },
@@ -315,29 +314,44 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
         {Name:'/member/<mem_id>/transfers',endpoint:'tm/memberRequest',api:"/transfers" },
         {Name:'/transfer/policy?event_id=<eventId>',endpoint:'tm/memberRequest',api:"api/v1/transfer/policy?event_id=" },
         {Name:'/invoice/list',endpoint:'tm/invoiceList',api:"invoice_list" },
-        {Name:'/invoice/details',endpoint:'tm/invoiceList',api:"invoice_details" },
+        {Name:'/invoice/details',endpoint:'tm/invoiceList',api:"invoice_details"},
     ];
     
+
+
+
+
     $scope.tmAll = function()
     { 
       $scope.tm_services.forEach( function (arrayItem)
       {
-          var x = arrayItem.api;
+        if (arrayItem.api == '/inventory/events') {
+           hitTm_httpAll(arrayItem);
+        }
+
+          
+      });
+
+      function hitTm_httpAll(arrayItem = null)
+      {
+        
           $http({
              method: 'POST',
              url: "http://localhost:5000/"+arrayItem.endpoint,
-             data: {'headers':header_data, 'api':api, 'apiurl':$window.sessionStorage['tm_tmapiurl'], 'member_id':$window.sessionStorage['member_id'],"helper":(is_helper !== null && is_helper[0] ? is_helper[0] : 0),"post_data":post_data},
+             data: {'headers':header_data, 'api': arrayItem.api, 'apiurl':$window.sessionStorage['tm_tmapiurl'], 'member_id':$window.sessionStorage['member_id'],"helper":(is_helper !== null && is_helper[0] ? is_helper[0] : 0),"post_data":post_data},
              headers: {'Content-Type': 'application/json'}
              }).then(function(result) {
-                
                  $scope.tm_output = result.data;
-                 
               }, function(error) {
                  $scope.tm_progress = false;
                  $scope.tm_output = 'Request Failed';
-           }); 
-          });
+           });
+      }
     }
+
+
+
+
     $scope.hitTm = function(endpoint,api)
     {
         if ($window.sessionStorage['member_id']) {
@@ -405,7 +419,6 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
        }
        else if(api == '/transfer' && endpoint == 'tm/transferTicket')
        {
-           // hitTm_http_request('tm/memberRequest',"api/v1/member/"+member_id+'/inventory/events', tm_oauth_head, [1]);
            $scope.postrequest = '{"event":{"event_id": 1062} ,"note":"yo yo honey singh", "is_display_price": "true", "ticket_ids":["1062.113.Y.11"] }';
            $scope.postrequest_disp = true;
            $scope.goDynamicTm = function()
