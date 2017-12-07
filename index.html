@@ -29,13 +29,13 @@
 
 	<body ng-app="myApp">
 	   <!-- Top Section -->
-	   <div ng-controller="index">
-	   <div class="top_parent" >
+	<div ng-controller="index">
+	    <div class="top_parent" >
 		   <div class="w3-sidebar w3-bar-block w3-light-grey w3-card" style="width:12%; background-color:white!important;">
 			  <h5 class="w3-bar-item">AMGR QA</h5>
 			  <button class="w3-bar-item w3-button w3-orange tablink" onclick="openCity(event, 'login')">Login</button>
 			  <button class="w3-bar-item w3-button tablink" onclick="openCity(event, 'headers')">Headers</button>
-			  <button class="w3-bar-item w3-button tablink" onclick="openCity(event, 'Test')">Test All</button>
+			  <button class="w3-bar-item w3-button tablink" onclick="openCity(event, 'testall')">Test All</button>
 		   </div>
 	       <div class="jumbotron top_section"> 
 		       <div id="login" class="top_tab"  >
@@ -96,6 +96,19 @@
 				      	<input type="text" ng-model='input.acceptlanguage' placeholder="Accept-Language" class="w3-input w3-border input_gen input_gen_half" ng-readonly="read_only">
 				      </div>	
                    </div> 				      	
+		       </div>
+		       <div id="testall" class="top_tab" style="display:none">
+		       	  <div class="row">
+		              <div class="col-sm-3 col-md-3 col-lg-3">
+			              <button class="w3-button w3-teal">Test Drupal</button>
+			          </div>   
+			       </div>   
+
+		          <div class="row">
+			          <div class="col-sm-3 col-md-3 col-lg-3">
+			              <button class="w3-button w3-teal" ng-click="tmAll()">Test TM</button>
+		              </div>
+		          </div>    
 		       </div>
 	       </div>
 	   <div class="loading_image" ng-show="imLoading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw golu_loader"></i></div>          
@@ -162,6 +175,9 @@
 					</div>
 			        <div ng-show="tm_progress" class="progress-line"></div>
 		      </div>
+		      <div>
+		      	<p style="color:#8B008B;">{{tm_requrl}}</p>
+		      </div>
 		      <div class="postrequest_parent" ng-if="postrequest_disp">
 			      <textarea class="postrequest" ng-model="$parent.postrequest"></textarea> 
 		      </div>
@@ -172,7 +188,7 @@
 
 	   </div>
     
-       </div>
+    </div>
     <script>
 		function openCity(evt, cityName) {
 		  var i, x, tablinks;

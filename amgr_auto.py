@@ -280,7 +280,7 @@ def member_getRequest():
           return jsonify(helper_res)
         else:
           return None  
-     return make_request.text
+     return jsonify({'Status':make_request.status_code,'requrl':req_url,'output':json.loads(make_request.text)})
   else:
       error_json = {'Status Code':make_request.status_code, 'Message':make_request.text}
       return jsonify(error_json)    
@@ -298,7 +298,7 @@ def member_postRequest():
     # postd = json.loads(data['post_data'])
     make_request = s.post(req_url,data = data['post_data'], headers=req_headers)
     if make_request.status_code in [200,201]:
-      return make_request.text
+      return  jsonify({'Status':make_request.status_code,'requrl':req_url,'output':json.loads(make_request.text)})
     else:
       error_json = {'Status Code':make_request.status_code, 'Message':make_request.text}
       return jsonify(error_json)   
@@ -319,7 +319,7 @@ def member_deleteRequest():
     req_headers['Cache-Control'] = 'no-cache'
     make_request = s.delete(req_url, headers=req_headers)
     if make_request.status_code == 204:
-      return make_request.text
+      return  jsonify({'Status':make_request.status_code,'requrl':req_url,'output':json.loads(make_request.text)})
     else:
       error_json = {'Status Code':make_request.status_code, 'Message':make_request.text}
       return jsonify(error_json)   

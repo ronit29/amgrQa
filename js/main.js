@@ -73,7 +73,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
             $scope.login_button = "LogOut";
             $scope.read_only = true;
           }else{
-           $scope.tlogin_error = true; 
+           $scope.dlogin_error = true; 
           }
         }, function(error) {
            $scope.imLoading = false;
@@ -136,6 +136,11 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
       }
      }
 
+    $scope.tmAll = function() {
+      var exectm = 1;
+      $scope.$broadcast('tmAll', {tmall_flag: exectm});
+    }
+
 });
 
 app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window, $timeout) {
@@ -143,6 +148,43 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
   $scope.drupal_progress = false;
   $scope.tm_progress = false;
   $scope.drup_postrequest_disp = false;
+  var tmall_flag = 0;
+  var tm_oauth_head = { 
+                     'Accept':$window.sessionStorage['tm_accept'],
+                     'Content-Type':$window.sessionStorage['tm_contenttype'],
+                     'Accept-Language':$window.sessionStorage['tm_acceptlanguage'],
+                     'X-Client':$window.sessionStorage['tm_xclient'],
+                     'X-Api-Key':$window.sessionStorage['tm_xapikey'],
+                     'X-OS-Name':$window.sessionStorage['tm_xosname'],
+                     'X-OS-Version':$window.sessionStorage['tm_xosversion'],
+                     'X-Auth-Token':$window.sessionStorage['tm_accesstoken'],
+                 }; 
+   var inv_paylod = {
+      "header" : {
+        "ver":"0.9",
+        "src_sys_type":"2",
+        "src_sys_name":"IOMEDIA",
+        // "archtics_version":"V605",
+        "archtics_version":"V999",
+      },
+      "command1" : {
+        "cmd" : 'invoice_list',
+        "ref" : 'IOM_INVOICE_LIST',
+        "uid" : $window.sessionStorage["tm_uid"],
+        "dsn" : $window.sessionStorage["tm_dsn"],
+        "site_name" : $window.sessionStorage["tm_sitename"],
+        'acct_id' : $window.sessionStorage["acct_id"],
+      }
+    }
+    $scope.tmDynam ={ one:'',two:''};
+    if ($window.sessionStorage['member_id']) {
+      var  member_id = $window.sessionStorage['member_id'];
+    }
+    else
+    {
+      var member_id = $rootScope.member_id;
+    }    
+
   // List of Drupal Services
   $scope.drupal_services = [ 
         {Name:'User Details',endpoint:'login'},
@@ -294,8 +336,6 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
 
 
 
-
-
     // List of TM Services
   
     $scope.tm_services = [ 
@@ -320,79 +360,57 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
 
 
 
+    $scope.$on('tmAll', function(event, obj) {
+       tmall_flag = obj.tmall_flag;
+        if(tmall_flag == 1)
+        { 
+          $scope.tm_services.forEach(function (arrayItem)
+          {
+            arrayItem.post_data = '';
+            if (arrayItem.api == "/inventory/summary") {
+              arrayItem.tm_api =  "api/v1/members/"+member_id+ arrayItem.api;
+             }    
+             else if(arrayItem.api == "api/v1/transfer/policy?event_id="){
+              arrayItem.tm_api = arrayItem.api;
+             }                 
+             else{
+               arrayItem.tm_api =  "api/v1/member/"+member_id+ arrayItem.api;
+             }
 
-    $scope.tmAll = function()
-    { 
-      $scope.tm_services.forEach( function (arrayItem)
-      {
-        if (arrayItem.api == '/inventory/events') {
-           hitTm_httpAll(arrayItem);
+            if(arrayItem.api == '/inventory/events') {
+               hitTm_httpAll(arrayItem);
+            }     
+          });
+         }
+        function hitTm_httpAll(arrayItem = null)
+        {
+             
+            $http({
+               method: 'POST',
+               url: "http://localhost:5000/"+arrayItem.endpoint,
+               data: {'headers':tm_oauth_head, 'api': arrayItem.tm_api, 'apiurl':$window.sessionStorage['tm_tmapiurl'], 'member_id':$window.sessionStorage['member_id'],"helper": 0,"post_data":arrayItem.post_data},
+               headers: {'Content-Type': 'application/json'}
+               }).then(function(result) {
+                   $scope.tm_output = result.data.status;
+                   console.log(result.data.output.events[0]);
+                   // if () {}
+                }, function(error) {
+                   $scope.tm_progress = false;
+                   $scope.tm_output = 'Request Failed';
+             });
         }
-
-          
-      });
-
-      function hitTm_httpAll(arrayItem = null)
-      {
-        
-          $http({
-             method: 'POST',
-             url: "http://localhost:5000/"+arrayItem.endpoint,
-             data: {'headers':header_data, 'api': arrayItem.api, 'apiurl':$window.sessionStorage['tm_tmapiurl'], 'member_id':$window.sessionStorage['member_id'],"helper":(is_helper !== null && is_helper[0] ? is_helper[0] : 0),"post_data":post_data},
-             headers: {'Content-Type': 'application/json'}
-             }).then(function(result) {
-                 $scope.tm_output = result.data;
-              }, function(error) {
-                 $scope.tm_progress = false;
-                 $scope.tm_output = 'Request Failed';
-           });
-      }
-    }
-
+     
+    })
 
 
 
     $scope.hitTm = function(endpoint,api)
-    {
-        if ($window.sessionStorage['member_id']) {
-          var  member_id = $window.sessionStorage['member_id'];
-        }
-        else
-        {
-          var member_id = $rootScope.member_id;
-        }     
-        $scope.tmDynam ={ one:'',two:''};
+    { 
         $scope.tm_dynamic1 = false;
         $scope.tm_dynamic2 = false;
         $scope.postrequest_disp  = false;
         var tm_api = ''
-        var tm_oauth_head = { 
-                           'Accept':$window.sessionStorage['tm_accept'],
-                           'Content-Type':$window.sessionStorage['tm_contenttype'],
-                           'Accept-Language':$window.sessionStorage['tm_acceptlanguage'],
-                           'X-Client':$window.sessionStorage['tm_xclient'],
-                           'X-Api-Key':$window.sessionStorage['tm_xapikey'],
-                           'X-OS-Name':$window.sessionStorage['tm_xosname'],
-                           'X-OS-Version':$window.sessionStorage['tm_xosversion'],
-                           'X-Auth-Token':$window.sessionStorage['tm_accesstoken'],
-                       }; 
-        var inv_paylod = {
-            "header" : {
-              "ver":"0.9",
-              "src_sys_type":"2",
-              "src_sys_name":"IOMEDIA",
-              // "archtics_version":"V605",
-              "archtics_version":"V999",
-            },
-            "command1" : {
-              "cmd" : 'invoice_list',
-              "ref" : 'IOM_INVOICE_LIST',
-              "uid" : $window.sessionStorage["tm_uid"],
-              "dsn" : $window.sessionStorage["tm_dsn"],
-              "site_name" : $window.sessionStorage["tm_sitename"],
-              'acct_id' : $window.sessionStorage["acct_id"],
-            }
-        }
+  
 
        if (api == "/inventory/summary") {
         tm_api =  "api/v1/members/"+member_id+ api;
@@ -511,7 +529,8 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$location ,$window,
              }
             else 
             { 
-             $scope.tm_output = result.data;
+             $scope.tm_requrl = result.data.requrl;
+             $scope.tm_output = result.data.output;
             } 
           }, function(error) {
              $scope.tm_progress = false;
