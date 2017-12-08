@@ -149,9 +149,9 @@ def drupal_getRequest():
       if data['helper'] == 1:
         helper_res = getHelperResponse(list_request.text, data['api'])
         return jsonify(helper_res)
-      return list_request.text
+      return jsonify({'status' : list_request.status_code,'output':json.loads(list_request.text),'requrl':request_url})
     else:
-      error_json = {'Status Code':list_request.status_code, 'Message':list_request.text}
+      error_json = {'status':list_request.status_code, 'output':list_request.text,'requrl':request_url}
       return jsonify(error_json)  
   except requests.exceptions.ConnectionError:  
     pass
@@ -226,7 +226,7 @@ def tm_invoiceList():
           return jsonify(helper_res)
       return jsonify({'Status':invoiceList_request.status_code,'tmall_api': data['api'],'requrl':get_tm_req_param(data['headers'],data['headers']['command1']['dsn'])['url'],'output':json.loads(invoiceList_request.text)})    
     else:
-      error_json = {'Status':invoiceList_request.status_code,'tmall_api': data['api'], 'output':invoiceList_request.text,'requrl':get_tm_req_param(data['headers'],data['headers']['command1']['dsn'])['url']}
+      error_json = {'Status':invoiceList_request.status_code,'tmall_api': data['api'], 'output':json.loads(invoiceList_request.text),'requrl':get_tm_req_param(data['headers'],data['headers']['command1']['dsn'])['url']}
       return jsonify(error_json)    
   except requests.exceptions.ConnectionError:  
     pass  
@@ -284,7 +284,7 @@ def member_getRequest():
           return None  
      return jsonify({'Status':make_request.status_code,'requrl':req_url,'output':json.loads(make_request.text),'tmall_api': data['api']})
   else:
-      error_json = {'Status':make_request.status_code, 'output':make_request.text, 'requrl':req_url,'tmall_api': data['api']}
+      error_json = {'Status':make_request.status_code, 'output':json.loads(make_request.text), 'requrl':req_url,'tmall_api': data['api']}
       return jsonify(error_json)    
 
 
@@ -302,7 +302,7 @@ def member_postRequest():
     if make_request.status_code in [200,201]:
       return  jsonify({'Status':make_request.status_code,'tmall_api': data['api'],'requrl':req_url,'output':json.loads(make_request.text)})
     else:
-      error_json = {'Status':make_request.status_code, 'tmall_api': data['api'],'output':make_request.text,'requrl':req_url}
+      error_json = {'Status':make_request.status_code, 'tmall_api': data['api'],'output':json.loads(make_request.text),'requrl':req_url}
       return jsonify(error_json)   
   except requests.exceptions.ConnectionError:  
     pass    
@@ -323,7 +323,7 @@ def member_deleteRequest():
     if make_request.status_code == 204:
       return  jsonify({'Status':make_request.status_code,'requrl':req_url,'tmall_api': data['api'],'output':json.loads(make_request.text)})
     else:
-      error_json = {'Status':make_request.status_code, 'tmall_api': data['api'],'output':make_request.text, 'requrl':req_url}
+      error_json = {'Status':make_request.status_code, 'tmall_api': data['api'],'output':json.loads(make_request.text), 'requrl':req_url}
       return jsonify(error_json)   
   except requests.exceptions.ConnectionError:  
     pass     

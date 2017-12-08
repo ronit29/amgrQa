@@ -290,7 +290,8 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
                 }
                 else 
                 { 
-                  $scope.drupal_output = result.data; 
+                  $scope.drupal_requrl = result.data.requrl;
+                  $scope.drupal_output = result.data.output;
                 }
                },
                function(error) {
@@ -336,12 +337,19 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
             arrayItem.post_data = '';
             var tm_headers = '';
             arrayItem.tm_api  = get_tmapi(arrayItem.api);
-            if(arrayItem.endpoint !== 'tm/invoice_list'){
-              var tm_headers = get_tm_headers();
+            tm_headers = get_tm_headers();
+            if(arrayItem.endpoint == 'tm/invoiceList'){
+              tm_headers = get_tm_invoice_headers();
             }
             if(arrayItem.api == '/inventory/event/' || arrayItem.api == '/inventory/search?event_id=' || arrayItem.api == 'api/v1/transfer/policy?event_id=') {
                arrayItem.tm_api = arrayItem.tm_api + $window.sessionStorage['tmall_eventid'];
-            }     
+            } 
+            else if(arrayItem.api = '/transfer')
+            {
+              
+              arrayItem.post_data = get_transfer_postdata();
+
+            }    
             // hitTm_httpAll(arrayItem);
             var tmDataPromise = tmAll.getData(arrayItem,tm_headers);
             tmDataPromise.then(function(result) {  
@@ -350,6 +358,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
                if((typeof result.output.events !== 'undefined') && (result.output.events[0].event_id)){
                  $window.sessionStorage['tmall_eventid'] = result.output.events[0].event_id;
                }
+
                   val = val + 1;
                   if(val <= $scope.tm_services.length)
                   {
@@ -383,7 +392,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
        }
        else if(api == '/transfer' && endpoint == 'tm/transferTicket')
        {
-           $scope.postrequest = '{"event":{"event_id": 1062} ,"note":"yo yo honey singh", "is_display_price": "true", "ticket_ids":["1062.113.Y.11"] }';
+           $scope.postrequest = get_transfer_postdata();
            $scope.postrequest_disp = true;
            $scope.goDynamicTm = function()
            {             
@@ -542,6 +551,12 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
          tm_api =  "api/v1/member/"+get_tm_memberid()+ api;
        }
        return tm_api;
+    }
+
+    function get_transfer_postdata(event_id = null, ticket_id = null){
+      var eid = (event_id && (event_id !== null)) ? event_id : '1062';
+      var tid = (ticket_id && (ticket_id !== null)) ? ticket_id : '["1062.113.Y.11"]';
+      return '{"event":{"event_id": '+eid+'} ,"note":"yo yo honey singh", "is_display_price": "true", "ticket_ids":'+tid+'}';
     }
 
 });

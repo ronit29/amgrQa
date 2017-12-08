@@ -142,6 +142,9 @@
 		        </div>
 		       <div ng-show="drupal_progress" class="progress-line"></div>
 		    </div> 
+		      <div style="background: #eee;">
+		      	<p style="color:#8B008B;" ng-show="drupal_requrl">{{drupal_requrl}}</p>
+		      </div>
 		      <div class="postrequest_parent" ng-if="drup_postrequest_disp">
 			      <textarea class="postrequest" ng-model="$parent.drup_postrequest"></textarea> 
 		      </div>
@@ -175,7 +178,7 @@
 					</div>
 			        <div ng-show="tm_progress" class="progress-line"></div>
 		      </div>
-		      <div>
+		      <div style="background: #eee;">
 		      	<p style="color:#8B008B;" ng-show="tm_requrl">{{tm_requrl}}</p>
 		      </div>
 		      <div class="postrequest_parent" ng-if="postrequest_disp">
