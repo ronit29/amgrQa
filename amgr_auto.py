@@ -114,6 +114,8 @@ def drupal_login():
               'remember_me':0,
             }      
   curr_time = int(time.time())  
+  if s.cookies:
+    s.cookies.clear()
   '''Login Request'''
   try:
     login_url = data['url'] + 'user/login?_format=json&time='+str(curr_time)
@@ -222,9 +224,9 @@ def tm_invoiceList():
       if data['helper'] == 1:
           helper_res = getHelperResponse(invoiceList_request.text, data['api'])
           return jsonify(helper_res)
-      return invoiceList_request.text    
+      return jsonify({'Status':invoiceList_request.status_code,'tmall_api': data['api'],'requrl':get_tm_req_param(data['headers'],data['headers']['command1']['dsn'])['url'],'output':json.loads(invoiceList_request.text)})    
     else:
-      error_json = {'Status Code':invoiceList_request.status_code, 'Message':invoiceList_request.text}
+      error_json = {'Status':invoiceList_request.status_code,'tmall_api': data['api'], 'output':invoiceList_request.text,'requrl':get_tm_req_param(data['headers'],data['headers']['command1']['dsn'])['url']}
       return jsonify(error_json)    
   except requests.exceptions.ConnectionError:  
     pass  
@@ -280,9 +282,9 @@ def member_getRequest():
           return jsonify(helper_res)
         else:
           return None  
-     return jsonify({'Status':make_request.status_code,'requrl':req_url,'output':json.loads(make_request.text)})
+     return jsonify({'Status':make_request.status_code,'requrl':req_url,'output':json.loads(make_request.text),'tmall_api': data['api']})
   else:
-      error_json = {'Status Code':make_request.status_code, 'Message':make_request.text}
+      error_json = {'Status':make_request.status_code, 'output':make_request.text, 'requrl':req_url,'tmall_api': data['api']}
       return jsonify(error_json)    
 
 
@@ -298,9 +300,9 @@ def member_postRequest():
     # postd = json.loads(data['post_data'])
     make_request = s.post(req_url,data = data['post_data'], headers=req_headers)
     if make_request.status_code in [200,201]:
-      return  jsonify({'Status':make_request.status_code,'requrl':req_url,'output':json.loads(make_request.text)})
+      return  jsonify({'Status':make_request.status_code,'tmall_api': data['api'],'requrl':req_url,'output':json.loads(make_request.text)})
     else:
-      error_json = {'Status Code':make_request.status_code, 'Message':make_request.text}
+      error_json = {'Status':make_request.status_code, 'tmall_api': data['api'],'output':make_request.text,'requrl':req_url}
       return jsonify(error_json)   
   except requests.exceptions.ConnectionError:  
     pass    
@@ -319,9 +321,9 @@ def member_deleteRequest():
     req_headers['Cache-Control'] = 'no-cache'
     make_request = s.delete(req_url, headers=req_headers)
     if make_request.status_code == 204:
-      return  jsonify({'Status':make_request.status_code,'requrl':req_url,'output':json.loads(make_request.text)})
+      return  jsonify({'Status':make_request.status_code,'requrl':req_url,'tmall_api': data['api'],'output':json.loads(make_request.text)})
     else:
-      error_json = {'Status Code':make_request.status_code, 'Message':make_request.text}
+      error_json = {'Status':make_request.status_code, 'tmall_api': data['api'],'output':make_request.text, 'requrl':req_url}
       return jsonify(error_json)   
   except requests.exceptions.ConnectionError:  
     pass     
