@@ -149,6 +149,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
   $scope.drup_postrequest_disp = false;
   var tmall_flag = 0;
   $scope.tmDynam ={ one:'',two:''};
+  var tmall_eventhelper_done = 0;
     
 
   // List of Drupal Services
@@ -333,37 +334,59 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
         { 
           function tm_lopp(val, tmall_output)
           {
+            continue_flag = 0;
             arrayItem = $scope.tm_services[val];
-            arrayItem.post_data = '';
-            var tm_headers = '';
+            arrayItem.post_data = null;
+            arrayItem.tmall_helper = null;
             arrayItem.tm_api  = get_tmapi(arrayItem.api);
-            tm_headers = get_tm_headers();
+            var tm_headers = get_tm_headers();
             if(arrayItem.endpoint == 'tm/invoiceList'){
               tm_headers = get_tm_invoice_headers();
             }
             if(arrayItem.api == '/inventory/event/' || arrayItem.api == '/inventory/search?event_id=' || arrayItem.api == 'api/v1/transfer/policy?event_id=') {
-               arrayItem.tm_api = arrayItem.tm_api + $window.sessionStorage['tmall_eventid'];
+              // if(!($window.sessionStorage['tmall_eventid']) || $window.sessionStorage['tmall_eventid'] == null)
+              // {
+              //   tmall_output += 'NA' + ' : ' + get_tmapi(arrayItem.api) + '\n\n';
+              //   $scope.tm_output = tmall_output; 
+              //   continue; 
+              // }
+              if(arrayItem.api == '/inventory/search?event_id=')
+              {
+                 arrayItem.tmall_helper = '1';
+              }
+              arrayItem.tm_api = arrayItem.tm_api + $window.sessionStorage['tmall_eventid'];
             } 
-            else if(arrayItem.api = '/transfer')
+            else if(arrayItem.api == '/transfer')
             {
-              
-              arrayItem.post_data = get_transfer_postdata();
-
+              // if(!($window.sessionStorage['tmall_eventid']) || $window.sessionStorage['tmall_eventid'] == null)
+              // {
+              //   tmall_output += 'NA' + ' : ' + get_tmapi(arrayItem.api) + '\n\n';
+              //   $scope.tm_output = tmall_output; 
+              //   continue; 
+              // }
+             
+              arrayItem.post_data = get_transfer_postdata($window.sessionStorage['tmall_transfer_eventid'],$window.sessionStorage['tmall_transfer_ticketid']);
             }    
-            // hitTm_httpAll(arrayItem);
             var tmDataPromise = tmAll.getData(arrayItem,tm_headers);
             tmDataPromise.then(function(result) {  
+               var post_output = (result.post_data !== null && result.post_data) ? '\n' + result.post_data : '';
                tmall_output += result.Status + ' : ' + result.tmall_api + '\n\n';
                $scope.tm_output = tmall_output;
-               if((typeof result.output.events !== 'undefined') && (result.output.events[0].event_id)){
-                 $window.sessionStorage['tmall_eventid'] = result.output.events[0].event_id;
-               }
-
-                  val = val + 1;
-                  if(val <= $scope.tm_services.length)
-                  {
-                     tm_lopp(val,tmall_output);
-                  }
+               if(result.tmall_api.indexOf('/inventory/events') !== -1){
+                   if((typeof result.output.events !== 'undefined') && (result.output.events[0].event_id)){
+                     $window.sessionStorage['tmall_eventid'] = result.output.events[0].event_id;
+                   }                  
+                }
+                else if(result.tmall_api.indexOf('/inventory/search?') !== -1)
+                {
+                   $window.sessionStorage['tmall_transfer_eventid'] = result.tmall_helper_resp.event_id;
+                   $window.sessionStorage['tmall_transfer_ticketid'] = '["'+result.tmall_helper_resp.ticket_id+'"]';
+                }  
+                    val = val + 1;
+                    if(val < $scope.tm_services.length) 
+                    {
+                       tm_lopp(val,tmall_output);
+                    }
             },function(error){val = val + 1;});
           }
           $scope.tm_requrl = false;
@@ -371,7 +394,9 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
           tm_lopp(1, tmall_output);
         }
      })
-   
+
+    
+
 
     $scope.hitTm = function(endpoint,api)
     { 
@@ -447,7 +472,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
        $http({
          method: 'POST',
          url: "http://localhost:5000/"+endpoint,
-         data: {'headers':header_data, 'api':api, 'apiurl':$window.sessionStorage['tm_tmapiurl'], 'member_id':$window.sessionStorage['member_id'],"helper":(is_helper !== null && is_helper[0] ? is_helper[0] : 0),"post_data":post_data},
+         data: {'headers':header_data, 'api':api, 'apiurl':$window.sessionStorage['tm_tmapiurl'], 'member_id':$window.sessionStorage['member_id'],"helper":(is_helper !== null && is_helper[0] ? is_helper[0] : 0),"post_data":post_data,"tmall_helper":0},
          headers: {'Content-Type': 'application/json'}
          }).then(function(result) {
              $scope.tm_progress = false;
@@ -566,7 +591,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
               return $http({
                      method: 'POST',
                      url: "http://localhost:5000/"+arrayItem.endpoint,
-                     data: {'headers':tm_headers, 'api': arrayItem.tm_api , 'apiurl':$window.sessionStorage['tm_tmapiurl'], 'member_id':$window.sessionStorage['member_id'],"helper": 0,"post_data":arrayItem.post_data},
+                     data: {'headers':tm_headers, 'api': arrayItem.tm_api , 'apiurl':$window.sessionStorage['tm_tmapiurl'], 'member_id':$window.sessionStorage['member_id'],"helper": 0,"post_data":arrayItem.post_data,'tmall_helper':arrayItem.tmall_helper},
                      headers: {'Content-Type': 'application/json'}
                      }).then(function(result) {
                         return result.data;

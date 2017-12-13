@@ -1,5 +1,6 @@
 import requests
 import time
+import re
 import json
 import logging
 import http.client as http_client
@@ -213,6 +214,37 @@ def getHelperResponse(response = None, api = None):
 
 
 
+
+'''Returns Tm all helper reesponse'''
+def get_tmall_helperresponse(url = None, req_headers = None): 
+  if (url.find('/inventory/search?event_id')) != -1:
+    pos = url.find('search?')
+    work_url = url[:pos] 
+    try: 
+      eurl = str(work_url+ 'events')
+      events_data = s.get(eurl,headers=req_headers) 
+      if json.loads(events_data.text)['events'] is not None:
+        for key in json.loads(events_data.text)['events']:
+          search_data = s.get(work_url+'search?event_id='+str(key['event_id']),headers = req_headers)
+          data = json.loads(search_data.text)['inventory_items'][0]
+          if data.get('event'):
+            if data['event']['can_transfer'] != False:
+              if data.get('sections'):
+                tickets = data['sections'][0]['rows'][0]
+                if tickets.get('tickets'):
+                  ticket_id = tickets['tickets'][0]['ticket_id']
+                  if ticket_id.find('%20'):
+                    ticket_id = ticket_id.replace('%20',' ')
+                  resp = {'ticket_id':ticket_id,'event_id':key['event_id']}
+                  return resp
+
+    except requests.exceptions.ConnectionError:  
+      pass       
+
+
+
+
+
 '''Returns Tm Invoice List'''
 @app.route('/tm/invoiceList',methods=['POST'])
 def tm_invoiceList():
@@ -267,22 +299,25 @@ def tm_login():
 '''Returns Member Events Response'''
 @app.route('/tm/memberRequest',methods=['POST'])
 def member_getRequest():
+  tmall_helper_resp = {}
   if request.method == 'POST':
     data = request.json  
   req_headers = data['headers']
   try:  
     req_url = data['apiurl'] + data['api']
-    make_request = s.get(req_url,headers=req_headers)
+    make_request = s.get(req_url,headers=req_headers)  
   except requests.exceptions.ConnectionError:  
     pass  
   if make_request.status_code == 200:
+     if data['tmall_helper'] == '1':
+        tmall_helper_resp = get_tmall_helperresponse(req_url,req_headers)  
      if data['helper'] == 1:
         if make_request.text:     
-          helper_res = getHelperResponse(make_request.text, data['api'])
+          helper_res = getHelperResponse(make_request.text, req_headers)
           return jsonify(helper_res)
         else:
           return None  
-     return jsonify({'Status':make_request.status_code,'requrl':req_url,'output':json.loads(make_request.text),'tmall_api': data['api']})
+     return jsonify({'Status':make_request.status_code,'requrl':req_url,'output':json.loads(make_request.text),'tmall_api': data['api'], 'tmall_helper_resp':tmall_helper_resp})
   else:
       error_json = {'Status':make_request.status_code, 'output':json.loads(make_request.text), 'requrl':req_url,'tmall_api': data['api']}
       return jsonify(error_json)    
@@ -300,7 +335,7 @@ def member_postRequest():
     # postd = json.loads(data['post_data'])
     make_request = s.post(req_url,data = data['post_data'], headers=req_headers)
     if make_request.status_code in [200,201]:
-      return  jsonify({'Status':make_request.status_code,'tmall_api': data['api'],'requrl':req_url,'output':json.loads(make_request.text)})
+      return  jsonify({'Status':make_request.status_code,'tmall_api': data['api'],'requrl':req_url,'output':json.loads(make_request.text),'post_data' : data['post_data']})
     else:
       error_json = {'Status':make_request.status_code, 'tmall_api': data['api'],'output':json.loads(make_request.text),'requrl':req_url}
       return jsonify(error_json)   
@@ -347,13 +382,13 @@ if __name__ == '__main__':
 
 def member_getRequ():
   paylod = {  
-        "client_id" : 'iomediaqaunitas.integration',
-        "client_secret" : 'cAyPhupq0wFh_Qzgni1fsomi7xUwfvTwdHhvO8o4s74',
+        "client_id" : 'genesis.integration',
+        "client_secret" : 'fcfys1-5RjQe--Bj6W5QmQ6xjKisdiBfSnerJeaAI9k',
         "grant_type" : 'password',
-        "username" : 'rkumar@io-media.com',
-        "password" : '12345678',
+        "username" : 'tejpal@io-media.com',
+        "password" : '123456',
       }
-  req_url =  'https://qa1-oauth.acctmgr.us-east-1.nonprod-tmaws.io/oauth/token'
+  req_url =  "https://app.ticketmaster.com/acctmgr-oauth-preprod/token/"
   try:  
     oauth_request = s.post(req_url,data= paylod, headers= {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'})
     if oauth_request.status_code == 200:
@@ -374,33 +409,37 @@ def member_getRequ():
                            'X-Api-Key':'09f1949e-ef0f-11e6-80b7-0a1887e82b7a',
                            'X-OS-Name':'web',
                            'X-OS-Version':8,
-                           # 'X-Auth-Token':access_token,
+                           'X-Auth-Token':access_token,
                        } 
   # req_url_new = "https://staging-oss.ticketmaster.com/api/v1/member/"+str(member_id)+"/inventory/search?event_id=777"
-  transfer_data = {
-                        'event':{'event_id':777} ,
-                        'note':'yo yo honey singh',
-                        'is_display_price': 'true',
-                        'ticket_ids':["777.114.G.17"]
-                    }
-  payload = {
-              'name':'dev12@mailinator.com',
-              'pass':'123456',
-              'remember_me':0,
-            }      
-  curr_time = int(time.time())  
-  # try:
-  #   login_url = 'https://tm-am-stg.io-media.com/genesis/' + 'user/login?_format=json&time='+str(curr_time)
-  #   login_request = s.post(login_url,data=json.dumps(payload),headers=get_drupal_req_param('https://tm-am-stg.io-media.com/genesis/')['headers'])
-  #   print(login_request)
-  #   print(login_request.text)
-  #   s.cookies.clear()
-  #   s.close()
-  #   login_request2 = s.post(login_url,data=json.dumps(payload),headers=get_drupal_req_param('https://tm-am-stg.io-media.com/genesis/')['headers'])
-  #   print(login_request2)
-  #   print(login_request2.text)    
-  # except requests.exceptions.ConnectionError:  
-  #   pass  
+  # transfer_data = {
+  #                       'event':{'event_id':777} ,
+  #                       'note':'yo yo honey singh',
+  #                       'is_display_price': 'true',
+  #                       'ticket_ids':["777.114.G.17"]
+  #                   }
+  # payload = {
+  #             'name':'dev12@mailinator.com',
+  #             'pass':'123456',
+  #             'remember_me':0,
+  #           }      
+  # curr_time = int(time.time())  
+  work_url = "https://staging-oss.ticketmaster.com/api/v1/member/"+str(member_id)+"/inventory/"
+  events_data = s.get(work_url+ 'events',headers = req_headers) 
+  if json.loads(events_data.text)['events'] is not None:
+    for key in json.loads(events_data.text)['events']:
+      search_data = s.get(work_url+'search?event_id='+str(key['event_id']),headers = req_headers)
+      data = json.loads(search_data.text)['inventory_items'][0]
+      if data.get('event'):
+        if data['event']['can_transfer'] != False:
+          if data.get('sections'):
+            tickets = data['sections'][0]['rows'][0]
+            if tickets.get('tickets'):
+              ticket_id = tickets['tickets'][0]['ticket_id']
+              if ticket_id.find('%20'):
+                ticket_id = ticket_id.replace('%20',' ')
+              print({'ticket_id':ticket_id,'event_id':key['event_id']})  
+              break
 
 
 # member_getRequ()
