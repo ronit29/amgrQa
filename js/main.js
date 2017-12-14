@@ -344,12 +344,6 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
               tm_headers = get_tm_invoice_headers();
             }
             if(arrayItem.api == '/inventory/event/' || arrayItem.api == '/inventory/search?event_id=' || arrayItem.api == 'api/v1/transfer/policy?event_id=') {
-              // if(!($window.sessionStorage['tmall_eventid']) || $window.sessionStorage['tmall_eventid'] == null)
-              // {
-              //   tmall_output += 'NA' + ' : ' + get_tmapi(arrayItem.api) + '\n\n';
-              //   $scope.tm_output = tmall_output; 
-              //   continue; 
-              // }
               if(arrayItem.api == '/inventory/search?event_id=')
               {
                  arrayItem.tmall_helper = '1';
@@ -358,19 +352,16 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
             } 
             else if(arrayItem.api == '/transfer')
             {
-              // if(!($window.sessionStorage['tmall_eventid']) || $window.sessionStorage['tmall_eventid'] == null)
-              // {
-              //   tmall_output += 'NA' + ' : ' + get_tmapi(arrayItem.api) + '\n\n';
-              //   $scope.tm_output = tmall_output; 
-              //   continue; 
-              // }
-             
               arrayItem.post_data = get_transfer_postdata($window.sessionStorage['tmall_transfer_eventid'],$window.sessionStorage['tmall_transfer_ticketid']);
-            }    
+            } 
+            else if (arrayItem.api == '/posting')
+            {
+              arrayItem.post_data = get_sell_postdata();
+            }   
             var tmDataPromise = tmAll.getData(arrayItem,tm_headers);
             tmDataPromise.then(function(result) {  
                var post_output = (result.post_data !== null && result.post_data) ? '\n' + result.post_data : '';
-               tmall_output += result.Status + ' : ' + result.tmall_api + '\n\n';
+               tmall_output += result.Status + ' : ' + result.tmall_api + post_output +'\n\n';
                $scope.tm_output = tmall_output;
                if(result.tmall_api.indexOf('/inventory/events') !== -1){
                    if((typeof result.output.events !== 'undefined') && (result.output.events[0].event_id)){
@@ -393,9 +384,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
           var tmall_output = '';
           tm_lopp(1, tmall_output);
         }
-     })
-
-    
+     })    
 
 
     $scope.hitTm = function(endpoint,api)
@@ -427,7 +416,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
        }
        else if(api == '/posting' && endpoint == 'tm/transferTicket')
        {
-           $scope.postrequest = '{"payout_method":"account_credit","expiration_offset":-1440,   "is_allow_splits":false, "pricing_model":"fixed",   "event":{        "event_id":"1065"   },   "payout_price":{        "currency":"USD",      "value":4500   },   "seat_descriptions":[        {           "description":"End Zone seats",         "required":false      }   ],   "sections":[        {           "section_name":"110",         "rows":[              {                 "row_name":"B",               "tickets":[                    {                       "ticket_id":"1065.110.B.2"                  }               ]            }         ]      }   ]}';
+           $scope.postrequest = get_sell_postdata();
            $scope.postrequest_disp = true;
            $scope.goDynamicTm = function()
            {             
@@ -440,6 +429,8 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
            $scope.goDynamicTm = function()
            {
               dynamic_api = tm_api  + $scope.tmDynam.one;
+              del_headers = get_tm_headers();
+              del_headers['Cache-Control'] = 'no-cache';
               hitTm_http_request(endpoint, dynamic_api, get_tm_headers()); 
            }  
        }
@@ -581,9 +572,15 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
     function get_transfer_postdata(event_id = null, ticket_id = null){
       var eid = (event_id && (event_id !== null)) ? event_id : '1062';
       var tid = (ticket_id && (ticket_id !== null)) ? ticket_id : '["1062.113.Y.11"]';
-      return '{"event":{"event_id": '+eid+'} ,"note":"yo yo honey singh", "is_display_price": "true", "ticket_ids":'+tid+'}';
+      return '{\n  "event":{"event_id": "'+eid+'"} ,\n  "note":"Testing Ticket Transfer",\n  "is_display_price": true,\n  "ticket_ids":'+tid+'\n}';
     }
 
+    function get_sell_postdata()
+    {
+      return '{\n  "payout_method":"account_credit","expiration_offset":-1440,"is_allow_splits":false,"pricing_model":"fixed",\n  "event":{\n  "event_id":"1065"\n},"payout_price":{"currency":"USD",\n  "value":4500\n},"seat_descriptions":[{"description":"End Zone seats","required":false}\n],"sections":[{\n  "section_name":"110","rows":[{"row_name":"B","tickets":[{"ticket_id":"1065.110.B.2"\n}]}]}]}'
+    }
+
+    
 });
 
  app.factory('tmAll', function($http, $window) {

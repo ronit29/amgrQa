@@ -230,13 +230,15 @@ def get_tmall_helperresponse(url = None, req_headers = None):
           if data.get('event'):
             if data['event']['can_transfer'] != False:
               if data.get('sections'):
-                tickets = data['sections'][0]['rows'][0]
-                if tickets.get('tickets'):
-                  ticket_id = tickets['tickets'][0]['ticket_id']
-                  if ticket_id.find('%20'):
-                    ticket_id = ticket_id.replace('%20',' ')
-                  resp = {'ticket_id':ticket_id,'event_id':key['event_id']}
-                  return resp
+                # tickets = data['sections'][0]['rows'][0]
+                for section in data['sections']:
+                  row = section['rows'][0]
+                  if row.get('tickets'):
+                    for ticket in row['tickets']:
+                      if ticket['can_transfer'] != False:
+                        ticket_id = ticket['ticket_id']
+                        resp = {'ticket_id':ticket_id,'event_id':key['event_id']}
+                        return resp
 
     except requests.exceptions.ConnectionError:  
       pass       
@@ -313,7 +315,7 @@ def member_getRequest():
         tmall_helper_resp = get_tmall_helperresponse(req_url,req_headers)  
      if data['helper'] == 1:
         if make_request.text:     
-          helper_res = getHelperResponse(make_request.text, req_headers)
+          helper_res = getHelperResponse(make_request.text, data['api'])
           return jsonify(helper_res)
         else:
           return None  
@@ -337,7 +339,7 @@ def member_postRequest():
     if make_request.status_code in [200,201]:
       return  jsonify({'Status':make_request.status_code,'tmall_api': data['api'],'requrl':req_url,'output':json.loads(make_request.text),'post_data' : data['post_data']})
     else:
-      error_json = {'Status':make_request.status_code, 'tmall_api': data['api'],'output':json.loads(make_request.text),'requrl':req_url}
+      error_json = {'Status':make_request.status_code, 'tmall_api': data['api'],'output':json.loads(make_request.text),'requrl':req_url,'post_data' : data['post_data']}
       return jsonify(error_json)   
   except requests.exceptions.ConnectionError:  
     pass    
@@ -353,9 +355,9 @@ def member_deleteRequest():
   req_headers = data['headers']
   try:  
     req_url = data['apiurl'] + data['api']
-    req_headers['Cache-Control'] = 'no-cache'
+    # req_headers['Cache-Control'] = 'no-cache'
     make_request = s.delete(req_url, headers=req_headers)
-    if make_request.status_code == 204:
+    if make_request.status_code in [200,201,204]:
       return  jsonify({'Status':make_request.status_code,'requrl':req_url,'tmall_api': data['api'],'output':json.loads(make_request.text)})
     else:
       error_json = {'Status':make_request.status_code, 'tmall_api': data['api'],'output':json.loads(make_request.text), 'requrl':req_url}
@@ -424,22 +426,10 @@ def member_getRequ():
   #             'remember_me':0,
   #           }      
   # curr_time = int(time.time())  
-  work_url = "https://staging-oss.ticketmaster.com/api/v1/member/"+str(member_id)+"/inventory/"
-  events_data = s.get(work_url+ 'events',headers = req_headers) 
-  if json.loads(events_data.text)['events'] is not None:
-    for key in json.loads(events_data.text)['events']:
-      search_data = s.get(work_url+'search?event_id='+str(key['event_id']),headers = req_headers)
-      data = json.loads(search_data.text)['inventory_items'][0]
-      if data.get('event'):
-        if data['event']['can_transfer'] != False:
-          if data.get('sections'):
-            tickets = data['sections'][0]['rows'][0]
-            if tickets.get('tickets'):
-              ticket_id = tickets['tickets'][0]['ticket_id']
-              if ticket_id.find('%20'):
-                ticket_id = ticket_id.replace('%20',' ')
-              print({'ticket_id':ticket_id,'event_id':key['event_id']})  
-              break
+  work_url = "https://staging-oss.ticketmaster.com/api/v1/member/"+str(member_id)+"/transfer/9b46b1a99088bedf58a408dcb03e0fe2aps5a324d33226d4"
+  events_data = s.delete(work_url+ 'events',headers = req_headers) 
+    
+            
 
 
 # member_getRequ()
