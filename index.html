@@ -6,11 +6,12 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 		<link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-		<script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		
 		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-		<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+	    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+	    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 		<!-- Import Angular Library -->
 		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
@@ -43,20 +44,41 @@
 			          <div class="login_form">
 			             <div class="row">
 			               <div class="col-sm-10 col-md-10 col-lg-10" style="padding-right: 0px! important ">
-					         <input type="text" ng-model="input.url"  placeholder="url" class="w3-input w3-border url_input input_gen"  ng-readonly="read_only">
+			                 <div class="field url_input">
+						         <input data-attr="{{input.url}}" type="text" ng-model="input.url" id="url" placehoplder="" class="floatinput w3-input w3-border input_gen" ng-readonly="read_only" >
+				                 <label class="floatlabel" for="url">URL</label>
+						     </div>   
 					       </div>  
 					       <div class="col-sm-2 col-md-2 col-lg-2">
-					         <a href=""><i ng-class = "{disabled_i: !input.url}" class="fa fa-exclamation-circle fa-2x"  ng-click="loadconfig(input.url)" aria-hidden="true"></i></a>
+					         <a href=""><i class="fa fa-exclamation-circle fa-2x the_i"  ng-click="loadconfig(input.url)" aria-hidden="true"></i></a>
 					       </div>  
 					     </div>   
-				         <input type="text" ng-model="input.name" placeholder="name" class="w3-input w3-border name_input input_gen" style="float: left;" ng-readonly="read_only">
-				         <input type="text" ng-model="input.password"  placeholder="password" class="w3-input w3-border pass_input input_gen" ng-readonly="read_only">
-				         <input type="text" placeholder ="oauthurl" ng-model="input.oauthurl" class="w3-input w3-border input_gen"  ng-readonly="read_only">
+					     <div class="field name_input" style="float: left;">
+					         <input type="text" data-attr="{{input.name}}" ng-model="input.name" id="name" class="floatinput w3-input w3-border input_gen" ng-readonly="read_only">
+			                 <label class="floatlabel" name="name">Name</label>
+					     </div>
+					     <div class="field pass_input" style="display: inline-block;"">    
+					         <input type="text" data-attr="{{input.password}}" ng-model="input.password"  id="password" class="floatinput w3-input w3-border input_gen" ng-readonly="read_only">
+			                 <label class="floatlabel" for="password">Password</label>
+					     </div>   
+					     <div class="field">
+					         <input type="text" data-attr="{{input.oauthurl}}" ng-model="input.oauthurl" id="oauthurl" class="floatinput w3-input w3-border input_gen"  ng-readonly="read_only">
+ 			                 <label class="floatlabel" for="oauthurl">Oauth Url</label>
+					     </div>    
 				      </div>
 				      <div class="tm_input">
-				      	<input type="text" ng-model='input.uid' placeholder="uid" class="w3-input w3-border input_gen" ng-readonly="read_only">
-				      	<input type="text" ng-model='input.dsn' placeholder="dsn" class="w3-input w3-border input_gen" ng-readonly="read_only">
-				      	<input type="text" ng-model='input.sitename' placeholder="site name" class="w3-input w3-border input_gen" ng-readonly="read_only">
+				        <div class="field">
+					      	<input type="text" data-attr="{{input.uid}}" ng-model='input.uid'  class="floatinput w3-input w3-border input_gen" ng-readonly="read_only">
+					      	<label class="floatlabel">Uid</label>
+					    </div>  	
+                        <div class="field">
+					      	<input type="text" data-attr="{{input.dsn}}" ng-model='input.dsn' class="floatinput w3-input w3-border input_gen" ng-readonly="read_only">
+					      	<label class="floatlabel">Dsn</label>
+					    </div>  	
+                        <div class="field">
+					      	<input type="text" data-attr="{{input.sitename}}" ng-model='input.sitename' class="floatinput w3-input w3-border input_gen" ng-readonly="read_only">
+					      	<label class="floatlabel">SiteName</label>
+					    </div>  	
 				      </div>
 				      <div class="login_submit">
 				        <div style="float: right;">
@@ -80,20 +102,50 @@
 		       <div id="headers" class="top_tab"  style="display:none">
 		           <div class="row">
 		              <div class="col-sm-3 col-md-3 col-lg-3 header_rows">
-		              	<input type="text" ng-model='input.tmapiurl' placeholder="TmApi Url" class="w3-input w3-border input_gen" ng-readonly="read_only"> 	
-				      	<input type="text" ng-model='input.clientid' placeholder="Client ID" class="w3-input w3-border input_gen" ng-readonly="read_only">
-				      	<input type="text" ng-model='input.clientsecret' placeholder="Client Secret" class="w3-input w3-border input_gen" ng-readonly="read_only">
+		                <div class="field">
+			              	<input type="text" ng-model='input.tmapiurl' data-attr="{{input.tmapiurl}}" class="floatinput w3-input w3-border input_gen" ng-readonly="read_only"> 	
+				            <label class="floatlabel">TM API Url</label>
+					    </div>    	
+					    <div class="field">
+					      	<input type="text" ng-model='input.clientid' data-attr="{{input.clientid}}" class="floatinput  w3-input w3-border input_gen" ng-readonly="read_only">
+					      	<label class="floatlabel">Client Id</label>
+                        </div>
+                        <div class="field">
+					      	<input type="text" ng-model='input.clientsecret' data-attr="{{input.clientsecret}}" class="floatinput w3-input w3-border input_gen" ng-readonly="read_only">
+					      	<label class="floatlabel"> Client Secret</label>
+					    </div>  	
 				      </div>
 				      <div class="col-sm-3 col-md-3 col-lg-3 header_rows">
-				      	<input type="text" ng-model='input.xapikey' placeholder="X-Api-Key" class="w3-input w3-border input_gen" ng-readonly="read_only">
-				      	<input type="text" ng-model='input.xosname' placeholder="X-OS-Name" class="w3-input w3-border input_gen input_gen_half half1" style="float: left;" ng-readonly="read_only">
-				      	<input type="text" ng-model='input.xosversion' placeholder="X-OS-Version" class="w3-input w3-border input_gen input_gen_half" ng-readonly="read_only">
-				      	<input type="text" ng-model='input.xclient' placeholder="X-Client" class="w3-input w3-border input_gen" ng-readonly="read_only">
+				        <div class="field">
+					      	<input type="text" ng-model='input.xapikey' data-attr="{{input.xapikey}}" class="floatinput w3-input w3-border input_gen" ng-readonly="read_only">
+					      	<label class="floatlabel">X-API Key</label>
+					    </div>  	
+					    <div class="field input_gen_half half1" style="float: left;">
+					      	<input type="text" ng-model='input.xosname' data-attr="{{input.xosname}}" class="floatinput w3-input w3-border input_gen" ng-readonly="read_only">
+					      	<label class="floatlabel">X-OS Name</label>
+					    </div>  	
+					    <div class="field input_gen_half" style="display: inline-block;">
+					      	<input type="text" ng-model='input.xosversion' data-attr="{{input.xosversion}}" class="floatinput w3-input w3-border input_gen" ng-readonly="read_only">
+					      	<label class="floatlabel">X-OS Ver</label>
+				      	</div>
+				      	<div class="field">
+					      	<input type="text" ng-model='input.xclient' data-attr="{{input.xclient}}" class="floatinput w3-input w3-border input_gen" ng-readonly="read_only">
+					      	<label class="floatlabel">X-Client</label>
+					    </div>  	
 				      </div>
 				      <div class="col-sm-3 col-md-3 col-lg-3 header_rows">
-				       	<input type="text" ng-model='input.accept' placeholder="Accept" class="w3-input w3-border input_gen" ng-readonly="read_only">
-				      	<input type="text" ng-model='input.contenttype' placeholder="Content-Type" class="w3-input w3-border input_gen input_gen_half half1" style="float: left;" ng-readonly="read_only">
-				      	<input type="text" ng-model='input.acceptlanguage' placeholder="Accept-Language" class="w3-input w3-border input_gen input_gen_half" ng-readonly="read_only">
+				        <div class="field"> 
+					       	<input type="text" ng-model='input.accept' data-attr="{{input.accept}}" class="floatinput w3-input w3-border input_gen" ng-readonly="read_only">
+					       	<label class="floatlabel">Accept</label>
+					    </div>   	
+					    <div class="field input_gen_half half1" style="float: left;">
+					      	<input type="text" ng-model='input.contenttype' data-attr="{{input.contenttype}}" class="floatinput w3-input w3-border input_gen" ng-readonly="read_only">
+					      	<label class="floatlabel">Content-Type</label>
+					    </div>  	
+					    <div class="field input_gen_half" style="display: inline-block;">
+					      	<input type="text" ng-model='input.acceptlanguage' data-attr="{{input.acceptlanguage}}" class="floatinput w3-input w3-border input_gen" ng-readonly="read_only">
+					      	<label class="floatlabel">Accept Lang</label>
+					    </div>  	
 				      </div>	
                    </div> 				      	
 		       </div>

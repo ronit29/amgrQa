@@ -12,7 +12,6 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
     }
     if($window.sessionStorage['member_id'])
     {
-      
       $scope.read_only = true;
       $scope.member_id = $window.sessionStorage['member_id'];
     }
@@ -147,6 +146,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
   $scope.drupal_progress = false;
   $scope.tm_progress = false;
   $scope.drup_postrequest_disp = false;
+  $scope.postrequest_disp = false;
   var tmall_flag = 0;
   $scope.tmDynam ={ one:'',two:''};
   var tmall_eventhelper_done = 0;
@@ -391,7 +391,6 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
     { 
         $scope.tm_dynamic1 = false;
         $scope.tm_dynamic2 = false;
-        $scope.postrequest_disp  = false;
         var tm_api = get_tmapi(api);
        if ((api == '/inventory/event/') || (api == "api/v1/transfer/policy?event_id=") || (api == "/inventory/search?event_id=")) {
            
@@ -469,17 +468,17 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
              $scope.tm_progress = false;
              if (is_helper !== null && is_helper[0]) 
              { 
-                      if (result.data.invoiceconf) {
-                        $window.sessionStorage["tmhelper_data"] = result.data.invoiceid; 
-                        $window.sessionStorage["tmhelper_data_2"] = result.data.invoiceconf; 
-                      }
-                      else{
-                       $window.sessionStorage["tmhelper_data"] = result.data; 
-                      }
-                     create_tmhelper_response();
-                     if (is_helper[1] && is_helper[1] == 2) {
-                      create_tmhelper_response_two();
-                     }
+                   if (result.data.invoiceconf) {
+                      $window.sessionStorage["tmhelper_data"] = result.data.invoiceid; 
+                      $window.sessionStorage["tmhelper_data_2"] = result.data.invoiceconf; 
+                    }
+                   else{
+                     $window.sessionStorage["tmhelper_data"] = result.data; 
+                    }
+                   create_tmhelper_response();
+                   if (is_helper[1] && is_helper[1] == 2) {
+                    create_tmhelper_response_two();
+                   }
              }
             else 
             { 

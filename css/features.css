@@ -1,6 +1,38 @@
 body{
 	background-color: #eee;
 }
+.tablink
+{
+	padding: 9px 16px !important;
+}
+.field{
+  position: relative;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+.floatlabel {
+  font-weight: 510;	
+  order: -1;
+  padding-left: 5px;
+  transition: all 200ms ease-in;
+  transform: translateY(-50%);
+  pointer-events: none;position:absolute;left:0;top:50%;
+  opacity: 0.5;
+}
+.floatinput{
+	font-weight: 540;
+}
+
+.floatinput:focus + .floatlabel,
+.floatinput:not([data-attr='']) + .floatlabel
+{
+  font-size: 81%;
+  /*color: #9b9b9b;*/
+  transform: translate3d(0, -192%, 0);
+  opacity: 0.8;
+}
+
+
 .top_parent
 {
 	width: 100%;
@@ -8,7 +40,7 @@ body{
 .top_section
 {
 	width: 88%;
-	padding: 20px 15px 20px 18px;
+	padding: 20px 15px 16px 18px;
     float: left;
 }
 .loading_image
@@ -32,6 +64,11 @@ body{
 	width: 25%;
 	margin-left: 4%;
 }
+.the_i
+{
+	padding-top: 7px;
+}
+
 .w3-sidebar
 {
 	position: relative !important;
@@ -123,7 +160,7 @@ body{
 .input_gen
 {
    padding: 4px;
-   margin-bottom:3px;
+   margin-bottom:4px;
 }
 
 .name_input, .pass_input , .input_gen_half
