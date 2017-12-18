@@ -151,14 +151,16 @@
 		       </div>
 		       <div id="testall" class="top_tab" style="display:none">
 		       	  <div class="row">
-		              <div class="col-sm-3 col-md-3 col-lg-3">
-			              <button class="w3-button w3-teal">Test Drupal</button>
+		              <div class="col-sm-3 col-md-3 col-lg-3 dall_btn">
+			              <button class="w3-button w3-teal" ng-disabled="disab_allbtn">Test Drupal</button>
+			              <div class="all_load_parent"><i class="fa fa-circle-o-notch fa-spin all_load" ng-show="disp_dpallload"></i></div>
 			          </div>   
 			       </div>   
 
 		          <div class="row">
-			          <div class="col-sm-3 col-md-3 col-lg-3">
-			              <button class="w3-button w3-teal" ng-click="tmAll()">Test TM</button>
+			          <div class="col-sm-3 col-md-3 col-lg-3 tall_btn">
+			              <button class="w3-button w3-teal" ng-click="tmAll()" ng-disabled="disab_allbtn">Test TM</button>
+			              <div class="all_load_parent"><i class="fa fa-circle-o-notch fa-spin all_load" ng-show="disp_tmallload"></i></div>
 		              </div>
 		          </div>    
 		       </div>
@@ -167,13 +169,13 @@
        </div>
 
        <!-- Output Section -->
-       <div ng-controller="drupal" class="bottom_section  ng-cloak">
+       <div ng-controller="drupal" class="bottom_section ng-cloak">
          <div class="left">
             <div>
                 <div class="service_parent">
 		           <div class="dropdown">
-					    <span class="w3-button w3-white dropdown-toggle"  data-toggle="dropdown">Drupal Services
-					    <span class="caret"></span></span>
+					    <button class="w3-button w3-white dropdown-toggle"  data-toggle="dropdown" ng-disabled="disab_dserv">Drupal Services
+					    <span class="caret"></span></button>
 					    <ul class="dropdown-menu service_list_ul list-group table-striped">
 					      <li class="service_list_li">
 					          <div class="input-group" style="width: 100%;"> 
@@ -188,7 +190,7 @@
 				     <form name="dynamic_fields" ng-submit="goDynamic(drupDynam.one, drupDynam.two)">
 					   	 <input type="text" ng-model="drupDynam.one" placeholder="{{placeholder1}}" ng-if="drupal_dynamic1" class="w3-input w3-border drupal_dynamic1" auto-complete="autoCompleteOptions" />
 					   	 <input type="text" ng-model="drupDynam.two" placeholder="{{placeholder2}}" ng-if="drupal_dynamic2" class="w3-input w3-border drupal_dynamic2" auto-complete="autoCompleteOptions2">
-					   	 <input type="submit" ng-disabled="{{drupDynam.one.$valid}}" class="w3-button w3-orange drupal_ynamic_go" value="Go!" ng-show="(drupal_dynamic1 || drup_postrequest_disp)">
+					   	 <input type="submit" ng-disabled="((!drupDynam.one) || disab_dserv)" class="w3-button w3-orange drupal_ynamic_go" value="Go!" ng-show="(drupal_dynamic1 || drup_postrequest_disp)">
 				   	 </form>
 				   </div>
 		        </div>
@@ -208,8 +210,8 @@
 	          <div>
 		          <div class="service_parent">
 			           <div class="dropdown">
-						    <span class="w3-button w3-white dropdown-toggle"  data-toggle="dropdown">Tm Services
-						    <span class="caret"></span></span>
+						    <button class="w3-button w3-white dropdown-toggle"  data-toggle="dropdown"  ng-disabled="disab_tserv">Tm Services
+						    <span class="caret"></span></button>
 						    <ul class="dropdown-menu service_list_ul list-group">
 						      <li class="service_list_li">
 							      <div class="input-group" style="width: 100%;"> 
@@ -221,10 +223,10 @@
 						    </ul>
 					   </div>
 					   <div class="dynamic_fields" align="right">
-				         <form name="dynamic_fields_tm" >
+				         <form name="dynamic_fields_tm" ng-disabled="disab_tserv">
 						   	 <input type="text" ng-model="tmDynam.one" placeholder="{{tmplaceholder1}}" ng-if="tm_dynamic1" class="w3-input w3-border tm_dynamic1" auto-complete="tmautoCompleteOptions" />
 						   	 <input type="text" ng-model="tmDynam.two" placeholder="{{tmplaceholder2}}" ng-if="tm_dynamic2" class="w3-input w3-border tm_dynamic2" auto-complete="tmautoCompleteOptions2">
-						   	 <input type="submit" ng-disabled="{{tmDynam.one.$valid}}" class="w3-button w3-orange drupal_ynamic_go" value="Go!" ng-show="(tm_dynamic1 || postrequest_disp)" ng-click="goDynamicTm()">
+						   	 <input type="submit" ng-disabled="((!tmDynam.one) || disab_tserv)" class="w3-button w3-orange drupal_ynamic_go" value="Go!" ng-show="(tm_dynamic1 || postrequest_disp)" ng-click="goDynamicTm()">
 				   	     </form>
 				       </div>
 					</div>

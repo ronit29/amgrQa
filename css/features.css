@@ -80,6 +80,19 @@ body{
 	width: 25%;
 	display: inline-block;
 }
+.dall_btn , .tall_btn
+{
+	padding: 15px;
+}
+.all_load_parent
+{
+	display: inline-block;
+}
+.all_load
+{
+	font-size:26px;
+	margin-top: 5px;
+}
 .login_data
 {
     text-align: right;

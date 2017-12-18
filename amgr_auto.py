@@ -203,7 +203,7 @@ def getHelperResponse(response = None, api = None):
       for key in json.loads(response)['data']:
         invoice_ids.append(key['invoice_ids'])  
         invoice_confids.append(key['inv_conf_id'])
-      return {'invoiceid':invoice_ids,'invoiceconf ':invoice_confids}  
+      return {'invoiceid':invoice_ids,'invoiceconf':invoice_confids}  
   elif api == 'invoice_list':
     tminvoice_ids = []
     if json.loads(response)['command1']['invoices']:
@@ -239,10 +239,11 @@ def get_tmall_helperresponse(url = None, req_headers = None):
                         ticket_id = ticket['ticket_id']
                         resp = {'ticket_id':ticket_id,'event_id':key['event_id']}
                         return resp
-
     except requests.exceptions.ConnectionError:  
       pass       
 
+
+# def get_ticket_id
 
 
 
@@ -334,7 +335,6 @@ def member_postRequest():
   req_headers = data['headers']
   try:  
     req_url = data['apiurl'] + data['api']
-    # postd = json.loads(data['post_data'])
     make_request = s.post(req_url,data = data['post_data'], headers=req_headers)
     if make_request.status_code in [200,201]:
       return  jsonify({'Status':make_request.status_code,'tmall_api': data['api'],'requrl':req_url,'output':json.loads(make_request.text),'post_data' : data['post_data']})

@@ -5,6 +5,10 @@ var app = angular.module("myApp", ['ngPrettyJson', 'autoCompleteModule']);
 app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) {
     $scope.login_button = "LogIn";
     $scope.disabled = true;
+    $scope.disab_allbtn = false;
+    $scope.disp_tmallload = false;
+    $scope.disp_dpallload = false;
+
     if($window.sessionStorage['acct_id'] && (typeof $window.sessionStorage['acct_id'] !== 'undefined'))
     {
       $scope.login_button = "LogOut";
@@ -133,9 +137,16 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
        });
       }
      }
-
+    
+    $scope.dpall = function() {
+      var execdp = 1;
+      $scope.disab_allbtn = true;
+      $scope.disp_dpallload = true;
+    } 
     $scope.tmAll = function() {
       var exectm = 1;
+      $scope.disab_allbtn = true;
+      $scope.disp_tmallload = true;
       $scope.$broadcast('tmAll', {tmall_flag: exectm});
     }
 
@@ -150,6 +161,8 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
   var tmall_flag = 0;
   $scope.tmDynam ={ one:'',two:''};
   var tmall_eventhelper_done = 0;
+  $scope.disab_dserv = false;
+  $scope.disab_tserv = false;
     
 
   // List of Drupal Services
@@ -265,6 +278,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
 
     function hitDrupal_http_request(endpoint, api, is_helper = null, post_data = null)
     {
+       $scope.disab_allbtn = true;
        $scope.drupal_progress = true;
        $http({
              method: 'POST',
@@ -272,7 +286,6 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
              data: {"url":$window.sessionStorage["drupal_url"],"api":api,"helper":(is_helper !== null && is_helper[0] ? is_helper[0] : 0),"post_data":post_data},
              headers: {'Content-Type': 'application/json'}
              }).then(function(result) {
-                console.log(result); 
                 $scope.drupal_progress = false;
                 if (is_helper !== null && is_helper[0]) 
                 { 
@@ -334,7 +347,8 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
         { 
           function tm_lopp(val, tmall_output)
           {
-            continue_flag = 0;
+            $scope.disab_dserv = true;
+            $scope.disab_tserv = true;
             arrayItem = $scope.tm_services[val];
             arrayItem.post_data = null;
             arrayItem.tmall_helper = null;
@@ -356,7 +370,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
             } 
             else if (arrayItem.api == '/posting')
             {
-              arrayItem.post_data = get_sell_postdata();
+              arrayItem.post_data = get_sell_postdata($window.sessionStorage['tmall_posting_eventid'],$window.sessionStorage['tmall_posting_ticketid']);
             }   
             var tmDataPromise = tmAll.getData(arrayItem,tm_headers);
             tmDataPromise.then(function(result) {  
@@ -366,7 +380,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
                if(result.tmall_api.indexOf('/inventory/events') !== -1){
                    if((typeof result.output.events !== 'undefined') && (result.output.events[0].event_id)){
                      $window.sessionStorage['tmall_eventid'] = result.output.events[0].event_id;
-                   }                  
+                   }                 
                 }
                 else if(result.tmall_api.indexOf('/inventory/search?') !== -1)
                 {
@@ -378,7 +392,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
                     {
                        tm_lopp(val,tmall_output);
                     }
-            },function(error){val = val + 1;});
+            },function(error){});
           }
           $scope.tm_requrl = false;
           var tmall_output = '';
@@ -386,13 +400,13 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
         }
      })    
 
-
     $scope.hitTm = function(endpoint,api)
     { 
+        $scope.postrequest_disp = false;
         $scope.tm_dynamic1 = false;
         $scope.tm_dynamic2 = false;
         var tm_api = get_tmapi(api);
-       if ((api == '/inventory/event/') || (api == "api/v1/transfer/policy?event_id=") || (api == "/inventory/search?event_id=")) {
+       if((api == '/inventory/event/') || (api == "api/v1/transfer/policy?event_id=") || (api == "/inventory/search?event_id=")) {
            
            hitTm_http_request(endpoint,"api/v1/member/"+get_tm_memberid()+'/inventory/events', get_tm_headers(), [1]);
            $scope.tmplaceholder1 = "Event Id";
@@ -574,9 +588,12 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
       return '{\n  "event":{"event_id": "'+eid+'"} ,\n  "note":"Testing Ticket Transfer",\n  "is_display_price": true,\n  "ticket_ids":'+tid+'\n}';
     }
 
-    function get_sell_postdata()
+    function get_sell_postdata(event_id = null, ticket_id = null)
     {
-      return '{\n  "payout_method":"account_credit","expiration_offset":-1440,"is_allow_splits":false,"pricing_model":"fixed",\n  "event":{\n  "event_id":"1065"\n},"payout_price":{"currency":"USD",\n  "value":4500\n},"seat_descriptions":[{"description":"End Zone seats","required":false}\n],"sections":[{\n  "section_name":"110","rows":[{"row_name":"B","tickets":[{"ticket_id":"1065.110.B.2"\n}]}]}]}'
+      var eid = (event_id && (event_id !== null)) ? event_id : '1062';
+      var tid = (ticket_id && (ticket_id !== null)) ? ticket_id : '1062.113.Y.11';
+      var ticket_data = tid.split(".");
+      return '{\n  "payout_method":"account_credit","expiration_offset":-1440,"is_allow_splits":false,"pricing_model":"fixed",\n  "event":{\n  "event_id":"'+eid+'"\n},"payout_price":{"currency":"USD",\n  "value":4500\n},"seat_descriptions":[{"description":"End Zone seats","required":false}\n],"sections":[{\n  "section_name":"'+ticket_data[1]+'","rows":[{"row_name":"'+ticket_data[2]+'","tickets":[{"ticket_id":"'+tid+'"\n}]}]}]}'
     }
 
     
