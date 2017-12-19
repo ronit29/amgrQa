@@ -218,6 +218,7 @@ def getHelperResponse(response = None, api = None):
 '''Returns Tm all helper reesponse'''
 def get_tmall_helperresponse(url = None, req_headers = None): 
   if (url.find('/inventory/search?event_id')) != -1:
+    resp = {}
     pos = url.find('search?')
     work_url = url[:pos] 
     try: 
@@ -228,22 +229,29 @@ def get_tmall_helperresponse(url = None, req_headers = None):
           search_data = s.get(work_url+'search?event_id='+str(key['event_id']),headers = req_headers)
           data = json.loads(search_data.text)['inventory_items'][0]
           if data.get('event'):
-            if data['event']['can_transfer'] != False:
+            # if data['event']['can_transfer'] != False:
               if data.get('sections'):
-                # tickets = data['sections'][0]['rows'][0]
                 for section in data['sections']:
                   row = section['rows'][0]
                   if row.get('tickets'):
                     for ticket in row['tickets']:
-                      if ticket['can_transfer'] != False:
-                        ticket_id = ticket['ticket_id']
-                        resp = {'ticket_id':ticket_id,'event_id':key['event_id']}
+                      if resp.get('transfer_ticket_id') == None:
+                        if ticket['can_transfer'] != False:
+                          resp['transfer_ticket_id'] =  ticket['ticket_id']
+                          resp['transfer_event_id'] = key['event_id']
+                          continue
+                      if resp.get('posting_ticket_id') == None:    
+                        if ticket['can_resale'] != False:
+                          resp['posting_ticket_id'] = ticket['ticket_id']
+                          resp['posting_event_id'] = key['event_id']
+                      if resp.get('transfer_ticket_id') and resp.get('posting_ticket_id'):    
                         return resp
+        return resp
     except requests.exceptions.ConnectionError:  
       pass       
 
 
-# def get_ticket_id
+# def get_ticket_id`                    
 
 
 
@@ -413,23 +421,34 @@ def member_getRequ():
                            'X-OS-Version':8,
                            'X-Auth-Token':access_token,
                        } 
-  # req_url_new = "https://staging-oss.ticketmaster.com/api/v1/member/"+str(member_id)+"/inventory/search?event_id=777"
-  # transfer_data = {
-  #                       'event':{'event_id':777} ,
-  #                       'note':'yo yo honey singh',
-  #                       'is_display_price': 'true',
-  #                       'ticket_ids':["777.114.G.17"]
-  #                   }
-  # payload = {
-  #             'name':'dev12@mailinator.com',
-  #             'pass':'123456',
-  #             'remember_me':0,
-  #           }      
-  # curr_time = int(time.time())  
-  work_url = "https://staging-oss.ticketmaster.com/api/v1/member/"+str(member_id)+"/transfer/9b46b1a99088bedf58a408dcb03e0fe2aps5a324d33226d4"
-  events_data = s.delete(work_url+ 'events',headers = req_headers) 
-    
+  work_url = "https://staging-oss.ticketmaster.com/api/v1/member/"+str(member_id)+"/inventory/"
+  try: 
+    eurl = work_url + "events"
+    events_data = s.get(eurl,headers=req_headers) 
+    resp = {}
+    if json.loads(events_data.text)['events'] is not None:
+      for key in json.loads(events_data.text)['events']:
+        search_data = s.get(work_url+'search?event_id='+str(key['event_id']),headers = req_headers)
+        data = json.loads(search_data.text)['inventory_items'][0]
+        if data.get('event'):
+          # if data['event']['can_transfer'] != False:
+            if data.get('sections'):
+              for section in data['sections']:
+                row = section['rows'][0]
+                if row.get('tickets'):
+                  for ticket in row['tickets']:
+                    if resp.get('transfer_ticket_id') == None:
+                      if ticket['can_transfer'] != False:
+                        resp['transfer_ticket_id'] =  ticket['ticket_id']
+                        resp['transfer_event_id'] = key['event_id']
+                        continue
+                    if resp.get('posting_ticket_id') == None:    
+                      if ticket['can_resale'] != False:
+                        resp['posting_ticket_id'] = ticket['ticket_id']
+                        resp['posting_event_id'] = key['event_id']
+              print(resp)
+  except :
+    pass            
             
-
 
 # member_getRequ()

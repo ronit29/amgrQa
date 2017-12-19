@@ -149,6 +149,10 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
       $scope.disp_tmallload = true;
       $scope.$broadcast('tmAll', {tmall_flag: exectm});
     }
+    $scope.$on('tmAll_stop', function(event, obj) {
+      $scope.disab_allbtn = false;
+      $scope.disp_tmallload = false;
+    });
 
 });
 
@@ -331,7 +335,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
         {Name:'/member/<mem_id>/transfer/<transferId>',endpoint:'tm/deleteTicket',api:"/transfer/" },
         {Name:'/member/<mem_id>/posting/<postingId>',endpoint:'tm/deleteTicket',api:"/posting/" },
         {Name:'/members/<memb_id>/inventory/summary',endpoint:'tm/memberRequest',api:"/inventory/summary" },
-        {Name:'/member/<mem_id>/',endpoint:'tm/memberRequest',api:"/" },
+        {Name:'/render/ticket?member_id=<mem_id>&ticket_id=<ticket>/',endpoint:'tm/memberRequest',api:"/render/ticket" },
         {Name:'/member/<mem_id>/transfers',endpoint:'tm/memberRequest',api:"/transfers" },
         {Name:'/transfer/policy?event_id=<eventId>',endpoint:'tm/memberRequest',api:"api/v1/transfer/policy?event_id=" },
         {Name:'/invoice/list',endpoint:'tm/invoiceList',api:"invoice_list" },
@@ -365,13 +369,13 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
               arrayItem.tm_api = arrayItem.tm_api + $window.sessionStorage['tmall_eventid'];
             } 
             else if(arrayItem.api == '/transfer')
-            {
+            {   
               arrayItem.post_data = get_transfer_postdata($window.sessionStorage['tmall_transfer_eventid'],$window.sessionStorage['tmall_transfer_ticketid']);
             } 
             else if (arrayItem.api == '/posting')
             {
               arrayItem.post_data = get_sell_postdata($window.sessionStorage['tmall_posting_eventid'],$window.sessionStorage['tmall_posting_ticketid']);
-            }   
+            }  
             var tmDataPromise = tmAll.getData(arrayItem,tm_headers);
             tmDataPromise.then(function(result) {  
                var post_output = (result.post_data !== null && result.post_data) ? '\n' + result.post_data : '';
@@ -384,13 +388,25 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
                 }
                 else if(result.tmall_api.indexOf('/inventory/search?') !== -1)
                 {
-                   $window.sessionStorage['tmall_transfer_eventid'] = result.tmall_helper_resp.event_id;
-                   $window.sessionStorage['tmall_transfer_ticketid'] = '["'+result.tmall_helper_resp.ticket_id+'"]';
+                  if((typeof result.tmall_helper_resp.transfer_event_id !== 'undefined') && (result.tmall_helper_resp.transfer_event_id)){
+                     $window.sessionStorage['tmall_transfer_eventid'] = result.tmall_helper_resp.transfer_event_id;
+                     $window.sessionStorage['tmall_transfer_ticketid'] = '["'+result.tmall_helper_resp.transfer_ticket_id+'"]';
+                  }
+                  if((typeof result.tmall_helper_resp.posting_event_id !== 'undefined') && result.tmall_helper_resp.posting_event_id){
+                     $window.sessionStorage['tmall_posting_eventid'] = result.tmall_helper_resp.posting_event_id;
+                     $window.sessionStorage['tmall_posting_ticketid'] = result.tmall_helper_resp.posting_ticket_id;
+                  }  
                 }  
                     val = val + 1;
                     if(val < $scope.tm_services.length) 
                     {
                        tm_lopp(val,tmall_output);
+                    }
+                    else
+                    {
+                      $scope.$emit('tmAll_stop', {tmall_stop_flag: 1});
+                      $scope.disab_dserv = false;
+                      $scope.disab_tserv = false;
                     }
             },function(error){});
           }
@@ -425,6 +441,16 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
            {             
 
               hitTm_http_request(endpoint, tm_api, get_tm_headers(), [], $scope.postrequest); 
+           }
+       }
+       else if(api == '/render/ticket')
+       {
+           $scope.tm_dynamic1 = true;
+           $scope.tmplaceholder1 = "Ticket Id";
+           $scope.goDynamicTm = function()
+           {           
+              dynamic_api = tm_api  + $scope.tmDynam.one;  
+              hitTm_http_request(endpoint, dynamic_api, get_tm_headers()); 
            }
        }
        else if(api == '/posting' && endpoint == 'tm/transferTicket')
@@ -575,7 +601,11 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
        }    
        else if(api == "api/v1/transfer/policy?event_id="){
         tm_api = api;
-       }                 
+       }   
+       else if(api = "/render/ticket")
+       {
+        tm_api = "api/v1/render/ticket?member_id="+ get_tm_memberid() + "&ticket_id=";
+       }              
        else{
          tm_api =  "api/v1/member/"+get_tm_memberid()+ api;
        }
