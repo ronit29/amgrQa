@@ -8,7 +8,6 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
     $scope.disab_allbtn = false;
     $scope.disp_tmallload = false;
     $scope.disp_dpallload = false;
-
     if($window.sessionStorage['acct_id'] && (typeof $window.sessionStorage['acct_id'] !== 'undefined'))
     {
       $scope.login_button = "LogOut";
@@ -335,7 +334,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
         {Name:'/member/<mem_id>/transfer/<transferId>',endpoint:'tm/deleteTicket',api:"/transfer/" },
         {Name:'/member/<mem_id>/posting/<postingId>',endpoint:'tm/deleteTicket',api:"/posting/" },
         {Name:'/members/<memb_id>/inventory/summary',endpoint:'tm/memberRequest',api:"/inventory/summary" },
-        {Name:'/render/ticket?member_id=<mem_id>&ticket_id=<ticket>/',endpoint:'tm/memberRequest',api:"/render/ticket" },
+        {Name:'/render/ticket?member_id=<mem_id>&ticket_id=<ticket>',endpoint:'tm/memberRequest',api:"/render/ticket" },
         {Name:'/member/<mem_id>/transfers',endpoint:'tm/memberRequest',api:"/transfers" },
         {Name:'/transfer/policy?event_id=<eventId>',endpoint:'tm/memberRequest',api:"api/v1/transfer/policy?event_id=" },
         {Name:'/invoice/list',endpoint:'tm/invoiceList',api:"invoice_list" },
@@ -368,6 +367,10 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
               }
               arrayItem.tm_api = arrayItem.tm_api + $window.sessionStorage['tmall_eventid'];
             } 
+            else if(arrayItem.api == '/render/ticket')
+            {
+               arrayItem.tm_api = arrayItem.tm_api + $window.sessionStorage['tmall_render_ticketid'];
+            }
             else if(arrayItem.api == '/transfer')
             {   
               arrayItem.post_data = get_transfer_postdata($window.sessionStorage['tmall_transfer_eventid'],$window.sessionStorage['tmall_transfer_ticketid']);
@@ -396,6 +399,9 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
                      $window.sessionStorage['tmall_posting_eventid'] = result.tmall_helper_resp.posting_event_id;
                      $window.sessionStorage['tmall_posting_ticketid'] = result.tmall_helper_resp.posting_ticket_id;
                   }  
+                  if((typeof result.tmall_helper_resp.render_ticket_id !== 'undefined') && result.tmall_helper_resp.render_ticket_id){
+                     $window.sessionStorage['tmall_render_ticketid'] = result.tmall_helper_resp.render_ticket_id;
+                  } 
                 }  
                     val = val + 1;
                     if(val < $scope.tm_services.length) 
@@ -455,6 +461,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
        }
        else if(api == '/posting' && endpoint == 'tm/transferTicket')
        {
+           $scope.tmDynam.one = true;
            $scope.postrequest = get_sell_postdata();
            $scope.postrequest_disp = true;
            $scope.goDynamicTm = function()
@@ -602,7 +609,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
        else if(api == "api/v1/transfer/policy?event_id="){
         tm_api = api;
        }   
-       else if(api = "/render/ticket")
+       else if(api == "/render/ticket")
        {
         tm_api = "api/v1/render/ticket?member_id="+ get_tm_memberid() + "&ticket_id=";
        }              
@@ -623,7 +630,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
       var eid = (event_id && (event_id !== null)) ? event_id : '1062';
       var tid = (ticket_id && (ticket_id !== null)) ? ticket_id : '1062.113.Y.11';
       var ticket_data = tid.split(".");
-      return '{\n  "payout_method":"account_credit","expiration_offset":-1440,"is_allow_splits":false,"pricing_model":"fixed",\n  "event":{\n  "event_id":"'+eid+'"\n},"payout_price":{"currency":"USD",\n  "value":4500\n},"seat_descriptions":[{"description":"End Zone seats","required":false}\n],"sections":[{\n  "section_name":"'+ticket_data[1]+'","rows":[{"row_name":"'+ticket_data[2]+'","tickets":[{"ticket_id":"'+tid+'"\n}]}]}]}'
+      return '{\n"payout_method":"account_credit","expiration_offset":-1440,"is_allow_splits":false,"pricing_model":"fixed",\n  "event":{\n  "event_id":"'+eid+'"\n},"payout_price":{"currency":"USD",\n  "value":4500\n},"seat_descriptions":[{"description":"End Zone seats","required":false}\n],"sections":[{\n  "section_name":"'+ticket_data[1]+'","rows":[{"row_name":"'+ticket_data[2]+'","tickets":[{"ticket_id":"'+tid+'"\n}]}]}]}'
     }
 
     

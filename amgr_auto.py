@@ -244,7 +244,11 @@ def get_tmall_helperresponse(url = None, req_headers = None):
                         if ticket['can_resale'] != False:
                           resp['posting_ticket_id'] = ticket['ticket_id']
                           resp['posting_event_id'] = key['event_id']
-                      if resp.get('transfer_ticket_id') and resp.get('posting_ticket_id'):    
+                          continue
+                      if resp.get('render_ticket_id') == None:    
+                        if ticket['can_render'] != False:
+                          resp['render_ticket_id'] = ticket['ticket_id']
+                      if resp.get('transfer_ticket_id') and resp.get('posting_ticket_id') and resp.get('render_ticket_id'):    
                         return resp
         return resp
     except requests.exceptions.ConnectionError:  
@@ -446,6 +450,11 @@ def member_getRequ():
                       if ticket['can_resale'] != False:
                         resp['posting_ticket_id'] = ticket['ticket_id']
                         resp['posting_event_id'] = key['event_id']
+                        continue
+                    if resp.get('render_ticket_id') == None:    
+                      if ticket['can_render'] != False:
+                        resp['render_ticket_id'] = ticket['ticket_id']
+                        resp['render_event_id'] = key['event_id']    
               print(resp)
   except :
     pass            
