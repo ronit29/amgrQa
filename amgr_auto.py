@@ -294,20 +294,20 @@ def tm_login():
       }
   req_url =  data['oauthurl']
   try:  
-    oauth_request = s.post(req_url,data= paylod, headers= {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'})
+    oauth_request = s.post(req_url,data= paylod, headers= {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'}) 
+    if oauth_request.status_code == 200:
+      access_token = json.loads(oauth_request.text)['access_token']
+      if access_token:
+        memId_url = req_url + str(access_token)
+        memberid_request = s.get(memId_url)
+        member_id = json.loads(memberid_request.text)['umember_token']
+        oauth_data = {'access_token':access_token,'member_id':member_id}
+        return jsonify(oauth_data)
+    else:
+      s.cookies.clear()
+      s.close()    
   except requests.exceptions.ConnectionError:  
-    pass  
-  if oauth_request.status_code == 200:
-    access_token = json.loads(oauth_request.text)['access_token']
-    if access_token:
-      memId_url = req_url + str(access_token)
-      memberid_request = s.get(memId_url)
-      member_id = json.loads(memberid_request.text)['umember_token']
-      oauth_data = {'access_token':access_token,'member_id':member_id}
-      return jsonify(oauth_data)
-  else:
-    s.cookies.clear()
-    s.close()    
+    pass     
     
 
 
