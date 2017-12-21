@@ -14,7 +14,7 @@ import pymongo
 s = requests.Session()
 app = Flask(__name__)
 CORS(app)
-pymongo_client = MongoClient('127.0.0.1',27017)
+pymongo_client = MongoClient('localhost',27017)
 db = pymongo_client.testdb
 collection  = db.test_collection
 
