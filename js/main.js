@@ -4,8 +4,7 @@ var app = angular.module("myApp", ['ngPrettyJson', 'autoCompleteModule']);
 
 app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) {
     $scope.login_button = "LogIn";
-    $scope.disabled = true;
-    $scope.disab_allbtn = false;
+    $scope.disab_allbtn = true;
     $scope.disp_tmallload = false;
     $scope.disp_dpallload = false;
     if($window.sessionStorage['acct_id'] && (typeof $window.sessionStorage['acct_id'] !== 'undefined'))
@@ -15,6 +14,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
     }
     if($window.sessionStorage['member_id'])
     {
+      $scope.disab_allbtn = false;
       $scope.read_only = true;
       $scope.member_id = $window.sessionStorage['member_id'];
     }
@@ -125,6 +125,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
                 $window.sessionStorage['tm_accesstoken'] = result.data.access_token;
                 $window.sessionStorage['member_id'] = result.data.member_id;
                 $rootScope.member_id = result.data.member_id;
+                 $scope.disab_allbtn = false;
              }
              else{
                 $scope.tlogin_error = true;
@@ -137,10 +138,11 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
       }
      }
     
-    $scope.dpall = function() {
+    $scope.dpAll = function() {
       var execdp = 1;
       $scope.disab_allbtn = true;
       $scope.disp_dpallload = true;
+      $scope.$broadcast('dpall', {dpall_flag: execdp});
     } 
     $scope.tmAll = function() {
       var exectm = 1;

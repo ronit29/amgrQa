@@ -64,7 +64,7 @@ def get_config():
     data = request.json
   try:
     lets_srch = collection.find_one({'url':data['url']})
-  except (pymongo.errors.ConnectionFailure, pymongo.errors.InvalidOperation) as e:
+  except pymongo.errors.InvalidOperation:
       pass   
   if lets_srch is not None:
     pop_id = lets_srch['_id']
