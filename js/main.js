@@ -45,7 +45,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
       if ($scope.login_button == "LogOut") {
          $http({
            method: 'GET',
-           url: "http://localhost:5000/logout",
+           url: "http://127.0.0.1:5000/logout",
            }).then(function(result) {
               sessionStorage.clear();
               $scope.imLoading = false;
@@ -60,7 +60,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
       else{
       $http({
        method: 'POST',
-       url: "http://localhost:5000/drupal/login",
+       url: "http://127.0.0.1:5000/drupal/login",
        data: { "name" : input.name, "password" : input.password, "url" : input.url },
        headers: {'Content-Type': 'application/json'}
        }).then(function(result) {
@@ -83,7 +83,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
 
        $http({
          method: 'POST',
-         url: "http://localhost:5000/saveConfig",
+         url: "http://127.0.0.1:5000/saveConfig",
          data: { "url" : input.url, "dsn" : input.dsn, "uid" : input.uid,
                  "sitename" : input.sitename,"accept" : input.accept,"contenttype" : input.contenttype, 
                  "acceptlanguage" : input.acceptlanguage,"xclient" : input.xclient,"xapikey" : input.xapikey,
