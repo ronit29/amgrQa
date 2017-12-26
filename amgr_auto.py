@@ -14,7 +14,7 @@ import pymongo
 s = requests.Session()
 app = Flask(__name__)
 CORS(app)
-pymongo_client = MongoClient('postmaster.io-media.com',27017)
+pymongo_client = MongoClient('localhost',27017)
 db = pymongo_client.testdb
 collection  = db.test_collection
 
@@ -389,7 +389,7 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run(host='http://postmaster.io-media.com',port=5000)
+    app.run()
 
 
 
