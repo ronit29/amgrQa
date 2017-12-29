@@ -389,7 +389,7 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run('http://flaskapp.io-media.com')
+    app.run(host='34.201.55.113', port=5000)
 
 
 
