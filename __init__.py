@@ -389,7 +389,7 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run(host='34.201.55.113', port=5000)
+    app.run(host='http://postmaster.io-media.com/', port=5000)
 
 
 
