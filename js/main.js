@@ -73,6 +73,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
             $scope.acct_id = '#'+result.data.acct_id;
             $scope.login_button = "LogOut";
             $scope.read_only = true;
+            $scope.dlogin_error = false;
           }else{
            $scope.dlogin_error = true; 
           }
@@ -126,6 +127,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
                 $window.sessionStorage['member_id'] = result.data.member_id;
                 $rootScope.member_id = result.data.member_id;
                  $scope.disab_allbtn = false;
+                 $scope.tlogin_error = false;
              }
              else{
                 $scope.tlogin_error = true;

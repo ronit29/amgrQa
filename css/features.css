@@ -58,6 +58,13 @@ body{
 	left:50%;
 	margin:-35px 0px 0px -35px;
 }
+.frozen_parent
+{
+	position: sticky;
+    width: 100%;
+    left: 0px;
+    top: 0px;
+}
 .login_form
 {
 	float: left;
@@ -123,10 +130,12 @@ body{
     width: 48%;
     height: 100%;
     overflow: scroll;
+    position: relative;
 }
 
 .right
 {
+	position: relative;
 	display: inline-block;
 	border: 1px solid #696969;
 	margin-left: 2%;

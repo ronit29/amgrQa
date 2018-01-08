@@ -171,7 +171,8 @@
        <!-- Output Section -->
        <div ng-controller="drupal" class="bottom_section ng-cloak">
          <div class="left">
-            <div>
+            <div class="frozen_parent">
+             <div>
                 <div class="service_parent">
 		           <div class="dropdown">
 					    <button class="w3-button w3-white dropdown-toggle"  data-toggle="dropdown" ng-disabled="disab_dserv">Drupal Services
@@ -195,10 +196,11 @@
 				   </div>
 		        </div>
 		       <div ng-show="drupal_progress" class="progress-line"></div>
-		    </div> 
-		      <div style="background: #eee;">
+		     </div> 
+		     <div style="background: #eee;">
 		      	<p style="color:#8B008B;" ng-show="drupal_requrl">{{drupal_requrl}}</p>
-		      </div>
+		     </div>
+		    </div>
 		      <div class="postrequest_parent" ng-if="drup_postrequest_disp">
 			      <textarea class="postrequest" ng-model="$parent.drup_postrequest"></textarea> 
 		      </div>
@@ -208,6 +210,7 @@
 	     </div>  
 	     <div class="right">
 	          <div>
+	            <div class="frozen_parent">
 		          <div class="service_parent">
 			           <div class="dropdown">
 						    <button class="w3-button w3-white dropdown-toggle"  data-toggle="dropdown"  ng-disabled="disab_tserv">Tm Services
@@ -231,9 +234,10 @@
 				       </div>
 					</div>
 			        <div ng-show="tm_progress" class="progress-line"></div>
-		      </div>
-		      <div style="background: #eee;">
+		       </div>
+		       <div style="background: #eee;">
 		      	<p style="color:#8B008B;" ng-show="tm_requrl">{{tm_requrl}}</p>
+		       </div>
 		      </div>
 		      <div class="postrequest_parent" ng-if="postrequest_disp">
 			      <textarea class="postrequest" ng-model="$parent.postrequest"></textarea> 
