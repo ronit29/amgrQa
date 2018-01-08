@@ -140,12 +140,12 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
       }
      }
     
-    $scope.dpAll = function() {
-      var execdp = 1;
-      $scope.disab_allbtn = true;
-      $scope.disp_dpallload = true;
-      $scope.$broadcast('dpall', {dpall_flag: execdp});
-    } 
+    // $scope.dpAll = function() {
+    //   var execdp = 1;
+    //   $scope.disab_allbtn = true;
+    //   $scope.disp_dpallload = true;
+    //   $scope.$broadcast('dpall', {dpall_flag: execdp});
+    // } 
     $scope.tmAll = function() {
       var exectm = 1;
       $scope.disab_allbtn = true;
