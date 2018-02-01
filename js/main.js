@@ -27,7 +27,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
       $scope.imLoading = true;
       $http({
          method: 'POST',
-         url: "http://postmaster.io-media.com:5000/getConfig",
+         url: "http://postmasterqa.io-media.com:5000/getConfig",
          data: { "url" : url },
          headers: {'Content-Type': 'application/json'}
          }).then(function(result) {
@@ -45,7 +45,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
       if ($scope.login_button == "LogOut") {
          $http({
            method: 'GET',
-           url: "http://postmaster.io-media.com:5000/logout",
+           url: "http://postmasterqa.io-media.com:5000/logout",
            }).then(function(result) {
               sessionStorage.clear();
               $scope.imLoading = false;
@@ -60,7 +60,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
       else{
       $http({
        method: 'POST',
-       url: "http://postmaster.io-media.com:5000/drupal/login",
+       url: "http://postmasterqa.io-media.com:5000/drupal/login",
        data: { "name" : input.name, "password" : input.password, "url" : input.url },
        headers: {'Content-Type': 'application/json'}
        }).then(function(result) {
@@ -84,7 +84,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
 
        $http({
          method: 'POST',
-         url: "http://postmaster.io-media.com:5000/saveConfig",
+         url: "http://postmasterqa.io-media.com:5000/saveConfig",
          data: { "url" : input.url, "dsn" : input.dsn, "uid" : input.uid,
                  "sitename" : input.sitename,"accept" : input.accept,"contenttype" : input.contenttype, 
                  "acceptlanguage" : input.acceptlanguage,"xclient" : input.xclient,"xapikey" : input.xapikey,
@@ -117,7 +117,7 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
        
       $http({
          method: 'POST',
-         url: "http://postmaster.io-media.com:5000/tm/login",
+         url: "http://postmasterqa.io-media.com:5000/tm/login",
          data: { "name" : input.name, "password" : input.password, "oauthurl" : input.oauthurl,"clientid":input.clientid,"clientsecret":input.clientsecret },
          headers: {'Content-Type': 'application/json'}
          }).then(function(result) {
@@ -289,7 +289,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
        $scope.drupal_progress = true;
        $http({
              method: 'POST',
-             url: "http://postmaster.io-media.com:5000/"+endpoint,
+             url: "http://postmasterqa.io-media.com:5000/"+endpoint,
              data: {"url":$window.sessionStorage["drupal_url"],"api":api,"helper":(is_helper !== null && is_helper[0] ? is_helper[0] : 0),"post_data":post_data},
              headers: {'Content-Type': 'application/json'}
              }).then(function(result) {
@@ -512,7 +512,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
        $scope.tm_progress = true;
        $http({
          method: 'POST',
-         url: "http://postmaster.io-media.com:5000/"+endpoint,
+         url: "http://postmasterqa.io-media.com:5000/"+endpoint,
          data: {'headers':header_data, 'api':api, 'apiurl':$window.sessionStorage['tm_tmapiurl'], 'member_id':$window.sessionStorage['member_id'],"helper":(is_helper !== null && is_helper[0] ? is_helper[0] : 0),"post_data":post_data,"tmall_helper":0},
          headers: {'Content-Type': 'application/json'}
          }).then(function(result) {
@@ -644,7 +644,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
           var getData = function(arrayItem,tm_headers) {
               return $http({
                      method: 'POST',
-                     url: "http://postmaster.io-media.com:5000/"+arrayItem.endpoint,
+                     url: "http://postmasterqa.io-media.com:5000/"+arrayItem.endpoint,
                      data: {'headers':tm_headers, 'api': arrayItem.tm_api , 'apiurl':$window.sessionStorage['tm_tmapiurl'], 'member_id':$window.sessionStorage['member_id'],"helper": 0,"post_data":arrayItem.post_data,'tmall_helper':arrayItem.tmall_helper},
                      headers: {'Content-Type': 'application/json'}
                      }).then(function(result) {
