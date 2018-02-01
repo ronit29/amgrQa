@@ -173,19 +173,19 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
   // List of Drupal Services
     $scope.drupal_services = [ 
         {Name:'User Details',endpoint:'login'},
-        {Name:'api/user-events/listing',endpoint:'drupal/getRequest',api:'api/user-events/listing'},
-        {Name:'api/user-events/summary',endpoint:'drupal/getRequest',api:'api/user-events/summary'},
-        {Name:'api/member/list',endpoint:'drupal/getRequest',api:'api/member/list'},
-        {Name:'api/user-ticket/<eventId>',endpoint:'drupal/getRequest',api:'api/user-ticket'},
-        {Name:'api/transfer-ticket/policy/<eventId>',endpoint:'drupal/getRequest',api:'api/transfer-ticket/policy'},
-        {Name:'api/ticket/transfer',endpoint:'drupal/ticketTransfer',api:'api/ticket/transfer'},
-        {Name:'/api/ticket/multiple-reclaim',endpoint:'drupal/DELETE',api:'/api/ticket/multiple-reclaim'},
-        {Name:'api/invoice/list',endpoint:'drupal/getRequest',api:'api/invoice/list'},
-        {Name:'api/invoice/<invoiceId>/<confId>',endpoint:'drupal/getRequest',api:'api/invoice'},
-        {Name:'api/invoice/plans',endpoint:'drupal/getRequest',api:'api/invoice/plans'},
-        {Name:'api/invoice/plans/<invoiceId>',endpoint:'drupal/getRequest',api:'api/invoice/plans'},
-        {Name:'api/invoice/plans/<invoiceId>/<planId>',endpoint:'drupal/getRequest',api:'api/invoice/plans'},
-        {Name:'api/invoice/cc',endpoint:'drupal/getRequest',api:'api/invoice/cc'},
+        {Name:'api/user-events/listing',endpoint:'drupal/getRequest',api:'api/user-events/listing',helper:'',placeholder1:'',placeholder2:'',helper_url:''},
+        {Name:'api/user-events/summary',endpoint:'drupal/getRequest',api:'api/user-events/summary',helper:'',placeholder1:'',placeholder2:'',helper_url:''},
+        {Name:'api/member/list',endpoint:'drupal/getRequest',api:'api/member/list',helper:'',placeholder1:'',placeholder2:'',helper_url:''},
+        {Name:'api/user-ticket/<eventId>',endpoint:'drupal/getRequest',api:'api/user-ticket',helper:[1],placeholder1:'Event Id',placeholder2:'',helper_url:'api/user-events/listing'},
+        {Name:'api/transfer-ticket/policy/<eventId>',endpoint:'drupal/getRequest',api:'api/transfer-ticket/policy',helper:[1],placeholder1:'Event Id',placeholder2:'',helper_url:'api/user-events/listing'},
+        {Name:'api/ticket/transfer',endpoint:'drupal/ticketTransfer',api:'api/ticket/transfer',helper:'',placeholder1:'',placeholder2:'',helper_url:''},
+        {Name:'/api/ticket/multiple-reclaim',endpoint:'drupal/DELETE',api:'/api/ticket/multiple-reclaim',helper:'',placeholder1:'Ticket Id',placeholder2:'',helper_url:''},
+        {Name:'api/invoice/list',endpoint:'drupal/getRequest',api:'api/invoice/list',helper:'',placeholder1:'',placeholder2:'',helper_url:''},
+        {Name:'api/invoice/<invoiceId>/<confId>',endpoint:'drupal/getRequest',api:'api/invoice',helper:[1,2],placeholder1:'Invoice Id',placeholder2:'Inv Conf Id',helper_url:'api/invoice/list'},
+        {Name:'api/invoice/plans',endpoint:'drupal/getRequest',api:'api/invoice/plans',helper:'',placeholder1:'',placeholder2:'',helper_url:''},
+        {Name:'api/invoice/plans/<invoiceId>',endpoint:'drupal/getRequest',api:'api/invoice/plans',helper:[1],placeholder1:'Invoice Id',placeholder2:'',helper_url:'api/invoice/list'},
+        {Name:'api/invoice/plans/<invoiceId>/<planId>',endpoint:'drupal/getRequest',api:'api/invoice/plans',helper:[1,2],placeholder1:'Invoice Id',placeholder2:'Plan Id',helper_url:'api/invoice/list'},
+        {Name:'api/invoice/cc',endpoint:'drupal/getRequest',api:'api/invoice/cc',helper:'',placeholder1:'',placeholder2:'',helper_url:''},
     ];
     // Drupal getRequest CallBack
     

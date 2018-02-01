@@ -374,8 +374,8 @@ def member_deleteRequest():
     else:
       error_json = {'Status':make_request.status_code, 'tmall_api': data['api'],'output':json.loads(make_request.text), 'requrl':req_url}
       return jsonify(error_json)   
-  except requests.exceptions.ConnectionError:  
-    pass     
+  except requests.exceptions.ConnectionError as e:  
+    return jsonify({'Error':e})        
 
 
 
