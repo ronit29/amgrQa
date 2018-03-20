@@ -22,6 +22,19 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
     $scope.read_only = false;
     $scope.tlogin_error = false;
     $scope.dlogin_error = false;
+    
+    var envs = ['https://tm-am-stg.io-media.com/genesis/','https://tm-am-qa.io-media.com/iomediaqaunitas/'];
+    $scope.autoCompleteEnv = {
+                  minimumChars: 0,
+                  activateOnFocus: true,
+                  data: function (term) {
+                      term = term.toUpperCase();
+                      return _.filter( envs, function (value) {
+                          return value.startsWith(term);
+                      });
+                  }
+               } 
+
 
     $scope.loadconfig = function(url){
       $scope.imLoading = true;
