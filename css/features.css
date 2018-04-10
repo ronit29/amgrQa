@@ -212,6 +212,8 @@ pre
 	font-size: 0.81em!important;
 	line-height: 1.34857!important;
 	background: #fff!important;
+	border: 0px !important;
+	outline: 0px !important;
 }
 .postrequest
 {
@@ -221,7 +223,9 @@ pre
     height: 166px;
 }
 
-
+.panel-group{
+	margin-bottom: 0px !important;
+}
 
 
 .progress-line, .progress-line:before {
