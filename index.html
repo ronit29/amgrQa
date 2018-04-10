@@ -46,7 +46,7 @@
 			               <div class="col-sm-10 col-md-10 col-lg-10" style="padding-right: 0px! important ">
 			                 <div class="field url_input">
 				                 <input type="text" data-attr="{{input.dsn}}" ng-model='input.dsn' class="floatinput w3-input w3-border input_gen" ng-readonly="read_only" auto-complete="autoCompleteEnv">
- +						      	 <label class="floatlabel">Dsn</label>
+ 						      	 <label class="floatlabel">Dsn</label>
 						     </div>   
 					       </div>  
 					       <div class="col-sm-2 col-md-2 col-lg-2">
@@ -197,9 +197,16 @@
 		        </div>
 		       <div ng-show="drupal_progress" class="progress-line"></div>
 		     </div> 
-		     <div style="background: #eee;">
-		      	<p style="color:#8B008B;" ng-show="drupal_requrl">{{drupal_requrl}}</p>
-		     </div>
+		     <div class="panel-group" id="accordion">
+ 			    <div class="panel panel-default">
+ 			      <div class="panel-heading" style="color:#8B008B;" ng-show="drupal_requrl">
+ 			          <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">{{drupal_requrl}}</a>
+ 			      </div>
+ 			      <div id="collapse1" class="panel-collapse collapse">
+ 			        <div class="panel-body"><p json='drupal_reqhead' pretty-json></p></div>
+ 			      </div>
+ 			    </div>
+ 			  </div>
 		    </div>
 		      <div class="postrequest_parent" ng-if="drup_postrequest_disp">
 			      <textarea class="postrequest" ng-model="$parent.drup_postrequest"></textarea> 
@@ -235,9 +242,16 @@
 					</div>
 			        <div ng-show="tm_progress" class="progress-line"></div>
 		       </div>
-		       <div style="background: #eee;">
-		      	<p style="color:#8B008B;" ng-show="tm_requrl">{{tm_requrl}}</p>
-		       </div>
+		       <div class="panel-group" id="accordion">
+ 			    <div class="panel panel-default">
+ 			      <div class="panel-heading" style="color:#8B008B;" ng-show="drupal_requrl">
+ 			          <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">{{tm_requrl}}</a>
+ 			      </div>
+ 			      <div id="collapse1" class="panel-collapse collapse">
+ 			        <div class="panel-body"><p json='tm_reqhead' pretty-json></p></div>
+ 			      </div>
+ 			    </div>
+ 			  </div>
 		      </div>
 		      <div class="postrequest_parent" ng-if="postrequest_disp">
 			      <textarea class="postrequest" ng-model="$parent.postrequest"></textarea> 
