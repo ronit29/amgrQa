@@ -34,10 +34,21 @@ app.controller('index', function($scope ,$rootScope ,$http ,$location ,$window) 
                       });
                   }
                } 
-
-
-    $scope.loadconfig = function(url){
-      $scope.imLoading = true;
+      var envs = ['genesis','unitas'];
+      $scope.autoCompleteEnv = {
+                   minimumChars: 0,
+                   activateOnFocus: true,
+                   data: function (term) {
+                       term = term.toUpperCase();
+                       return _.filter( envs, function (value) {
+                           return value.startsWith(term);
+                       });
+                   }
+                } 
+     $scope.loadconfig = function(dsn){
+       if(dsn == "genesis"){url = "https://tm-am-stg.io-media.com/genesis/";}
+       else if(dsn == "unitas"){url = "https://tm-am-qa.io-media.com/iomediaqaunitas/";}
+       else{url = "https://am.ticketmaster.com/"+dsn+"/";}      $scope.imLoading = true;
       $http({
          method: 'POST',
          url: "http://postmasterqa.io-media.com:5000/getConfig",
@@ -326,11 +337,13 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
                 { 
                   $scope.drupal_requrl = result.data.requrl;
                   $scope.drupal_output = result.data.output;
+                  $scope.drupal_reqhead = result.data.reqhead;
                 }
                },
                function(error) {
                  $scope.drupal_progress = false;
                  $scope.drupal_output = 'Request Failed';
+                 $scope.drupal_reqhead = result.data.reqhead;
            });  
     }
     
@@ -356,6 +369,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
         {Name:'/transfer/policy?event_id=<eventId>',endpoint:'tm/memberRequest',api:"api/v1/transfer/policy?event_id=" },
         {Name:'/invoice/list',endpoint:'tm/invoiceList',api:"invoice_list" },
         {Name:'/invoice/details/<invoice_id>',endpoint:'tm/invoiceList',api:"invoice_details"},
+        {Name:'/invoice/plans',endpoint:'tm/invoiceList',api:"payment_plan_details"},
     ];
     
 
@@ -513,6 +527,12 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
               hitTm_http_request(endpoint, api, inv_paylod); 
            }  
          }
+         if(api == "payment_plan_details") {
+               var inv_paylod = get_tm_invoice_headers();
+               inv_paylod['command1']['cmd'] = api;
+               inv_paylod['command1']['ref'] = "IOM_"+api.toUpperCase();
+               hitTm_http_request(endpoint, api, inv_paylod);   
+         }
        }
        else{
          hitTm_http_request(endpoint, tm_api, get_tm_headers());
@@ -548,10 +568,12 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
             { 
              $scope.tm_requrl = result.data.requrl;
              $scope.tm_output = result.data.output;
+             $scope.tm_reqhead = result.data.reqhead;
             } 
           }, function(error) {
              $scope.tm_progress = false;
              $scope.tm_output = 'Request Failed';
+             $scope.tm_reqhead = result.data.reqhead;
        }); 
     }
 
