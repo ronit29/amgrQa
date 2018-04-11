@@ -550,6 +550,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
          else if(api == 'payment_schedule'){
            hitTm_http_request(endpoint, 'invoice_list', get_tm_invoice_headers(),[1]);
            $scope.tmplaceholder1 = "Invoice Id";
+           $scope.tm_dynamic1 = true;
            $scope.tmplaceholder2 = "Plan Id";
            $scope.goDynamicTm = function()
            {  
