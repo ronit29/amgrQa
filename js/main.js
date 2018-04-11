@@ -371,7 +371,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
         {Name:'/invoice/details/<invoice_id>',endpoint:'tm/invoiceList',api:"invoice_details"},
         {Name:'/invoice/plans',endpoint:'tm/invoiceList',api:"payment_plan_details"},
         {Name:'/invoice/plans/<invoice_id>',endpoint:'tm/invoiceList',api:"get_payment_plans_for_invoice"},
-        {Name:'/invoice/plans/<invoice_id>/<plan_id>',endpoint:'tm/invoiceList',api:"payment_schedule"},
+        {Name:'/invoice/schedule/<invoice_id>/<plan_id>',endpoint:'tm/invoiceList',api:"payment_schedule"},
     ];
     
 
