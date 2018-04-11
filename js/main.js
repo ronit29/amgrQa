@@ -370,6 +370,8 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
         {Name:'/invoice/list',endpoint:'tm/invoiceList',api:"invoice_list" },
         {Name:'/invoice/details/<invoice_id>',endpoint:'tm/invoiceList',api:"invoice_details"},
         {Name:'/invoice/plans',endpoint:'tm/invoiceList',api:"payment_plan_details"},
+        {Name:'/invoice/plans/<invoice_id>',endpoint:'tm/invoiceList',api:"get_payment_plans_for_invoice"},
+        {Name:'/invoice/plans/<invoice_id>/<plan_id>',endpoint:'tm/invoiceList',api:"payment_schedule"},
     ];
     
 
@@ -515,7 +517,7 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
          if(api == 'invoice_list'){
            hitTm_http_request(endpoint, api, get_tm_invoice_headers());
          }
-         if(api == "invoice_details") {
+         else if(api == "invoice_details") {
            hitTm_http_request(endpoint, 'invoice_list', get_tm_invoice_headers(),[1]);
            $scope.tmplaceholder1 = "Invoice Id";
            $scope.goDynamicTm = function()
@@ -527,11 +529,37 @@ app.controller('drupal', function($scope ,$rootScope ,$http ,$window,tmAll) {
               hitTm_http_request(endpoint, api, inv_paylod); 
            }  
          }
-         if(api == "payment_plan_details") {
+        else if(api == "payment_plan_details") {
                var inv_paylod = get_tm_invoice_headers();
                inv_paylod['command1']['cmd'] = api;
                inv_paylod['command1']['ref'] = "IOM_"+api.toUpperCase();
                hitTm_http_request(endpoint, api, inv_paylod);   
+         }
+         else if(api =='get_payment_plans_for_invoice'){
+           hitTm_http_request(endpoint, 'invoice_list', get_tm_invoice_headers(),[1]);
+           $scope.tmplaceholder1 = "Invoice Id";
+           $scope.goDynamicTm = function()
+           {  
+              var inv_paylod = get_tm_invoice_headers();
+              inv_paylod['command1']['cmd'] = api;
+              inv_paylod['command1']['ref'] = "IOM_"+api.toUpperCase();
+              inv_paylod['command1']['invoice_id'] = $scope.tmDynam.one;           
+              hitTm_http_request(endpoint, api, inv_paylod); 
+           }  
+         }
+         else if(api == 'payment_schedule'){
+           hitTm_http_request(endpoint, 'invoice_list', get_tm_invoice_headers(),[1]);
+           $scope.tmplaceholder1 = "Invoice Id";
+           $scope.tmplaceholder2 = "Plan Id";
+           $scope.goDynamicTm = function()
+           {  
+              var inv_paylod = get_tm_invoice_headers();
+              inv_paylod['command1']['cmd'] = api;
+              inv_paylod['command1']['ref'] = "IOM_"+api.toUpperCase();
+              inv_paylod['command1']['invoice_id'] = $scope.tmDynam.one;           
+              inv_paylod['command1']['payment_plan_id'] = $scope.tmDynam.two;           
+              hitTm_http_request(endpoint, api, inv_paylod); 
+           } 
          }
        }
        else{
