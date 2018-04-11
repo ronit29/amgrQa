@@ -271,7 +271,7 @@ def tm_invoiceList():
       if data['helper'] == 1:
           helper_res = getHelperResponse(invoiceList_request.text, data['api'])
           return jsonify(helper_res)
-      return jsonify({'Status':invoiceList_request.status_code,'tmall_api': data['api'],'requrl':get_tm_req_param(data['headers'],data['headers']['command1']['dsn'])['url'],'output':json.loads(invoiceList_request.text),'reqhead': get_tm_req_param(data['headers'])['headers']})    
+      return jsonify({'Status':invoiceList_request.status_code,'tmall_api': data['api'],'requrl':get_tm_req_param(data['headers'],data['headers']['command1']['dsn'])['url'],'output':json.loads(invoiceList_request.text),'reqhead':data['headers']})    
     else:
       error_json = {'Status':invoiceList_request.status_code,'tmall_api': data['api'], 'output':json.loads(invoiceList_request.text),'requrl':get_tm_req_param(data['headers'],data['headers']['command1']['dsn'])['url']}
       return jsonify(error_json)    
